@@ -380,26 +380,26 @@ export default function Home() {
               </a>
             </div>
 
-            {/* 10 Category Cards without circular icon badges */}
+            {/* 10 Category Cards properly aligned with high clarity */}
             <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
               {categories.map((cat) => (
                 <div
                   key={cat.id}
-                  className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 sm:p-2.5 flex flex-col items-center justify-between min-h-[145px] sm:min-h-[160px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
+                  className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 sm:p-2.5 flex flex-col items-center justify-between h-[160px] sm:h-[175px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
                 >
-                  {/* Top: Product Visual - Zoomed and prominently sized */}
-                  <div className="w-full h-24 sm:h-28 flex items-center justify-center pt-2 pb-0.5">
+                  {/* Top: Product Visual - Perfectly centered with high clarity */}
+                  <div className="w-full h-24 sm:h-26 flex items-center justify-center pt-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={cat.prodImg}
                       alt={cat.name.replace('\n', ' ')}
-                      className="w-full h-full object-contain scale-110 group-hover:scale-120 transition-transform duration-300 select-none drop-shadow-2xs"
+                      className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300 select-none drop-shadow-2xs"
                     />
                   </div>
 
-                  {/* Bottom: Crisp Real HTML Typography */}
-                  <div className="w-full pt-1 pb-1.5 flex items-center justify-center">
-                    <span className="text-[11px] sm:text-xs font-bold text-gray-900 leading-tight text-center whitespace-pre-line tracking-tight">
+                  {/* Bottom: Crisp Real HTML Typography - Perfectly baseline-aligned */}
+                  <div className="w-full h-9 pb-1 flex items-center justify-center">
+                    <span className="text-[11px] sm:text-[12px] font-bold text-gray-900 leading-[1.2] text-center whitespace-pre-line tracking-tight">
                       {cat.name}
                     </span>
                   </div>
