@@ -13,6 +13,7 @@ import {
   CreditCard,
   Headphones,
   Plus,
+  Minus,
   Check,
   ShoppingBag,
   Leaf,
@@ -24,18 +25,80 @@ import {
   Package,
   Smile,
   LayoutGrid,
+  X,
+  Trash2,
 } from 'lucide-react';
 import { Hero } from '../components/Hero';
 
 export default function Home() {
-  const [cartCount, setCartCount] = useState(0);
-  const [selectedLocation, setSelectedLocation] = useState('Hyderabad');
-  const [addedItem, setAddedItem] = useState<string | null>(null);
+  // Dynamic Cart state: itemId -> quantity
+  const [cartItems, setCartItems] = useState<Record<string, number>>({});
+  // Wishlist state: itemId -> boolean
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+  // Interactive UI panels
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  // Feedback
+  const [addedItem, setAddedItem] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 2500);
+  };
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleAddToCart = (id: string) => {
+    setCartItems((prev) => ({
+      ...prev,
+      [id]: (prev[id] || 0) + 1,
+    }));
+    setAddedItem(id);
+    const item = essentials.find((e) => e.id === id);
+    showToast(`Added ${item?.name || 'item'} to cart 🛒`);
+    setTimeout(() => setAddedItem(null), 1200);
+  };
+
+  const updateCartQuantity = (id: string, delta: number) => {
+    setCartItems((prev) => {
+      const current = prev[id] || 0;
+      const next = current + delta;
+      if (next <= 0) {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      }
+      return { ...prev, [id]: next };
+    });
+  };
+
+  const removeCartItem = (id: string) => {
+    setCartItems((prev) => {
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
+    });
+    showToast('Item removed from cart');
+  };
 
   const toggleWishlist = (id: string) => {
-    setWishlist((prev) => ({ ...prev, [id]: !prev[id] }));
+    setWishlist((prev) => {
+      const willLike = !prev[id];
+      const item = essentials.find((e) => e.id === id);
+      showToast(willLike ? `Saved ${item?.name || 'item'} to favorites ❤️` : `Removed from favorites`);
+      return { ...prev, [id]: willLike };
+    });
   };
+
+  const totalCartCount = Object.values(cartItems).reduce((sum, q) => sum + q, 0);
+  const totalWishlistCount = Object.values(wishlist).filter(Boolean).length;
 
   const categories = [
     {
@@ -253,12 +316,6 @@ export default function Home() {
     },
   ];
 
-  const handleAddToCart = (id: string) => {
-    setCartCount((prev) => prev + 1);
-    setAddedItem(id);
-    setTimeout(() => setAddedItem(null), 1200);
-  };
-
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
       {/* Top Navigation Bar */}
@@ -283,29 +340,82 @@ export default function Home() {
               >
                 Home
               </a>
-              <button className="flex items-center gap-1 text-gray-700 hover:text-[#1D7A34] transition-colors">
-                <span>Categories</span>
-                <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
-              </button>
-              <a href="#" className="text-gray-700 hover:text-[#1D7A34] transition-colors">
+
+              {/* Dynamic Categories Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsCategoriesOpen((prev) => !prev)}
+                  className={`flex items-center gap-1.5 transition-colors font-medium px-3 py-1.5 rounded-full ${
+                    isCategoriesOpen
+                      ? 'text-[#1D7A34] bg-[#EAF5EC]'
+                      : 'text-gray-700 hover:text-[#1D7A34] hover:bg-gray-50'
+                  }`}
+                >
+                  <span>Categories</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      isCategoriesOpen ? 'rotate-180 text-[#1D7A34]' : 'text-gray-500'
+                    }`}
+                  />
+                </button>
+
+                {/* Categories Dropdown Menu */}
+                {isCategoriesOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setIsCategoriesOpen(false)}
+                    />
+                    <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-50 grid grid-cols-1 gap-1 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="px-3 py-1.5 border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                        All Categories
+                      </div>
+                      <div className="max-h-[380px] overflow-y-auto space-y-0.5 py-1">
+                        {categories.map((cat) => {
+                          const CatIcon = cat.icon;
+                          return (
+                            <button
+                              key={cat.id}
+                              onClick={() => {
+                                setIsCategoriesOpen(false);
+                                scrollToSection('categories');
+                              }}
+                              className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors text-left group/item w-full"
+                            >
+                              <div
+                                className={`w-8 h-8 rounded-lg bg-gradient-to-b ${cat.bgGradient} flex items-center justify-center shrink-0 border ${cat.borderColor}`}
+                              >
+                                <CatIcon className={`w-4 h-4 ${cat.iconColor}`} />
+                              </div>
+                              <span className="text-xs font-semibold text-gray-800 group-hover/item:text-[#1D7A34] transition-colors leading-tight">
+                                {cat.name.replace('\n', ' ')}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Offers link - Smooth scrolls directly to Diwali Offers banner */}
+              <button
+                onClick={() => scrollToSection('diwali-offers')}
+                className="text-gray-700 hover:text-[#1D7A34] transition-colors font-medium cursor-pointer"
+              >
                 Offers
-              </a>
+              </button>
+
               <a href="#" className="text-gray-700 hover:text-[#1D7A34] transition-colors">
                 About
               </a>
             </nav>
           </div>
 
-          {/* Right Action Items */}
-          <div className="flex items-center gap-4 sm:gap-5">
-            {/* Location Selector */}
-            <button className="flex items-center gap-1.5 text-xs sm:text-[13px] font-medium text-gray-800 bg-white border border-gray-200/90 rounded-full px-3 py-1.5 hover:border-gray-300 transition-all shadow-2xs">
-              <MapPin className="w-3.5 h-3.5 text-[#1D7A34]" />
-              <span>{selectedLocation}</span>
-              <ChevronDown className="w-3 h-3 text-gray-500" />
-            </button>
-
-            {/* Icons: Search, User, Cart */}
+          {/* Right Action Items (Location Removed) */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Search */}
             <button
               aria-label="Search"
               className="p-1.5 text-gray-700 hover:text-[#1D7A34] hover:bg-gray-50 rounded-full transition-colors"
@@ -313,6 +423,26 @@ export default function Home() {
               <Search className="w-5 h-5" strokeWidth={1.8} />
             </button>
 
+            {/* Favourites / Wishlist Button */}
+            <button
+              onClick={() => setIsWishlistOpen(true)}
+              aria-label="Favourites"
+              className="relative p-1.5 text-gray-700 hover:text-red-500 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
+            >
+              <Heart
+                className={`w-5 h-5 transition-colors ${
+                  totalWishlistCount > 0 ? 'fill-red-500 text-red-500' : ''
+                }`}
+                strokeWidth={1.8}
+              />
+              {totalWishlistCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center animate-in zoom-in">
+                  {totalWishlistCount}
+                </span>
+              )}
+            </button>
+
+            {/* User Account */}
             <button
               aria-label="Account"
               className="p-1.5 text-gray-700 hover:text-[#1D7A34] hover:bg-gray-50 rounded-full transition-colors"
@@ -320,14 +450,18 @@ export default function Home() {
               <User className="w-5 h-5" strokeWidth={1.8} />
             </button>
 
+            {/* Dynamic Shopping Cart Button */}
             <button
+              onClick={() => setIsCartOpen(true)}
               aria-label="Shopping Cart"
-              className="relative p-1.5 text-gray-700 hover:text-[#1D7A34] hover:bg-gray-50 rounded-full transition-colors"
+              className="relative p-1.5 text-gray-700 hover:text-[#1D7A34] hover:bg-gray-50 rounded-full transition-colors cursor-pointer"
             >
               <ShoppingCart className="w-5 h-5" strokeWidth={1.8} />
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#1D7A34] text-white text-[10px] font-bold flex items-center justify-center">
-                {cartCount}
-              </span>
+              {totalCartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#1D7A34] text-white text-[10px] font-bold flex items-center justify-center animate-in zoom-in">
+                  {totalCartCount}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -349,7 +483,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h4 className="text-xs sm:text-[13px] font-bold text-gray-900">Fast Delivery</h4>
-                  <p className="text-[11px] text-gray-500">Across {selectedLocation}</p>
+                  <p className="text-[11px] text-gray-500">Superfast Doorstep Service</p>
                 </div>
               </div>
 
@@ -389,8 +523,11 @@ export default function Home() {
           </section>
         </div>
 
-        {/* 2. Full Bleed Diwali Offers Banner (Complete Left End to Right End of Page, Square Type) */}
-        <section className="w-full bg-gradient-to-r from-[#3C0764] via-[#6B21A8]/90 via-45% via-purple-200/50 via-75% to-transparent my-6 sm:my-8 rounded-none shadow-xs">
+        {/* 2. Full Bleed Diwali Offers Banner (Targeted by Navbar Offers button) */}
+        <section
+          id="diwali-offers"
+          className="w-full bg-gradient-to-r from-[#3C0764] via-[#6B21A8]/90 via-45% via-purple-200/50 via-75% to-transparent my-6 sm:my-8 rounded-none shadow-xs scroll-mt-20"
+        >
           <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-10">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
               {/* Left Side: On Dark Purple background with crisp high-contrast white & gold */}
@@ -616,6 +753,266 @@ export default function Home() {
           </section>
         </div>
       </main>
+
+      {/* ================= DYNAMIC SHOPPING CART DRAWER ================= */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsCartOpen(false)}
+          />
+
+          {/* Drawer content */}
+          <div className="relative z-50 w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-250">
+            {/* Header */}
+            <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5 text-[#137A2C]" />
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                  Your Cart ({totalCartCount})
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Cart Items List */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3">
+              {totalCartCount === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center py-12 text-gray-400">
+                  <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-3 text-gray-300">
+                    <ShoppingCart className="w-8 h-8" />
+                  </div>
+                  <p className="text-base font-semibold text-gray-800">Your cart is empty</p>
+                  <p className="text-xs text-gray-500 mt-1 max-w-xs">
+                    Explore daily essentials and festival offers to fill your cart.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setIsCartOpen(false);
+                      scrollToSection('categories');
+                    }}
+                    className="mt-4 px-5 py-2 rounded-full bg-[#137A2C] text-white text-xs font-bold hover:bg-[#0F6323] transition-colors cursor-pointer"
+                  >
+                    Start Shopping
+                  </button>
+                </div>
+              ) : (
+                Object.entries(cartItems).map(([id, qty]) => {
+                  const item = essentials.find((e) => e.id === id);
+                  if (!item) return null;
+                  const unitPrice = parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0;
+
+                  return (
+                    <div
+                      key={id}
+                      className="flex items-center gap-3 p-3 rounded-2xl border border-gray-100 bg-[#FAFAFA] hover:bg-white hover:shadow-xs transition-all"
+                    >
+                      {/* Image */}
+                      <div className="w-14 h-14 bg-white rounded-xl border border-gray-100 p-1 flex items-center justify-center shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.img}
+                          alt={item.name}
+                          className="max-h-full max-w-full object-contain"
+                        />
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs font-bold text-gray-900 truncate">
+                          {item.name}
+                        </h4>
+                        <p className="text-[11px] text-gray-400">{item.pack}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs font-extrabold text-gray-900">
+                            ₹{unitPrice * qty}
+                          </span>
+                          <span className="text-[10px] text-gray-400">
+                            (₹{unitPrice} each)
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Quantity Controls */}
+                      <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg p-0.5 shrink-0">
+                        <button
+                          onClick={() => updateCartQuantity(id, -1)}
+                          className="w-6 h-6 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="text-xs font-bold text-gray-900 min-w-4 text-center">
+                          {qty}
+                        </span>
+                        <button
+                          onClick={() => updateCartQuantity(id, 1)}
+                          className="w-6 h-6 flex items-center justify-center text-[#137A2C] hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+
+                      {/* Delete */}
+                      <button
+                        onClick={() => removeCartItem(id)}
+                        className="p-1 text-gray-300 hover:text-red-500 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Footer Summary */}
+            {totalCartCount > 0 && (
+              <div className="p-4 sm:p-5 border-t border-gray-100 bg-white space-y-3">
+                <div className="space-y-1.5 text-xs text-gray-600">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span className="font-semibold text-gray-900">
+                      ₹{Object.entries(cartItems).reduce((sum, [id, qty]) => {
+                        const item = essentials.find((e) => e.id === id);
+                        if (!item) return sum;
+                        const num = parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0;
+                        return sum + num * qty;
+                      }, 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Delivery Fee</span>
+                    <span className="text-[#137A2C] font-semibold">FREE</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
+                    <span>Total Amount</span>
+                    <span className="text-base text-[#137A2C]">
+                      ₹{Object.entries(cartItems).reduce((sum, [id, qty]) => {
+                        const item = essentials.find((e) => e.id === id);
+                        if (!item) return sum;
+                        const num = parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0;
+                        return sum + num * qty;
+                      }, 0)}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    showToast('Order placed successfully! 🎉');
+                    setCartItems({});
+                    setIsCartOpen(false);
+                  }}
+                  className="w-full py-3 rounded-full bg-[#137A2C] hover:bg-[#0F6323] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all cursor-pointer"
+                >
+                  Proceed to Checkout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ================= DYNAMIC WISHLIST / FAVOURITES DRAWER ================= */}
+      {isWishlistOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsWishlistOpen(false)}
+          />
+
+          <div className="relative z-50 w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-250">
+            <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white">
+              <div className="flex items-center gap-2">
+                <Heart className="w-5 h-5 fill-red-500 text-red-500" />
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                  Your Favourites ({totalWishlistCount})
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsWishlistOpen(false)}
+                className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3">
+              {totalWishlistCount === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center py-12 text-gray-400">
+                  <div className="w-16 h-16 rounded-full bg-rose-50 flex items-center justify-center mb-3 text-rose-300">
+                    <Heart className="w-8 h-8" />
+                  </div>
+                  <p className="text-base font-semibold text-gray-800">No favourites yet</p>
+                  <p className="text-xs text-gray-500 mt-1 max-w-xs">
+                    Click the heart icon on any product to save it to your favourites.
+                  </p>
+                </div>
+              ) : (
+                Object.keys(wishlist)
+                  .filter((id) => wishlist[id])
+                  .map((id) => {
+                    const item = essentials.find((e) => e.id === id);
+                    if (!item) return null;
+
+                    return (
+                      <div
+                        key={id}
+                        className="flex items-center gap-3 p-3 rounded-2xl border border-gray-100 bg-[#FAFAFA] hover:bg-white hover:shadow-xs transition-all"
+                      >
+                        <div className="w-14 h-14 bg-white rounded-xl border border-gray-100 p-1 flex items-center justify-center shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={item.img}
+                            alt={item.name}
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-bold text-gray-900 truncate">
+                            {item.name}
+                          </h4>
+                          <p className="text-[11px] text-gray-400">{item.pack}</p>
+                          <span className="text-xs font-extrabold text-gray-900 mt-1 inline-block">
+                            {item.price}
+                          </span>
+                        </div>
+
+                        <button
+                          onClick={() => handleAddToCart(id)}
+                          className="px-3 py-1.5 rounded-lg bg-[#137A2C] text-white text-xs font-bold hover:bg-[#0F6323] transition-colors shrink-0 cursor-pointer"
+                        >
+                          Add
+                        </button>
+
+                        <button
+                          onClick={() => toggleWishlist(id)}
+                          className="p-1 text-red-500 hover:text-gray-400 transition-colors cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= FLOATING TOAST NOTIFICATION ================= */}
+      {toastMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900/95 text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }
