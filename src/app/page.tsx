@@ -210,12 +210,12 @@ export default function Home() {
           </section>
 
 
-          {/* 2. Diwali Promotional Offers Banner (Light Purple Shade & Transparent) */}
-          <section className="my-4 sm:my-6">
-            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-purple-50/70 via-fuchsia-50/30 to-purple-50/50 border border-purple-100/80">
-              {/* Subtle light purple ambient glow */}
-              <div className="absolute top-0 right-1/4 w-80 h-80 bg-purple-200/30 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-fuchsia-200/25 rounded-full blur-2xl pointer-events-none" />
+          {/* 2. Diwali Promotional Offers (Seamless, Transparent Shaped Shade - No Box) */}
+          <section className="relative my-3 sm:my-5">
+            {/* Organic Soft Shaped Shade in background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-100/50 via-fuchsia-100/30 to-purple-50/20 rounded-[40px] blur-2xl -z-10" />
+
+            <div className="relative rounded-[32px] sm:rounded-[40px] bg-gradient-to-r from-purple-50/50 via-purple-50/20 to-transparent">
 
               <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center px-6 py-6 sm:px-8 sm:py-7 lg:py-8">
                 {/* Left Side: Client-Attractive Content & Diwali Offers */}
