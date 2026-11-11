@@ -380,39 +380,31 @@ export default function Home() {
               </a>
             </div>
 
-            {/* 10 Category Cards matching reference design */}
+            {/* 10 Category Cards without circular icon badges */}
             <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
-              {categories.map((cat) => {
-                const IconComponent = cat.icon;
-                return (
-                  <div
-                    key={cat.id}
-                    className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 sm:p-2.5 flex flex-col items-center justify-between min-h-[175px] sm:min-h-[190px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
-                  >
-                    {/* Top 60%: Product Visual */}
-                    <div className="w-full h-20 sm:h-22 flex items-center justify-center pt-1">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={cat.prodImg}
-                        alt={cat.name.replace('\n', ' ')}
-                        className="max-h-full max-w-full object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
-                      />
-                    </div>
-
-                    {/* Middle: Floating Circular Icon Badge */}
-                    <div className="w-8 h-8 rounded-full bg-white shadow-xs border border-gray-100 flex items-center justify-center -mt-2.5 mb-1.5 shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200">
-                      <IconComponent className={`w-4 h-4 ${cat.iconColor}`} strokeWidth={2.2} />
-                    </div>
-
-                    {/* Bottom: Crisp Real HTML Typography */}
-                    <div className="w-full pb-1 flex items-center justify-center">
-                      <span className="text-[11px] sm:text-xs font-bold text-gray-900 leading-tight text-center whitespace-pre-line tracking-tight">
-                        {cat.name}
-                      </span>
-                    </div>
+              {categories.map((cat) => (
+                <div
+                  key={cat.id}
+                  className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2.5 sm:p-3 flex flex-col items-center justify-between min-h-[160px] sm:min-h-[175px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
+                >
+                  {/* Top: Product Visual */}
+                  <div className="w-full flex-1 flex items-center justify-center py-1">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={cat.prodImg}
+                      alt={cat.name.replace('\n', ' ')}
+                      className="max-h-24 sm:max-h-26 w-auto max-w-full object-contain group-hover:scale-110 transition-transform duration-300 select-none drop-shadow-2xs"
+                    />
                   </div>
-                );
-              })}
+
+                  {/* Bottom: Crisp Real HTML Typography */}
+                  <div className="w-full pt-1.5 pb-0.5 flex items-center justify-center">
+                    <span className="text-[11px] sm:text-xs font-bold text-gray-900 leading-tight text-center whitespace-pre-line tracking-tight">
+                      {cat.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
 
