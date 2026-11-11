@@ -210,7 +210,70 @@ export default function Home() {
           </section>
 
 
-          {/* 3. Section: Shop by Category */}
+          {/* 2. Diwali Promotional Offers Banner */}
+          <section className="my-4 sm:my-6">
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#4E061E] via-[#750C31] to-[#450519] border border-amber-500/20 shadow-lg">
+              {/* Subtle ambient decorative glows */}
+              <div className="absolute top-0 right-1/4 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
+
+              <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center px-6 py-6 sm:px-8 sm:py-7 lg:py-8">
+                {/* Left Side: Client-Attractive Content & Diwali Offers */}
+                <div className="md:col-span-7 flex flex-col items-start justify-center text-left space-y-3 sm:space-y-4">
+                  {/* Festive Tag */}
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-300/30 text-amber-300 text-xs font-semibold tracking-wide shadow-2xs">
+                    <span>🪔</span>
+                    <span>Diwali Special Offers</span>
+                  </div>
+
+                  {/* Main Headline */}
+                  <h3 className="text-2xl sm:text-3xl lg:text-[34px] font-extrabold text-white leading-tight tracking-tight">
+                    Buy Groceries with{' '}
+                    <span className="text-amber-400 drop-shadow-sm">Diwali Offers!</span>
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm sm:text-base text-rose-100/90 leading-relaxed max-w-xl">
+                    Up to <span className="text-amber-300 font-bold">30% OFF</span> on Groceries, Pooja Essentials &amp; Home Care. Stock up your festive kitchen with pure ingredients and guaranteed lowest prices.
+                  </p>
+
+                  {/* Client Attractive Highlights */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
+                      ⚡ 30-Min Fast Delivery
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
+                      🎁 Free Diya on Orders ₹499+
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
+                      ✨ Extra ₹100 OFF on 1st Order
+                    </span>
+                  </div>
+
+                  {/* CTA Button */}
+                  <div className="pt-2">
+                    <a
+                      href="#categories"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-[#750C31] hover:bg-amber-50 font-bold text-sm sm:text-base shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-98 transition-all duration-200"
+                    >
+                      <span>Shop Diwali Deals</span>
+                      <ArrowRight className="w-4 h-4 text-[#750C31]" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Right Side: Uploaded Product & Festive Image */}
+                <div className="md:col-span-5 flex items-center justify-center lg:justify-end">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/diwali-offer-products.png"
+                    alt="Diwali Grocery Offers & Up to 30% OFF"
+                    className="w-full max-w-[440px] h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
           <section id="categories" className="py-6 sm:py-8">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg sm:text-xl font-bold text-gray-900">Shop by Category</h2>
