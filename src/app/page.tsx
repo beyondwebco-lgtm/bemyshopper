@@ -14,6 +14,16 @@ import {
   Headphones,
   Plus,
   Check,
+  ShoppingBag,
+  Leaf,
+  Flame,
+  Sparkles,
+  Heart,
+  Coffee,
+  Utensils,
+  Package,
+  Smile,
+  LayoutGrid,
 } from 'lucide-react';
 import { Hero } from '../components/Hero';
 
@@ -23,16 +33,96 @@ export default function Home() {
   const [addedItem, setAddedItem] = useState<string | null>(null);
 
   const categories = [
-    { id: 'groceries', name: 'Groceries', cardImg: '/images/category-card-groceries.png' },
-    { id: 'fruits-veg', name: 'Fruits &\nVegetables', cardImg: '/images/category-card-fruits-veg.png' },
-    { id: 'puja-items', name: 'Puja Items', cardImg: '/images/category-card-puja-items.png' },
-    { id: 'cleaning', name: 'Cleaning\nEssentials', cardImg: '/images/category-card-cleaning.png' },
-    { id: 'personal-care', name: 'Personal\nCare', cardImg: '/images/category-card-personal-care.png' },
-    { id: 'snacks', name: 'Snacks &\nBeverages', cardImg: '/images/category-card-snacks.png' },
-    { id: 'home-kitchen', name: 'Home &\nKitchen', cardImg: '/images/category-card-home-kitchen.png' },
-    { id: 'paper', name: 'Paper &\nDisposables', cardImg: '/images/category-card-paper.png' },
-    { id: 'baby-care', name: 'Baby Care', cardImg: '/images/category-card-baby-care.png' },
-    { id: 'more', name: 'More', cardImg: '/images/category-card-more.png' },
+    {
+      id: 'groceries',
+      name: 'Groceries',
+      prodImg: '/images/cat-prod-groceries.png',
+      icon: ShoppingBag,
+      iconColor: 'text-emerald-700',
+      bgGradient: 'from-[#FFF8E7] via-[#FFF3D6] to-[#FFEEC4]',
+      borderColor: 'border-amber-200/60',
+    },
+    {
+      id: 'fruits-veg',
+      name: 'Fruits &\nVegetables',
+      prodImg: '/images/cat-prod-fruits-veg.png',
+      icon: Leaf,
+      iconColor: 'text-emerald-600',
+      bgGradient: 'from-[#EBF7EE] via-[#DCF6E2] to-[#CEF2D6]',
+      borderColor: 'border-emerald-200/60',
+    },
+    {
+      id: 'puja-items',
+      name: 'Puja Items',
+      prodImg: '/images/cat-prod-puja-items.png',
+      icon: Flame,
+      iconColor: 'text-orange-500',
+      bgGradient: 'from-[#FFF4EA] via-[#FFEAD9] to-[#FFDEC4]',
+      borderColor: 'border-orange-200/60',
+    },
+    {
+      id: 'cleaning',
+      name: 'Cleaning\nEssentials',
+      prodImg: '/images/cat-prod-cleaning.png',
+      icon: Sparkles,
+      iconColor: 'text-sky-600',
+      bgGradient: 'from-[#EDF6FF] via-[#DBEEFF] to-[#C9E4FF]',
+      borderColor: 'border-blue-200/60',
+    },
+    {
+      id: 'personal-care',
+      name: 'Personal\nCare',
+      prodImg: '/images/cat-prod-personal-care.png',
+      icon: Heart,
+      iconColor: 'text-purple-600',
+      bgGradient: 'from-[#F7EFFF] via-[#EFE2FF] to-[#E5D2FF]',
+      borderColor: 'border-purple-200/60',
+    },
+    {
+      id: 'snacks',
+      name: 'Snacks &\nBeverages',
+      prodImg: '/images/cat-prod-snacks.png',
+      icon: Coffee,
+      iconColor: 'text-amber-600',
+      bgGradient: 'from-[#FFF8ED] via-[#FFEECF] to-[#FFE3AF]',
+      borderColor: 'border-amber-200/60',
+    },
+    {
+      id: 'home-kitchen',
+      name: 'Home &\nKitchen',
+      prodImg: '/images/cat-prod-home-kitchen.png',
+      icon: Utensils,
+      iconColor: 'text-indigo-600',
+      bgGradient: 'from-[#EFF6FF] via-[#E2EDFF] to-[#D0E2FF]',
+      borderColor: 'border-indigo-200/60',
+    },
+    {
+      id: 'paper',
+      name: 'Paper &\nDisposables',
+      prodImg: '/images/cat-prod-paper.png',
+      icon: Package,
+      iconColor: 'text-teal-600',
+      bgGradient: 'from-[#EDFAF1] via-[#DCF5E4] to-[#C8EFD3]',
+      borderColor: 'border-emerald-200/60',
+    },
+    {
+      id: 'baby-care',
+      name: 'Baby Care',
+      prodImg: '/images/cat-prod-baby-care.png',
+      icon: Smile,
+      iconColor: 'text-rose-500',
+      bgGradient: 'from-[#FFF0F4] via-[#FFE0E8] to-[#FFD0DC]',
+      borderColor: 'border-rose-200/60',
+    },
+    {
+      id: 'more',
+      name: 'More',
+      prodImg: '/images/cat-prod-more.png',
+      icon: LayoutGrid,
+      iconColor: 'text-purple-600',
+      bgGradient: 'from-[#F7EFFF] via-[#ECE0FC] to-[#DFCEFA]',
+      borderColor: 'border-purple-200/60',
+    },
   ];
 
   const essentials = [
@@ -292,19 +382,37 @@ export default function Home() {
 
             {/* 10 Category Cards matching reference design */}
             <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
-              {categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  className="group relative rounded-2xl sm:rounded-[20px] overflow-hidden shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer bg-white"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={cat.cardImg}
-                    alt={cat.name.replace('\n', ' ')}
-                    className="w-full h-auto object-cover rounded-2xl sm:rounded-[20px] group-hover:scale-105 transition-transform duration-300 select-none"
-                  />
-                </div>
-              ))}
+              {categories.map((cat) => {
+                const IconComponent = cat.icon;
+                return (
+                  <div
+                    key={cat.id}
+                    className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 sm:p-2.5 flex flex-col items-center justify-between min-h-[175px] sm:min-h-[190px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
+                  >
+                    {/* Top 60%: Product Visual */}
+                    <div className="w-full h-20 sm:h-22 flex items-center justify-center pt-1">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={cat.prodImg}
+                        alt={cat.name.replace('\n', ' ')}
+                        className="max-h-full max-w-full object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
+                      />
+                    </div>
+
+                    {/* Middle: Floating Circular Icon Badge */}
+                    <div className="w-8 h-8 rounded-full bg-white shadow-xs border border-gray-100 flex items-center justify-center -mt-2.5 mb-1.5 shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200">
+                      <IconComponent className={`w-4 h-4 ${cat.iconColor}`} strokeWidth={2.2} />
+                    </div>
+
+                    {/* Bottom: Crisp Real HTML Typography */}
+                    <div className="w-full pb-1 flex items-center justify-center">
+                      <span className="text-[11px] sm:text-xs font-bold text-gray-900 leading-tight text-center whitespace-pre-line tracking-tight">
+                        {cat.name}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
 
