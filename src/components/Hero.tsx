@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
+  HeartHandshake,
 } from 'lucide-react';
 
 export const Hero: React.FC = () => {
@@ -118,6 +119,40 @@ export const Hero: React.FC = () => {
       tagBadge: 'Up to 25% Off',
       imageSrc: '/images/hero-cleaning.png',
       imageAlt: 'Be My Shopper Cleaning & Home Care Products',
+      imageClass: 'max-h-[300px] sm:max-h-[340px] lg:max-h-[380px] w-auto max-w-[92%]',
+    },
+    {
+      id: 'personal-care',
+      badge: "Bapatla's Own Shopping Platform",
+      titleLine1: 'Personal Care & Hygiene',
+      titleLine2Prefix: 'for ',
+      titleLine2Highlight: 'the Whole Family',
+      sparkle: true,
+      description: 'Soaps, shampoos, toothpaste, baby care and everyday hygiene essentials.',
+      ctaText: 'Shop Now',
+      ctaLink: '#categories',
+      ratingText: '4.96/5',
+      ordersText: 'Top Personal & Baby Care',
+      popularChips: [
+        { label: '🧼 Dove & Bath Bars', link: '#categories' },
+        { label: '🧴 Pantene & Shampoos', link: '#categories' },
+        { label: '👶 Himalaya Baby Care', link: '#categories' },
+      ],
+      floatingBadge1: {
+        icon: HeartHandshake,
+        gradient: 'from-pink-500 to-rose-400',
+        title: 'Gentle & Dermatested',
+        subtitle: 'Safe for All Ages',
+      },
+      floatingBadge2: {
+        icon: Zap,
+        gradient: 'from-emerald-600 to-teal-500',
+        title: '30-Min Delivery',
+        subtitle: 'Doorstep Care Supplies',
+      },
+      tagBadge: 'Family Care Deals',
+      imageSrc: '/images/hero-personal-care.png',
+      imageAlt: 'Be My Shopper Personal Care & Hygiene Products',
       imageClass: 'max-h-[300px] sm:max-h-[340px] lg:max-h-[380px] w-auto max-w-[92%]',
     },
   ];
