@@ -15,7 +15,6 @@ import {
   Plus,
   Home as HomeIcon,
   Check,
-  Sparkles,
 } from 'lucide-react';
 
 export default function Home() {
@@ -193,30 +192,28 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Column: Highly Attractive Client Canvas (Image removed, background prepared) */}
+            {/* Right Column: Exact Green Shade Backdrop from Reference */}
             <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[520px] h-[280px] sm:h-[320px] rounded-[32px] bg-gradient-to-br from-[#E6F5EA] via-[#F2FAF4] to-[#DEF3E4] border border-[#CDEBD4] shadow-sm flex items-center justify-center overflow-hidden transition-all group">
-                {/* Multi-layered soft organic ambient glow */}
-                <div className="absolute -top-14 -right-14 w-56 h-56 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-teal-200/35 rounded-full blur-2xl pointer-events-none" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/60 via-transparent to-transparent pointer-events-none" />
+              <div className="relative w-full max-w-[530px] h-[290px] sm:h-[330px]">
+                {/* Organic decorative leafy sprig on the left edge exactly like reference */}
+                <div className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 pointer-events-none drop-shadow-xs">
+                  <svg width="46" height="60" viewBox="0 0 46 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M40 50C40 50 26 44 18 34C10 22 14 8 14 8C14 8 24 14 28 24C32 34 40 50 40 50Z" fill="#78AD14"/>
+                    <path d="M20 36C20 36 10 34 5 26C0 18 4 6 4 6C4 6 12 10 16 18C20 26 20 36 20 36Z" fill="#8EBE24"/>
+                    <path d="M30 44C30 44 18 42 12 50C6 58 10 60 10 60C10 60 20 58 24 52C28 46 30 44 30 44Z" fill="#669410"/>
+                    <path d="M42 54C34 46 22 34 14 8" stroke="#557C0E" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </div>
 
-                {/* Subtle organic floating leaf accents */}
-                <div className="absolute top-6 right-8 text-2xl select-none opacity-80 filter drop-shadow-xs">🌿</div>
-                <div className="absolute bottom-6 left-8 text-xl select-none opacity-70 filter drop-shadow-xs">🍃</div>
-                <div className="absolute top-8 left-12 text-sm select-none opacity-40">✨</div>
+                {/* The exact green shade container from reference */}
+                <div className="w-full h-full rounded-[28px] sm:rounded-[32px] bg-[#EAF7EE] border border-[#DCF1E3] relative overflow-hidden flex items-center justify-center shadow-xs">
+                  {/* Subtle layered soft pastel green gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-[#E3F5E7] via-[#EAF7EE] to-[#E1F3E6]" />
+                  
+                  {/* Gentle radial highlight */}
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/35 via-transparent to-transparent pointer-events-none" />
 
-                {/* Center placeholder ready for user image */}
-                <div className="relative z-10 text-center px-6 py-8">
-                  <div className="w-14 h-14 rounded-2xl bg-white/90 border border-emerald-200/80 shadow-xs flex items-center justify-center mx-auto mb-3 text-[#137A2C] group-hover:scale-105 transition-transform">
-                    <Sparkles className="w-6 h-6 text-[#137A2C]" />
-                  </div>
-                  <h3 className="text-sm font-bold text-gray-900 tracking-tight">
-                    Client-Attractive Canvas Ready
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto leading-relaxed">
-                    Background colors and organic lighting are set. Upload your image and it will be placed right here.
-                  </p>
+                  {/* Ready to receive your image */}
                 </div>
               </div>
             </div>
