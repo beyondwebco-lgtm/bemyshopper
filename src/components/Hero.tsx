@@ -182,7 +182,7 @@ export const Hero: React.FC = () => {
     <section
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="relative w-full overflow-hidden bg-gradient-to-b from-[#F5FAF6] via-[#EEF8F1] to-[#E5F5E8] rounded-b-[36px] sm:rounded-b-[48px] border-b border-[#CEEAD6] min-h-[500px] lg:h-[530px] flex items-center shadow-xs group/hero"
+      className="relative w-full overflow-hidden bg-gradient-to-b from-[#F5FAF6] via-[#EEF8F1] to-[#E5F5E8] rounded-none border-b border-[#CEEAD6] min-h-[500px] lg:h-[530px] flex items-center shadow-xs group/hero"
     >
       {/* ================= DYNAMIC GRAPHICAL BACKGROUND SHADING ================= */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden -z-0">
