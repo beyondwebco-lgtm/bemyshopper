@@ -23,16 +23,16 @@ export default function Home() {
   const [addedItem, setAddedItem] = useState<string | null>(null);
 
   const categories = [
-    { id: 'groceries', name: 'Groceries', icon: '/images/caticon-groceries.png' },
-    { id: 'fruits-veg', name: 'Fruits &\nVegetables', icon: '/images/caticon-fruits-vegetables.png' },
-    { id: 'puja-items', name: 'Puja Items', icon: '/images/caticon-puja-items.png' },
-    { id: 'cleaning', name: 'Cleaning\nEssentials', icon: '/images/caticon-cleaning-essentials.png' },
-    { id: 'personal-care', name: 'Personal\nCare', icon: '/images/caticon-personal-care.png' },
-    { id: 'snacks', name: 'Snacks &\nBeverages', icon: '/images/caticon-snacks-beverages.png' },
-    { id: 'home-kitchen', name: 'Home &\nKitchen', icon: '/images/caticon-home-kitchen.png' },
-    { id: 'paper', name: 'Paper &\nDisposables', icon: '/images/caticon-paper-disposables.png' },
-    { id: 'baby-care', name: 'Baby Care', icon: '/images/caticon-baby-care.png' },
-    { id: 'more', name: 'More', icon: '/images/caticon-more.png' },
+    { id: 'groceries', name: 'Groceries', cardImg: '/images/category-card-groceries.png' },
+    { id: 'fruits-veg', name: 'Fruits &\nVegetables', cardImg: '/images/category-card-fruits-veg.png' },
+    { id: 'puja-items', name: 'Puja Items', cardImg: '/images/category-card-puja-items.png' },
+    { id: 'cleaning', name: 'Cleaning\nEssentials', cardImg: '/images/category-card-cleaning.png' },
+    { id: 'personal-care', name: 'Personal\nCare', cardImg: '/images/category-card-personal-care.png' },
+    { id: 'snacks', name: 'Snacks &\nBeverages', cardImg: '/images/category-card-snacks.png' },
+    { id: 'home-kitchen', name: 'Home &\nKitchen', cardImg: '/images/category-card-home-kitchen.png' },
+    { id: 'paper', name: 'Paper &\nDisposables', cardImg: '/images/category-card-paper.png' },
+    { id: 'baby-care', name: 'Baby Care', cardImg: '/images/category-card-baby-care.png' },
+    { id: 'more', name: 'More', cardImg: '/images/category-card-more.png' },
   ];
 
   const essentials = [
@@ -273,34 +273,36 @@ export default function Home() {
 
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           <section id="categories" className="py-6 sm:py-8">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Shop by Category</h2>
+            {/* Header: Shop by Category with Sparkle \ | / and Pill Button */}
+            <div className="flex items-center justify-between mb-5 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#142333] flex items-center gap-1.5 tracking-tight">
+                <span>Shop by Category</span>
+                <span className="text-amber-500 font-extrabold text-xl select-none align-middle tracking-wider ml-1">
+                  \ | /
+                </span>
+              </h2>
               <a
                 href="#"
-                className="text-xs sm:text-sm font-semibold text-[#137A2C] hover:underline flex items-center gap-1"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF5EC] hover:bg-[#D8EEDF] text-[#137A2C] text-xs sm:text-[13px] font-semibold transition-colors shadow-2xs"
               >
                 <span>View All Categories</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3.5 h-3.5 text-[#137A2C]" />
               </a>
             </div>
 
+            {/* 10 Category Cards matching reference design */}
             <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
               {categories.map((cat) => (
                 <div
                   key={cat.id}
-                  className="group bg-[#F8F9FA] hover:bg-white hover:shadow-md border border-gray-100 hover:border-[#137A2C]/20 rounded-2xl p-2.5 sm:p-3 text-center flex flex-col items-center justify-between transition-all cursor-pointer min-h-[110px]"
+                  className="group relative rounded-2xl sm:rounded-[20px] overflow-hidden shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer bg-white"
                 >
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={cat.icon}
-                      alt={cat.name}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <span className="text-[11px] sm:text-xs font-semibold text-gray-800 leading-tight whitespace-pre-line mt-1">
-                    {cat.name}
-                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={cat.cardImg}
+                    alt={cat.name.replace('\n', ' ')}
+                    className="w-full h-auto object-cover rounded-2xl sm:rounded-[20px] group-hover:scale-105 transition-transform duration-300 select-none"
+                  />
                 </div>
               ))}
             </div>
