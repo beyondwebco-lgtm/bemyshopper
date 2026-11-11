@@ -31,6 +31,11 @@ export default function Home() {
   const [cartCount, setCartCount] = useState(0);
   const [selectedLocation, setSelectedLocation] = useState('Hyderabad');
   const [addedItem, setAddedItem] = useState<string | null>(null);
+  const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+
+  const toggleWishlist = (id: string) => {
+    setWishlist((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const categories = [
     {
@@ -128,39 +133,63 @@ export default function Home() {
   const essentials = [
     {
       id: 'surf-excel',
-      name: 'Surf Excel Detergent (1 kg)',
+      name: 'Surf Excel Detergent Powder',
+      pack: '1 kg',
       img: '/images/prod-surf-excel.png',
-      price: '₹140',
+      price: '₹349',
+      originalPrice: '₹399',
+      discount: 'Save 13%',
+      badge: { text: 'Bestseller', icon: '👑', color: 'bg-[#48BB78] text-white' },
     },
     {
       id: 'vim-dishwash',
-      name: 'Vim Dishwash Liquid (750 ml)',
+      name: 'Vim Dishwash Liquid',
+      pack: '750 ml',
       img: '/images/prod-vim-dishwash.png',
-      price: '₹115',
+      price: '₹135',
+      originalPrice: '₹145',
+      discount: 'Save 7%',
+      badge: null,
     },
     {
       id: 'ambica-agarbatti',
-      name: 'Ambica Kadilu Agarbatti',
+      name: 'Ambica Durbar Bathi (Agarbathi)',
+      pack: 'Pack of 5',
       img: '/images/prod-ambica-agarbatti.png',
-      price: '₹65',
+      price: '₹89',
+      originalPrice: '₹99',
+      discount: 'Save 10%',
+      badge: null,
     },
     {
       id: 'rice-5kg',
-      name: 'Rice (5 kg)',
+      name: 'Rice',
+      pack: '5 kg',
       img: '/images/prod-rice-5kg.png',
-      price: '₹290',
+      price: '₹329',
+      originalPrice: '₹349',
+      discount: 'Save 6%',
+      badge: null,
     },
     {
       id: 'toilet-tissue',
-      name: 'Toilet Tissue Roll (4 pcs)',
+      name: 'Toilet Tissue Roll (3 Ply)',
+      pack: 'Pack of 4',
       img: '/images/prod-toilet-tissue.png',
-      price: '₹120',
+      price: '₹149',
+      originalPrice: '₹165',
+      discount: 'Save 10%',
+      badge: null,
     },
     {
       id: 'nandini-ghee',
-      name: 'Nandini Ghee (500 ml)',
+      name: 'Nandini Ghee',
+      pack: '500 ml',
       img: '/images/prod-nandini-ghee.png',
-      price: '₹310',
+      price: '₹289',
+      originalPrice: '₹320',
+      discount: 'Save 10%',
+      badge: { text: 'Trending', icon: '🔥', color: 'bg-[#FED7AA] text-[#C2410C]' },
     },
   ];
 
@@ -408,56 +437,121 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 4. Section: Top Essentials for You */}
-          <section className="py-4 pb-16">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Top Essentials for You</h2>
-              <a
-                href="#"
-                className="text-xs sm:text-sm font-semibold text-[#137A2C] hover:underline flex items-center gap-1"
-              >
-                <span>View All</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </a>
+          {/* 4. Section: Top Essentials */}
+          <section className="py-6 sm:py-8 pb-16">
+            {/* Header: Green icon, Title, Sparkle \ | /, Subtitle */}
+            <div className="flex items-center gap-3.5 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-[#EAF5EC] flex items-center justify-center text-[#137A2C] shrink-0 shadow-2xs">
+                <ShoppingBag className="w-5 h-5 text-[#137A2C]" strokeWidth={2.2} />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-[#142333] flex items-center gap-1.5 leading-tight">
+                  <span>Top Essentials</span>
+                  <span className="text-[#137A2C] font-extrabold text-lg select-none ml-0.5">\ | /</span>
+                </h2>
+                <p className="text-xs sm:text-[13px] text-gray-500 font-normal mt-0.5">
+                  Your daily needs, always in stock
+                </p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {essentials.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white border border-gray-100 hover:border-gray-200 rounded-2xl p-3 shadow-2xs hover:shadow-md transition-all flex items-center justify-between gap-2.5"
-                >
-                  {/* Item Thumbnail */}
-                  <div className="w-12 h-14 shrink-0 flex items-center justify-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.img}
-                      alt={item.name}
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
+            {/* 6 Responsive Grid Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+              {essentials.map((item) => {
+                const isLiked = !!wishlist[item.id];
+                const isAdded = addedItem === item.id;
 
-                  {/* Item Details */}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-bold text-gray-800 leading-snug line-clamp-2">
-                      {item.name}
-                    </h4>
-                  </div>
-
-                  {/* Add to Cart Button */}
-                  <button
-                    onClick={() => handleAddToCart(item.id)}
-                    aria-label={`Add ${item.name}`}
-                    className="w-6 h-6 rounded-full bg-[#137A2C] hover:bg-[#0F6323] text-white flex items-center justify-center shrink-0 shadow-xs hover:scale-110 active:scale-95 transition-all"
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-2xl border border-gray-100 hover:border-gray-200/90 shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-3 sm:p-3.5 flex flex-col justify-between relative group"
                   >
-                    {addedItem === item.id ? (
-                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                    ) : (
-                      <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                    )}
-                  </button>
-                </div>
-              ))}
+                    {/* Top Row: Badge & Wishlist Heart */}
+                    <div className="flex items-center justify-between h-5 mb-1">
+                      {item.badge ? (
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1 leading-none shadow-2xs ${item.badge.color}`}
+                        >
+                          <span>{item.badge.icon}</span>
+                          <span>{item.badge.text}</span>
+                        </span>
+                      ) : (
+                        <div />
+                      )}
+
+                      <button
+                        onClick={() => toggleWishlist(item.id)}
+                        aria-label="Save to Wishlist"
+                        className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                      >
+                        <Heart
+                          className={`w-4 h-4 transition-transform duration-200 hover:scale-110 ${
+                            isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'
+                          }`}
+                          strokeWidth={2}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Product Image: High Clarity, Centered with soft backdrop */}
+                    <div className="w-full h-32 sm:h-36 flex items-center justify-center p-1.5 my-1">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.img}
+                        alt={item.name}
+                        className="max-h-full max-w-full object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
+                      />
+                    </div>
+
+                    {/* Product Details */}
+                    <div className="w-full pt-1">
+                      <h4 className="text-xs sm:text-[13px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[34px]">
+                        {item.name}
+                      </h4>
+                      <p className="text-[11px] text-gray-400 font-medium mt-0.5">
+                        {item.pack}
+                      </p>
+
+                      {/* Pricing & Discount */}
+                      <div className="flex items-center justify-between mt-2 pt-0.5">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-sm sm:text-base font-extrabold text-gray-900">
+                            {item.price}
+                          </span>
+                          <span className="text-[11px] text-gray-400 line-through">
+                            {item.originalPrice}
+                          </span>
+                        </div>
+                        <span className="text-[10px] sm:text-[11px] font-bold text-[#137A2C] bg-[#EAF5EC] px-1.5 py-0.5 rounded-md">
+                          {item.discount}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Full Width Add to Cart Button */}
+                    <button
+                      onClick={() => handleAddToCart(item.id)}
+                      className={`w-full mt-3 py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 ${
+                        isAdded
+                          ? 'bg-[#0E5C21] text-white'
+                          : 'bg-[#137A2C] hover:bg-[#0F6323] text-white'
+                      }`}
+                    >
+                      {isAdded ? (
+                        <>
+                          <Check className="w-4 h-4 stroke-[2.5]" />
+                          <span>Added</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="w-4 h-4 stroke-[2]" />
+                          <span>Add to Cart</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </section>
         </div>
