@@ -155,7 +155,7 @@ export default function Home() {
       </header>
 
       <main>
-        {/* Hero Section (Updated as per BE MY SHOPPER specifications) */}
+        {/* Auto-scrolling Hero Carousel */}
         <Hero />
 
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
@@ -206,6 +206,21 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </section>
+
+          {/* Promotional Offer Banner (Diwali Special Offers - Placed above Shop by Category) */}
+          <section className="pt-6 pb-2 sm:pt-8 sm:pb-3">
+            <a
+              href="#categories"
+              className="group block relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 border border-amber-200/50"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/offer-banner-diwali.jpg"
+                alt="Diwali Special Offers - Buy Groceries with Diwali Offers! Up to 30% OFF on Groceries, Pooja Essentials & Home Care"
+                className="w-full h-auto object-cover group-hover:scale-[1.01] transition-transform duration-300 select-none"
+              />
+            </a>
           </section>
 
           {/* Section: Shop by Category */}
