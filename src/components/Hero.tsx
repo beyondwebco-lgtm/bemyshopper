@@ -5,19 +5,70 @@ import { ArrowRight, Home as HomeIcon, Zap, Sparkles, Star, ShieldCheck } from '
 
 export const Hero: React.FC = () => {
   return (
-    <section className="relative w-full overflow-hidden bg-gradient-to-r from-[#F4FAF6] via-[#EDF8F1] to-[#E2F4E7] border-b border-[#D8EFE0] min-h-[500px] lg:h-[530px] flex items-center">
-      {/* Background Multi-Layer Ambient Depth */}
-      <div className="absolute inset-0 pointer-events-none -z-0">
-        {/* Soft sunlit warm highlight on top-center */}
-        <div className="absolute top-0 left-1/3 w-[600px] h-[350px] bg-gradient-to-b from-white/70 via-white/30 to-transparent blur-2xl" />
+    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#F5FAF6] via-[#EEF8F1] to-[#E5F5E8] rounded-b-[36px] sm:rounded-b-[48px] border-b border-[#CEEAD6] min-h-[500px] lg:h-[530px] flex items-center shadow-xs">
+      
+      {/* ================= DYNAMIC GRAPHICAL BACKGROUND SHADING (ORGANIC WAVES & DEPTH) ================= */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-0">
+        
+        {/* Top-Left Warm Sunlit Aura */}
+        <div className="absolute -top-32 -left-20 w-[560px] h-[480px] rounded-full bg-gradient-to-br from-[#FFF8E7]/90 via-[#EAF7ED]/80 to-transparent blur-3xl" />
 
-        {/* Luminous emerald glow centered behind products on the right */}
-        <div className="absolute top-1/2 -translate-y-1/2 right-12 w-[480px] h-[480px] rounded-full bg-radial from-[#CEECD3]/80 via-[#DDF3E3]/40 to-transparent blur-2xl" />
+        {/* Dynamic Sweeping Organic Curved Graphic (Breaks the rectangle look) */}
+        <svg
+          className="absolute -right-6 sm:-right-12 top-0 w-[80%] sm:w-[68%] lg:w-[60%] h-[120%] pointer-events-none"
+          viewBox="0 0 750 620"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            {/* Primary Rich Emerald-Mint Wave Gradient */}
+            <linearGradient id="richGreenWave" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#C4F2CF" stopOpacity="0.85" />
+              <stop offset="45%" stopColor="#DCF6E3" stopOpacity="0.9" />
+              <stop offset="85%" stopColor="#B3EABE" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#9DE4AC" stopOpacity="0.75" />
+            </linearGradient>
 
-        {/* Subtle decorative background organic shape */}
-        <div className="absolute -bottom-16 right-0 w-[58%] h-[120%] bg-gradient-to-tl from-[#D4F1DB]/50 via-transparent to-transparent rounded-tl-[160px]" />
+            {/* Secondary Soft Ambient Wave */}
+            <linearGradient id="innerWave" x1="15%" y1="100%" x2="85%" y2="0%">
+              <stop offset="0%" stopColor="#E6F8EB" stopOpacity="0.95" />
+              <stop offset="55%" stopColor="#CDF2D6" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#FFF8E8" stopOpacity="0.65" />
+            </linearGradient>
+
+            {/* Central Luminous Sunlit Spotlight */}
+            <radialGradient id="productSpotlight" cx="62%" cy="48%" r="48%">
+              <stop offset="0%" stopColor="#C2F0CD" stopOpacity="0.9" />
+              <stop offset="50%" stopColor="#D5F4DE" stopOpacity="0.55" />
+              <stop offset="90%" stopColor="#EAF7EE" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#EAF7EE" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+
+          {/* Outer Organic Flowing Wave */}
+          <path
+            d="M170 0C290 140 110 310 230 460C320 570 520 600 750 620V0H170Z"
+            fill="url(#richGreenWave)"
+          />
+
+          {/* Inner Layered Curve for rich visual depth */}
+          <path
+            d="M260 0C360 170 210 340 320 480C410 580 570 605 750 620V0H260Z"
+            fill="url(#innerWave)"
+          />
+
+          {/* Radial Spotlight behind product collage */}
+          <circle cx="480" cy="310" r="260" fill="url(#productSpotlight)" />
+        </svg>
+
+        {/* Ambient Organic Floating Color Spheres */}
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full bg-[#B2EFC2]/45 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-8 right-16 w-[420px] h-[340px] rounded-full bg-[#A2E6B4]/35 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full bg-[#FFF5D6]/30 blur-2xl pointer-events-none" />
       </div>
 
+      {/* ================= CONTENT CONTAINER ================= */}
       <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center relative z-10 py-8 lg:py-0">
         <div className="flex flex-col lg:flex-row items-center justify-between h-full w-full gap-8 lg:gap-0">
           
@@ -55,7 +106,7 @@ export const Hero: React.FC = () => {
               </a>
 
               {/* Social Proof Pill */}
-              <div className="flex items-center gap-2 text-xs text-gray-700 bg-white/70 backdrop-blur-xs px-3.5 py-2 rounded-full border border-gray-200/70 w-fit shadow-2xs">
+              <div className="flex items-center gap-2 text-xs text-gray-700 bg-white/80 backdrop-blur-xs px-3.5 py-2 rounded-full border border-gray-200/80 w-fit shadow-2xs">
                 <div className="flex text-amber-500">
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
@@ -96,7 +147,7 @@ export const Hero: React.FC = () => {
           <div className="w-full lg:w-[52%] relative h-full min-h-[380px] sm:min-h-[440px] lg:min-h-[500px] flex items-end justify-center lg:justify-end">
             
             {/* Floating Trust Badge 1: 30-Min Fast Delivery (Top-Left of product collage) */}
-            <div className="absolute top-4 sm:top-8 left-2 sm:left-4 z-20 bg-white/95 backdrop-blur-md border border-emerald-100/90 rounded-2xl px-3.5 py-2.5 shadow-lg shadow-emerald-950/5 flex items-center gap-2.5 animate-in fade-in transition-transform hover:scale-105 cursor-pointer">
+            <div className="absolute top-4 sm:top-8 left-2 sm:left-4 z-20 bg-white/95 backdrop-blur-md border border-emerald-100/90 rounded-2xl px-3.5 py-2.5 shadow-lg shadow-emerald-950/5 flex items-center gap-2.5 transition-transform hover:scale-105 cursor-pointer">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shrink-0 shadow-xs">
                 <Zap className="w-4 h-4 fill-white" />
               </div>
