@@ -385,20 +385,20 @@ export default function Home() {
               {categories.map((cat) => (
                 <div
                   key={cat.id}
-                  className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2.5 sm:p-3 flex flex-col items-center justify-between min-h-[160px] sm:min-h-[175px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
+                  className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 sm:p-2.5 flex flex-col items-center justify-between min-h-[145px] sm:min-h-[160px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
                 >
-                  {/* Top: Product Visual */}
-                  <div className="w-full flex-1 flex items-center justify-center py-1">
+                  {/* Top: Product Visual - Zoomed and prominently sized */}
+                  <div className="w-full h-24 sm:h-28 flex items-center justify-center pt-2 pb-0.5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={cat.prodImg}
                       alt={cat.name.replace('\n', ' ')}
-                      className="max-h-24 sm:max-h-26 w-auto max-w-full object-contain group-hover:scale-110 transition-transform duration-300 select-none drop-shadow-2xs"
+                      className="w-full h-full object-contain scale-110 group-hover:scale-120 transition-transform duration-300 select-none drop-shadow-2xs"
                     />
                   </div>
 
                   {/* Bottom: Crisp Real HTML Typography */}
-                  <div className="w-full pt-1.5 pb-0.5 flex items-center justify-center">
+                  <div className="w-full pt-1 pb-1.5 flex items-center justify-center">
                     <span className="text-[11px] sm:text-xs font-bold text-gray-900 leading-tight text-center whitespace-pre-line tracking-tight">
                       {cat.name}
                     </span>
