@@ -160,7 +160,7 @@ export default function Home() {
 
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           
-          {/* 1. Value Proposition Features Strip (Placed TOP to Diwali Offers as requested) */}
+          {/* 1. Value Proposition Features Strip (Placed TOP to Diwali Offers) */}
           <section className="py-5 sm:py-6 border-t border-b border-gray-100 my-4 sm:my-5">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               {/* 1. Fast Delivery */}
@@ -209,17 +209,17 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 2. High Clarity Promotional Diwali Offer Banner */}
-          <section className="pt-2 pb-6 sm:pb-8">
+          {/* 2. Smaller, Leaner & High-Clarity Diwali Offer Banner */}
+          <section className="pt-1 pb-5 sm:pb-6 flex justify-center">
             <a
               href="#categories"
-              className="group block relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 border border-amber-200/50"
+              className="group block relative w-full max-w-[800px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 border border-amber-200/40"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/offer-banner-diwali.jpg"
                 alt="Diwali Special Offers - Buy Groceries with Diwali Offers! Up to 30% OFF on Groceries, Pooja Essentials & Home Care"
-                className="w-full h-auto object-contain rounded-2xl sm:rounded-3xl select-none group-hover:scale-[1.006] transition-transform duration-300"
+                className="w-full h-auto object-contain rounded-2xl sm:rounded-3xl select-none group-hover:scale-[1.004] transition-transform duration-300"
               />
             </a>
           </section>
