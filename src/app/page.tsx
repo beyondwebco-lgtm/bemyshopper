@@ -19,7 +19,7 @@ import { Hero } from '../components/Hero';
 
 export default function Home() {
   const [cartCount, setCartCount] = useState(0);
-  const [selectedLocation, setSelectedLocation] = useState('Bapatla');
+  const [selectedLocation, setSelectedLocation] = useState('Hyderabad');
   const [addedItem, setAddedItem] = useState<string | null>(null);
 
   const categories = [
@@ -159,8 +159,23 @@ export default function Home() {
         <Hero />
 
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          {/* Promotional Offer Banner (Slim, Slick Diwali Special Banner exactly as in mockup) */}
+          <section className="pt-5 sm:pt-6 pb-1">
+            <a
+              href="#categories"
+              className="group block relative w-full rounded-[18px] sm:rounded-[22px] overflow-hidden shadow-2xs hover:shadow-md transition-all duration-300"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/offer-banner-slick.png"
+                alt="Diwali Special Offers - Buy Groceries with Diwali Offers! Up to 30% OFF on Groceries, Pooja Essentials & Home Care. Shop Diwali Deals"
+                className="w-full h-auto max-h-[115px] sm:max-h-[135px] lg:max-h-[148px] object-cover sm:object-contain object-center rounded-[18px] sm:rounded-[22px] select-none group-hover:scale-[1.004] transition-transform duration-300"
+              />
+            </a>
+          </section>
+
           {/* Value Proposition Strip (4 items) */}
-          <section className="py-6 border-t border-b border-gray-100">
+          <section className="py-5 sm:py-6 border-t border-b border-gray-100 my-2">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               {/* 1. Fast Delivery */}
               <div className="flex items-center gap-3">
@@ -169,7 +184,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h4 className="text-xs sm:text-[13px] font-bold text-gray-900">Fast Delivery</h4>
-                  <p className="text-[11px] text-gray-500">Across Bapatla</p>
+                  <p className="text-[11px] text-gray-500">Across {selectedLocation}</p>
                 </div>
               </div>
 
@@ -208,23 +223,8 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Promotional Offer Banner (Diwali Special Offers - Placed above Shop by Category) */}
-          <section className="pt-6 pb-2 sm:pt-8 sm:pb-3">
-            <a
-              href="#categories"
-              className="group block relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 border border-amber-200/50"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/offer-banner-diwali.jpg"
-                alt="Diwali Special Offers - Buy Groceries with Diwali Offers! Up to 30% OFF on Groceries, Pooja Essentials & Home Care"
-                className="w-full h-auto object-cover group-hover:scale-[1.01] transition-transform duration-300 select-none"
-              />
-            </a>
-          </section>
-
           {/* Section: Shop by Category */}
-          <section id="categories" className="py-8 sm:py-10">
+          <section id="categories" className="py-7 sm:py-9">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg sm:text-xl font-bold text-gray-900">Shop by Category</h2>
               <a
