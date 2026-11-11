@@ -209,17 +209,26 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 2. Smaller, Leaner & High-Clarity Diwali Offer Banner */}
-          <section className="pt-1 pb-5 sm:pb-6 flex justify-center">
+          {/* 2. Promotional Campaign Banner (100% content width, 6:1 desktop aspect ratio, 16px radius) */}
+          <section className="w-full py-2 sm:py-3">
             <a
               href="#categories"
-              className="group block relative w-full max-w-[800px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 border border-amber-200/40"
+              className="group block relative w-full rounded-[16px] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300"
             >
+              {/* Desktop Banner: 1920x320 px (6:1 aspect ratio), 100% width, height auto */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/offer-banner-diwali.jpg"
-                alt="Diwali Special Offers - Buy Groceries with Diwali Offers! Up to 30% OFF on Groceries, Pooja Essentials & Home Care"
-                className="w-full h-auto object-contain rounded-2xl sm:rounded-3xl select-none group-hover:scale-[1.004] transition-transform duration-300"
+                src="/images/offer-banner-desktop.png"
+                alt="Diwali Special Offers - Buy Groceries with Diwali Offers! Up to 30% OFF"
+                className="hidden md:block w-full h-auto aspect-[6/1] object-cover rounded-[16px] select-none group-hover:scale-[1.005] transition-transform duration-300"
+              />
+
+              {/* Mobile Banner: Full visibility without awkward cropping */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/offer-banner-mobile.jpg"
+                alt="Diwali Special Offers - Buy Groceries with Diwali Offers! Up to 30% OFF"
+                className="block md:hidden w-full h-auto object-contain rounded-[16px] select-none"
               />
             </a>
           </section>
