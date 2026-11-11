@@ -1,0 +1,18 @@
+# BeMyShopper Project Specification
+
+Project Name: BeMyShopper
+Directory: /Users/neelamvishwanatham/Documents/bemyshopper
+Type: On-Demand Grocery & Personal Errand Service Website
+Framework: Next.js 16 + React 19 + TypeScript + Tailwind CSS
+
+Core Capabilities:
+- Local Store Catalog & Aisles
+- Live Shopping Cart with Out-of-Stock Substitution Rules
+- Custom Errand & Pickup Concierge
+- Live Shopper Tracking & In-Aisle Messaging Simulation
+- Shopper Partner Recruitment
+
+Commands:
+- Run dev server: npm run dev
+- Build production: npm run build
+- Start production: npm start
