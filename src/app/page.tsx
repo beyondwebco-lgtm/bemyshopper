@@ -406,13 +406,13 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Offers link - Smooth scrolls directly to Diwali Offers banner */}
-              <button
-                onClick={() => scrollToSection('diwali-offers')}
+              {/* Offers link */}
+              <Link
+                href="/offers"
                 className="text-gray-700 hover:text-[#1D7A34] transition-colors font-medium cursor-pointer"
               >
                 Offers
-              </button>
+              </Link>
 
               <Link
                 href="/about"
@@ -574,13 +574,13 @@ export default function Home() {
 
                 {/* CTA Button */}
                 <div className="pt-2">
-                  <a
-                    href="#categories"
+                  <Link
+                    href="/offers"
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-[#3C0764] hover:bg-amber-50 font-bold text-sm sm:text-base shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-98 transition-all duration-200"
                   >
                     <span>Shop Diwali Deals</span>
                     <ArrowRight className="w-4 h-4 text-[#3C0764]" />
-                  </a>
+                  </Link>
                 </div>
               </div>
 
@@ -802,12 +802,12 @@ export default function Home() {
                   </button>
                 </li>
                 <li>
-                  <button
-                    onClick={() => scrollToSection('diwali-offers')}
-                    className="hover:text-[#137A2C] transition-colors cursor-pointer"
+                  <Link
+                    href="/offers"
+                    className="hover:text-[#137A2C] transition-colors"
                   >
                     Diwali Offers
-                  </button>
+                  </Link>
                 </li>
                 <li>
                   <button
