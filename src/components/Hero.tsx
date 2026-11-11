@@ -50,6 +50,7 @@ export const Hero: React.FC = () => {
       tagBadge: 'Fresh Deals Today',
       imageSrc: '/images/hero-products.png',
       imageAlt: 'Be My Shopper Daily Essentials Collage',
+      imageClass: 'max-h-[330px] sm:max-h-[380px] lg:max-h-[420px] w-auto max-w-full',
     },
     {
       id: 'pooja',
@@ -83,6 +84,7 @@ export const Hero: React.FC = () => {
       tagBadge: 'Pooja Specials',
       imageSrc: '/images/hero-pooja.png',
       imageAlt: 'Be My Shopper Pooja Essentials Collage',
+      imageClass: 'max-h-[270px] sm:max-h-[310px] lg:max-h-[350px] w-auto max-w-[85%]',
     },
   ];
 
@@ -247,7 +249,7 @@ export const Hero: React.FC = () => {
                     </div>
 
                     {/* ================= RIGHT IMAGE & FLOATING BADGES (52% Width) ================= */}
-                    <div className="w-full lg:w-[52%] relative h-full min-h-[380px] sm:min-h-[440px] lg:min-h-[500px] flex items-end justify-center lg:justify-end">
+                    <div className="w-full lg:w-[52%] relative h-full min-h-[380px] sm:min-h-[440px] lg:min-h-[500px] flex items-end justify-center lg:justify-end pb-3 sm:pb-5">
                       
                       {/* Floating Badge 1 (Top-Left) */}
                       <div className="absolute top-4 sm:top-8 left-2 sm:left-4 z-20 bg-white/95 backdrop-blur-md border border-emerald-100/90 rounded-2xl px-3.5 py-2.5 shadow-lg shadow-emerald-950/5 flex items-center gap-2.5 transition-transform hover:scale-105 cursor-pointer">
@@ -291,7 +293,7 @@ export const Hero: React.FC = () => {
                         <img
                           src={slide.imageSrc}
                           alt={slide.imageAlt}
-                          className="w-full max-h-[380px] sm:max-h-[430px] lg:max-h-[470px] object-contain object-bottom drop-shadow-[0_16px_36px_rgba(0,0,0,0.08)] select-none pointer-events-none transition-all duration-500"
+                          className={`${slide.imageClass} object-contain object-bottom drop-shadow-[0_16px_36px_rgba(0,0,0,0.08)] select-none pointer-events-none transition-all duration-500`}
                         />
                       </div>
 
