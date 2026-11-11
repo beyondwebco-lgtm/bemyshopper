@@ -157,65 +157,36 @@ export default function Home() {
       <main className="max-w-[1200px] mx-auto px-4 sm:px-6">
         {/* Hero Section */}
         <section className="relative overflow-hidden pt-8 pb-10 sm:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Column: Text & CTA */}
-            <div className="lg:col-span-6 space-y-4 sm:space-y-5">
-              {/* Platform Tag */}
-              <div className="inline-flex items-center gap-1.5 bg-[#EBF7EE] text-[#1E7B34] border border-[#D0EBD6] text-xs font-semibold px-3 py-1 rounded-full">
-                <HomeIcon className="w-3.5 h-3.5 text-[#1E7B34]" />
-                <span>Bapatla&apos;s Own Shopping Platform</span>
-              </div>
-
-              {/* Headline */}
-              <h1 className="text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-gray-900 leading-[1.16] tracking-tight">
-                All Your Daily Essentials <br />
-                in <span className="text-[#137A2C]">One Place</span>
-                <span className="inline-block ml-1.5 text-amber-500 text-xl font-bold align-middle">
-                  \ | /
-                </span>
-              </h1>
-
-              {/* Subtitle */}
-              <p className="text-gray-600 text-sm sm:text-base leading-relaxed max-w-md">
-                Groceries, Pooja items, Cleaning &amp; Home care, and more — delivered to your doorstep.
-              </p>
-
-              {/* Shop Now Button */}
-              <div className="pt-2">
-                <a
-                  href="#categories"
-                  className="bg-[#137A2C] hover:bg-[#0F6323] text-white font-semibold text-sm px-6 py-3 rounded-full inline-flex items-center gap-2 shadow-sm hover:shadow-md transition-all active:scale-98"
-                >
-                  <span>Shop Now</span>
-                  <ArrowRight className="w-4 h-4" />
-                </a>
-              </div>
+          <div className="max-w-3xl space-y-4 sm:space-y-5">
+            {/* Platform Tag */}
+            <div className="inline-flex items-center gap-1.5 bg-[#EBF7EE] text-[#1E7B34] border border-[#D0EBD6] text-xs font-semibold px-3 py-1 rounded-full">
+              <HomeIcon className="w-3.5 h-3.5 text-[#1E7B34]" />
+              <span>Bapatla&apos;s Own Shopping Platform</span>
             </div>
 
-            {/* Right Column: Exact Green Shade Backdrop from Reference */}
-            <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[530px] h-[290px] sm:h-[330px]">
-                {/* Organic decorative leafy sprig on the left edge exactly like reference */}
-                <div className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 pointer-events-none drop-shadow-xs">
-                  <svg width="46" height="60" viewBox="0 0 46 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M40 50C40 50 26 44 18 34C10 22 14 8 14 8C14 8 24 14 28 24C32 34 40 50 40 50Z" fill="#78AD14"/>
-                    <path d="M20 36C20 36 10 34 5 26C0 18 4 6 4 6C4 6 12 10 16 18C20 26 20 36 20 36Z" fill="#8EBE24"/>
-                    <path d="M30 44C30 44 18 42 12 50C6 58 10 60 10 60C10 60 20 58 24 52C28 46 30 44 30 44Z" fill="#669410"/>
-                    <path d="M42 54C34 46 22 34 14 8" stroke="#557C0E" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                </div>
+            {/* Headline */}
+            <h1 className="text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-gray-900 leading-[1.16] tracking-tight">
+              All Your Daily Essentials <br />
+              in <span className="text-[#137A2C]">One Place</span>
+              <span className="inline-block ml-1.5 text-amber-500 text-xl font-bold align-middle">
+                \ | /
+              </span>
+            </h1>
 
-                {/* The exact green shade container from reference */}
-                <div className="w-full h-full rounded-[28px] sm:rounded-[32px] bg-[#EAF7EE] border border-[#DCF1E3] relative overflow-hidden flex items-center justify-center shadow-xs">
-                  {/* Subtle layered soft pastel green gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-[#E3F5E7] via-[#EAF7EE] to-[#E1F3E6]" />
-                  
-                  {/* Gentle radial highlight */}
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/35 via-transparent to-transparent pointer-events-none" />
+            {/* Subtitle */}
+            <p className="text-gray-600 text-sm sm:text-base leading-relaxed max-w-xl">
+              Groceries, Pooja items, Cleaning &amp; Home care, and more — delivered to your doorstep.
+            </p>
 
-                  {/* Ready to receive your image */}
-                </div>
-              </div>
+            {/* Shop Now Button */}
+            <div className="pt-2">
+              <a
+                href="#categories"
+                className="bg-[#137A2C] hover:bg-[#0F6323] text-white font-semibold text-sm px-6 py-3 rounded-full inline-flex items-center gap-2 shadow-sm hover:shadow-md transition-all active:scale-98"
+              >
+                <span>Shop Now</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
           </div>
         </section>
