@@ -27,6 +27,12 @@ import {
   LayoutGrid,
   X,
   Trash2,
+  Award,
+  Quote,
+  Building2,
+  Car,
+  Store,
+  CheckCircle2,
 } from 'lucide-react';
 import { Hero } from '../components/Hero';
 
@@ -407,9 +413,12 @@ export default function Home() {
                 Offers
               </button>
 
-              <a href="#" className="text-gray-700 hover:text-[#1D7A34] transition-colors">
+              <button
+                onClick={() => scrollToSection('about')}
+                className="text-gray-700 hover:text-[#1D7A34] transition-colors font-medium cursor-pointer"
+              >
                 About
-              </a>
+              </button>
             </nav>
           </div>
 
@@ -635,7 +644,7 @@ export default function Home() {
           </section>
 
           {/* 4. Section: Top Essentials */}
-          <section className="py-6 sm:py-8 pb-16">
+          <section id="top-essentials" className="py-6 sm:py-8 pb-16 scroll-mt-24">
             {/* Header: Green icon, Title, Sparkle \ | /, Subtitle */}
             <div className="flex items-center gap-3.5 mb-6">
               <div className="w-10 h-10 rounded-xl bg-[#EAF5EC] flex items-center justify-center text-[#137A2C] shrink-0 shadow-2xs">
@@ -751,8 +760,276 @@ export default function Home() {
               })}
             </div>
           </section>
+
+          {/* ================= 5. SECTION: FOUNDER PROFILE & ABOUT ================= */}
+          <section id="about" className="py-6 sm:py-10 pb-16 scroll-mt-24 border-t border-gray-100">
+            {/* Section Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EBF7EE] text-[#137A2C] text-xs font-bold mb-2 border border-[#DCF6E2]">
+                  <Award className="w-3.5 h-3.5" />
+                  <span>Leadership & Vision</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
+                  <span>Founder Profile</span>
+                  <span className="text-[#137A2C] font-normal select-none text-xl">\ | /</span>
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1 max-w-xl">
+                  Empowering local merchants, service providers, and everyday shoppers across Bapatla and Andhra Pradesh.
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200/80 px-3.5 py-1.5 rounded-full shadow-2xs self-start sm:self-auto">
+                <MapPin className="w-3.5 h-3.5 text-[#137A2C]" />
+                <span>Headquartered in Bapatla, AP</span>
+              </div>
+            </div>
+
+            {/* Main Founder Card Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
+              {/* Left Column: Founder Identity Card */}
+              <div className="lg:col-span-4 bg-gradient-to-b from-white via-[#FBFDFB] to-[#F3F9F4] rounded-3xl p-6 sm:p-8 border border-[#E3EFE5] shadow-xs flex flex-col justify-between relative overflow-hidden">
+                {/* Decorative background glows */}
+                <div className="absolute -top-16 -right-16 w-40 h-40 bg-[#137A2C]/10 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-[#FFEEC4]/40 rounded-full blur-2xl pointer-events-none" />
+
+                <div className="relative z-10">
+                  {/* Founder Monogram / Avatar Lockup */}
+                  <div className="relative inline-block mb-5">
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-br from-[#137A2C] via-[#0E5C21] to-[#083D15] p-1 shadow-lg shadow-[#137A2C]/20 flex items-center justify-center">
+                      <div className="w-full h-full rounded-[22px] bg-gradient-to-br from-[#189136] to-[#0A471A] flex flex-col items-center justify-center text-white border border-white/20">
+                        <span className="text-3xl sm:text-4xl font-black tracking-wider text-amber-200 drop-shadow-xs">
+                          S
+                        </span>
+                        <span className="text-[10px] font-bold tracking-widest text-emerald-100 uppercase mt-0.5">
+                          Founder
+                        </span>
+                      </div>
+                    </div>
+                    {/* Verified Crown Badge */}
+                    <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 p-1.5 rounded-xl shadow-md border-2 border-white flex items-center justify-center">
+                      <Award className="w-4 h-4" />
+                    </div>
+                  </div>
+
+                  {/* Name & Title */}
+                  <h3 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+                    Sivaji
+                  </h3>
+                  <div className="inline-flex items-center gap-1.5 mt-1.5 px-3 py-1 rounded-full bg-[#137A2C] text-white text-xs font-bold shadow-2xs">
+                    <span>Founder & CEO</span>
+                  </div>
+
+                  {/* Location Tag */}
+                  <div className="flex items-center gap-2 mt-4 text-xs font-semibold text-gray-600 bg-white/80 backdrop-blur-xs px-3 py-2 rounded-xl border border-gray-100 shadow-2xs">
+                    <MapPin className="w-4 h-4 text-[#137A2C] shrink-0" />
+                    <span>Bapatla, Andhra Pradesh, India</span>
+                  </div>
+
+                  {/* Key Pillars */}
+                  <div className="mt-6 pt-5 border-t border-[#E3EFE5] space-y-2.5">
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">
+                      Core Commitments
+                    </span>
+                    <div className="grid grid-cols-1 gap-2 text-xs font-bold text-gray-800">
+                      <div className="flex items-center gap-2 bg-white/70 px-2.5 py-1.5 rounded-lg border border-gray-100">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#137A2C] shrink-0" />
+                        <span>Customer Convenience</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-white/70 px-2.5 py-1.5 rounded-lg border border-gray-100">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#137A2C] shrink-0" />
+                        <span>Transparent Pricing</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-white/70 px-2.5 py-1.5 rounded-lg border border-gray-100">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#137A2C] shrink-0" />
+                        <span>Local Business Growth</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-white/70 px-2.5 py-1.5 rounded-lg border border-gray-100">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#137A2C] shrink-0" />
+                        <span>Reliable Doorstep Service</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Tag */}
+                <div className="relative z-10 mt-6 pt-4 border-t border-[#E3EFE5] flex items-center justify-between text-[11px] text-gray-500 font-medium">
+                  <span>Expansion Road</span>
+                  <span className="font-bold text-[#137A2C]">AP → Pan-India</span>
+                </div>
+              </div>
+
+              {/* Right Column: About the Founder & Vision */}
+              <div className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 lg:p-10 border border-gray-100 shadow-xs flex flex-col justify-between">
+                <div>
+                  {/* Section Title */}
+                  <div className="flex items-center gap-2.5 mb-4">
+                    <div className="w-1.5 h-6 bg-[#137A2C] rounded-full" />
+                    <h4 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">
+                      About the Founder
+                    </h4>
+                  </div>
+
+                  {/* 3 Paragraphs from User */}
+                  <div className="space-y-4 text-sm sm:text-[15px] leading-relaxed text-gray-700">
+                    <p>
+                      <strong className="text-gray-900 font-bold">Sivaji</strong> is an entrepreneur from{' '}
+                      <span className="font-semibold text-gray-900">Bapatla, Andhra Pradesh</span>, with a vision to build a user-friendly digital platform that connects local businesses, service providers, and customers.
+                    </p>
+
+                    <p>
+                      His goal is to make everyday shopping and local services easily accessible through a single online platform. The platform aims to bring groceries, fruits, food delivery, pooja essentials, self-drive car rentals, and various local services under one digital ecosystem.
+                    </p>
+
+                    <p>
+                      With a focus on customer convenience, transparent pricing, local business growth, and reliable service, he aims to expand the platform across Andhra Pradesh and eventually throughout India.
+                    </p>
+                  </div>
+
+                  {/* Vision Box */}
+                  <div className="mt-6 rounded-2xl bg-gradient-to-r from-[#FFFBEA] via-[#F4FAF5] to-[#EAF7EE] p-5 sm:p-6 border border-[#E0EEDF] relative overflow-hidden">
+                    <div className="flex items-start gap-3.5 relative z-10">
+                      <div className="w-9 h-9 rounded-xl bg-[#137A2C] text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                        <Quote className="w-4 h-4 fill-white" />
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-black uppercase tracking-wider text-[#137A2C]">
+                          Vision
+                        </span>
+                        <p className="text-sm sm:text-base font-bold text-gray-900 italic mt-0.5 leading-snug">
+                          &ldquo;To make everyday needs and local services accessible to everyone through one trusted digital platform.&rdquo;
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ecosystem Scope Cards */}
+                <div className="mt-8 pt-6 border-t border-gray-100">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400 block mb-3">
+                    One Digital Ecosystem Across Everyday Needs
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100/80 hover:bg-[#F0FDF4] hover:border-[#DCF6E2] transition-colors group">
+                      <ShoppingBag className="w-4 h-4 text-[#137A2C] mb-1.5" />
+                      <div className="text-xs font-bold text-gray-900">Groceries</div>
+                      <div className="text-[11px] text-gray-500">Daily staples & pantry</div>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100/80 hover:bg-[#F0FDF4] hover:border-[#DCF6E2] transition-colors group">
+                      <Utensils className="w-4 h-4 text-[#137A2C] mb-1.5" />
+                      <div className="text-xs font-bold text-gray-900">Fruits & Food</div>
+                      <div className="text-[11px] text-gray-500">Fresh produce & meals</div>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100/80 hover:bg-[#F0FDF4] hover:border-[#DCF6E2] transition-colors group">
+                      <Flame className="w-4 h-4 text-[#137A2C] mb-1.5" />
+                      <div className="text-xs font-bold text-gray-900">Pooja Essentials</div>
+                      <div className="text-[11px] text-gray-500">Pure devotional items</div>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100/80 hover:bg-[#F0FDF4] hover:border-[#DCF6E2] transition-colors group">
+                      <Car className="w-4 h-4 text-[#137A2C] mb-1.5" />
+                      <div className="text-xs font-bold text-gray-900">Cars & Services</div>
+                      <div className="text-[11px] text-gray-500">Rentals & local help</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
+
+      {/* ================= COMPREHENSIVE SITE FOOTER ================= */}
+      <footer className="bg-white border-t border-gray-100 mt-12 pt-12 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-gray-100">
+            {/* Brand Column */}
+            <div className="md:col-span-2 space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#1D7A34] flex items-center justify-center text-white font-bold text-sm">
+                  🛍️
+                </div>
+                <span className="text-xl font-bold tracking-tight text-gray-900">
+                  BeMy<span className="text-[#1D7A34]">Shopper</span>
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-500 max-w-md leading-relaxed">
+                Your trusted digital ecosystem connecting local businesses, service providers, and everyday shoppers across Bapatla, Andhra Pradesh, and beyond.
+              </p>
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-600 pt-1">
+                <MapPin className="w-3.5 h-3.5 text-[#137A2C]" />
+                <span>Bapatla, Andhra Pradesh, India</span>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-3">
+                Quick Navigation
+              </h4>
+              <ul className="space-y-2 text-xs text-gray-600">
+                <li>
+                  <button
+                    onClick={() => scrollToSection('categories')}
+                    className="hover:text-[#137A2C] transition-colors cursor-pointer"
+                  >
+                    Shop Categories
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => scrollToSection('diwali-offers')}
+                    className="hover:text-[#137A2C] transition-colors cursor-pointer"
+                  >
+                    Diwali Offers
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => scrollToSection('top-essentials')}
+                    className="hover:text-[#137A2C] transition-colors cursor-pointer"
+                  >
+                    Top Essentials
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => scrollToSection('about')}
+                    className="hover:text-[#137A2C] transition-colors cursor-pointer"
+                  >
+                    Founder Profile &amp; About
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Leadership & Trust */}
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-3">
+                Leadership
+              </h4>
+              <div className="space-y-2 text-xs text-gray-600">
+                <p className="font-bold text-gray-900">Sivaji</p>
+                <p className="text-gray-500">Founder &amp; CEO</p>
+                <p className="text-gray-500">Bapatla, Andhra Pradesh</p>
+                <div className="pt-2">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#137A2C] bg-[#EBF7EE] px-2.5 py-1 rounded-full border border-[#DCF6E2]">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Verified Local Platform
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-3">
+            <p>© 2026 BeMyShopper. Founded by Sivaji. All rights reserved.</p>
+            <p>Made with passion for Bapatla &amp; Andhra Pradesh</p>
+          </div>
+        </div>
+      </footer>
 
       {/* ================= DYNAMIC SHOPPING CART DRAWER ================= */}
       {isCartOpen && (
