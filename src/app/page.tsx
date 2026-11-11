@@ -210,42 +210,41 @@ export default function Home() {
           </section>
 
 
-          {/* 2. Diwali Promotional Offers (Seamless, Transparent Shaped Shade - No Box) */}
+          {/* 2. Diwali Promotional Offers (Left Dark Purple to Right Light Shade Gradient) */}
           <section className="relative my-3 sm:my-5">
-            {/* Organic Soft Shaped Shade in background */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-100/50 via-fuchsia-100/30 to-purple-50/20 rounded-[40px] blur-2xl -z-10" />
+            {/* Ambient soft glow matching the gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/25 via-purple-400/20 to-transparent rounded-[32px] blur-2xl -z-10" />
 
-            <div className="relative rounded-[32px] sm:rounded-[40px] bg-gradient-to-r from-purple-50/50 via-purple-50/20 to-transparent">
-
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#3C0764] via-[#6B21A8]/90 via-45% via-purple-200/60 via-75% to-transparent">
               <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center px-6 py-6 sm:px-8 sm:py-7 lg:py-8">
-                {/* Left Side: Client-Attractive Content & Diwali Offers */}
+                {/* Left Side: On Dark Purple background with crisp high-contrast white & gold */}
                 <div className="md:col-span-7 flex flex-col items-start justify-center text-left space-y-3 sm:space-y-4">
                   {/* Festive Tag */}
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 border border-purple-200/80 text-purple-800 text-xs font-semibold tracking-wide">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/30 text-amber-300 text-xs font-semibold tracking-wide shadow-2xs">
                     <span>🪔</span>
                     <span>Diwali Special Offers</span>
                   </div>
 
                   {/* Main Headline */}
-                  <h3 className="text-2xl sm:text-3xl lg:text-[34px] font-extrabold text-gray-900 leading-tight tracking-tight">
+                  <h3 className="text-2xl sm:text-3xl lg:text-[34px] font-extrabold text-white leading-tight tracking-tight">
                     Buy Groceries with{' '}
-                    <span className="text-purple-700">Diwali Offers!</span>
+                    <span className="text-amber-400 drop-shadow-sm">Diwali Offers!</span>
                   </h3>
 
                   {/* Description */}
-                  <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-xl">
-                    Up to <span className="text-purple-700 font-bold">30% OFF</span> on Groceries, Pooja Essentials &amp; Home Care. Stock up your festive kitchen with pure ingredients and guaranteed lowest prices.
+                  <p className="text-sm sm:text-base text-purple-100/90 leading-relaxed max-w-xl">
+                    Up to <span className="text-amber-300 font-bold">30% OFF</span> on Groceries, Pooja Essentials &amp; Home Care. Stock up your festive kitchen with pure ingredients and guaranteed lowest prices.
                   </p>
 
                   {/* Client Attractive Highlights */}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-white/90 border border-purple-100 text-gray-800 text-xs font-medium shadow-2xs">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/15 text-white text-xs font-medium backdrop-blur-xs border border-white/10">
                       ⚡ 30-Min Fast Delivery
                     </span>
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-white/90 border border-purple-100 text-gray-800 text-xs font-medium shadow-2xs">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/15 text-white text-xs font-medium backdrop-blur-xs border border-white/10">
                       🎁 Free Diya on Orders ₹499+
                     </span>
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-white/90 border border-purple-100 text-gray-800 text-xs font-medium shadow-2xs">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/15 text-white text-xs font-medium backdrop-blur-xs border border-white/10">
                       ✨ Extra ₹100 OFF on 1st Order
                     </span>
                   </div>
@@ -254,15 +253,15 @@ export default function Home() {
                   <div className="pt-2">
                     <a
                       href="#categories"
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-purple-700 hover:bg-purple-800 text-white font-bold text-sm sm:text-base shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-98 transition-all duration-200"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-[#3C0764] hover:bg-amber-50 font-bold text-sm sm:text-base shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-98 transition-all duration-200"
                     >
                       <span>Shop Diwali Deals</span>
-                      <ArrowRight className="w-4 h-4 text-white" />
+                      <ArrowRight className="w-4 h-4 text-[#3C0764]" />
                     </a>
                   </div>
                 </div>
 
-                {/* Right Side: Uploaded Product & Festive Image */}
+                {/* Right Side: Turning into Light Purple & Transparent where products sit */}
                 <div className="md:col-span-5 flex items-center justify-center lg:justify-end">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
