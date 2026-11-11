@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 import {
   MapPin,
   Search,
@@ -16,6 +15,7 @@ import {
   Plus,
   Home as HomeIcon,
   Check,
+  Sparkles,
 } from 'lucide-react';
 
 export default function Home() {
@@ -158,9 +158,6 @@ export default function Home() {
       <main className="max-w-[1200px] mx-auto px-4 sm:px-6">
         {/* Hero Section */}
         <section className="relative overflow-hidden pt-8 pb-10 sm:py-12">
-          {/* Subtle background decorative curved light-mint shape */}
-          <div className="absolute right-0 top-0 bottom-0 w-[55%] bg-gradient-to-l from-[#E7F5EA]/70 via-[#EFF8F1]/40 to-transparent rounded-l-[120px] -z-10 pointer-events-none hidden lg:block" />
-
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             {/* Left Column: Text & CTA */}
             <div className="lg:col-span-6 space-y-4 sm:space-y-5">
@@ -196,15 +193,31 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Column: Hero Groceries and Bag Illustration */}
+            {/* Right Column: Highly Attractive Client Canvas (Image removed, background prepared) */}
             <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[530px] rounded-3xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/hero-essentials.png"
-                  alt="Be My Shopper Daily Essentials"
-                  className="w-full h-auto object-contain drop-shadow-sm select-none"
-                />
+              <div className="relative w-full max-w-[520px] h-[280px] sm:h-[320px] rounded-[32px] bg-gradient-to-br from-[#E6F5EA] via-[#F2FAF4] to-[#DEF3E4] border border-[#CDEBD4] shadow-sm flex items-center justify-center overflow-hidden transition-all group">
+                {/* Multi-layered soft organic ambient glow */}
+                <div className="absolute -top-14 -right-14 w-56 h-56 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-teal-200/35 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/60 via-transparent to-transparent pointer-events-none" />
+
+                {/* Subtle organic floating leaf accents */}
+                <div className="absolute top-6 right-8 text-2xl select-none opacity-80 filter drop-shadow-xs">🌿</div>
+                <div className="absolute bottom-6 left-8 text-xl select-none opacity-70 filter drop-shadow-xs">🍃</div>
+                <div className="absolute top-8 left-12 text-sm select-none opacity-40">✨</div>
+
+                {/* Center placeholder ready for user image */}
+                <div className="relative z-10 text-center px-6 py-8">
+                  <div className="w-14 h-14 rounded-2xl bg-white/90 border border-emerald-200/80 shadow-xs flex items-center justify-center mx-auto mb-3 text-[#137A2C] group-hover:scale-105 transition-transform">
+                    <Sparkles className="w-6 h-6 text-[#137A2C]" />
+                  </div>
+                  <h3 className="text-sm font-bold text-gray-900 tracking-tight">
+                    Client-Attractive Canvas Ready
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                    Background colors and organic lighting are set. Upload your image and it will be placed right here.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
