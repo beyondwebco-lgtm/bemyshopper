@@ -771,12 +771,12 @@ export default function Home() {
             {/* Brand Column */}
             <div className="md:col-span-2 space-y-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#1D7A34] flex items-center justify-center text-white font-bold text-sm">
-                  🛍️
-                </div>
-                <span className="text-xl font-bold tracking-tight text-gray-900">
-                  BeMy<span className="text-[#1D7A34]">Shopper</span>
-                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/logo.png"
+                  alt="BeMyShopper"
+                  className="h-8 w-auto object-contain"
+                />
               </div>
               <p className="text-xs sm:text-sm text-gray-500 max-w-md leading-relaxed">
                 Your trusted digital ecosystem connecting local businesses, service providers, and everyday shoppers across Bapatla, Andhra Pradesh, and beyond.

@@ -30,18 +30,13 @@ export default function AboutPage() {
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo Lockup */}
             <div className="flex items-center gap-8">
-              <Link href="/" className="flex items-center gap-2 group">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1D7A34] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
-                  <span className="text-xl">🛍️</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-900 leading-none">
-                    BeMy<span className="text-[#1D7A34]">Shopper</span>
-                  </span>
-                  <span className="text-[10px] font-semibold text-gray-400 tracking-wider uppercase mt-0.5">
-                    Bapatla &bull; Andhra Pradesh
-                  </span>
-                </div>
+              <Link href="/" className="flex items-center group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/logo.png"
+                  alt="BeMyShopper"
+                  className="h-10 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform"
+                />
               </Link>
 
               {/* Navigation Links */}
@@ -289,12 +284,12 @@ export default function AboutPage() {
             {/* Brand Col */}
             <div className="md:col-span-2 space-y-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#1D7A34] flex items-center justify-center text-white font-bold text-sm">
-                  🛍️
-                </div>
-                <span className="text-xl font-bold tracking-tight text-gray-900">
-                  BeMy<span className="text-[#1D7A34]">Shopper</span>
-                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/logo.png"
+                  alt="BeMyShopper"
+                  className="h-8 w-auto object-contain"
+                />
               </div>
               <p className="text-xs sm:text-sm text-gray-500 max-w-md leading-relaxed">
                 Your trusted digital ecosystem connecting local businesses, service providers, and everyday shoppers across Bapatla, Andhra Pradesh, and beyond.
@@ -356,3 +351,4 @@ export default function AboutPage() {
     </div>
   );
 }
+
