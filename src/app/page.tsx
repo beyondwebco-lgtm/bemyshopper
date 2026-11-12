@@ -61,6 +61,8 @@ export default function Home() {
   const [isRentalModalOpen, setIsRentalModalOpen] = useState(false);
   const [rentalCarType, setRentalCarType] = useState<'5-seater' | '7-seater'>('5-seater');
   const [rentalDuration, setRentalDuration] = useState<'6hr' | '12hr' | '24hr'>('12hr');
+  const [selected5SeaterPlan, setSelected5SeaterPlan] = useState<'6hr' | '12hr' | '24hr'>('12hr');
+  const [selected7SeaterPlan, setSelected7SeaterPlan] = useState<'6hr' | '12hr' | '24hr'>('12hr');
   const [rentalName, setRentalName] = useState('');
   const [rentalPhone, setRentalPhone] = useState('');
   const [rentalDate, setRentalDate] = useState('');
@@ -897,9 +899,103 @@ export default function Home() {
           <Hero />
         </section>
 
-        {/* ================= 4. RENTAL CARS IN BAPATLA ================= */}
+        {/* ================= 4. DIWALI OFFERS (RIGHT UNDER THIS - 400PX HEIGHT) ================= */}
+        <section
+          id="diwali-offers"
+          className="w-full h-auto lg:h-[400px] bg-gradient-to-r from-[#24033E] via-[#3B0763] via-40% via-[#5B108E] via-75% to-[#24033E] my-6 sm:my-8 rounded-none shadow-xl scroll-mt-20 relative overflow-hidden border-y-2 border-amber-400/30 flex items-center"
+        >
+          {/* Decorative Festive Background Glows & Pattern */}
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#F59E0B_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+
+          <div className="max-w-[1200px] w-full mx-auto px-4 sm:px-6 py-6 lg:py-4 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+              {/* Left Side: Copy, Badges, Highlights & CTA */}
+              <div className="lg:col-span-7 flex flex-col items-start justify-center text-left space-y-2.5 sm:space-y-3">
+                {/* Festive Dhamaka Tag */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400/25 to-yellow-300/15 border border-amber-400/40 text-amber-300 text-xs font-black tracking-wide shadow-sm backdrop-blur-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                  <span className="uppercase tracking-wider">Diwali Mahotsav Dhamaka Offers</span>
+                </div>
+
+                {/* Main Headline */}
+                <h3 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-white leading-tight tracking-tight">
+                  Celebrate &amp; Save Big with{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 drop-shadow-sm">
+                    Diwali Offers!
+                  </span>
+                </h3>
+
+                {/* Discount Banner Strip */}
+                <div className="inline-flex flex-wrap items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-400/15 border border-amber-300/30 text-amber-200 text-xs sm:text-sm">
+                  <span className="text-base sm:text-lg font-black text-amber-300 tracking-tight">
+                    UP TO 30% - 50% OFF
+                  </span>
+                  <span className="text-purple-100 font-medium">
+                    on Pooja Essentials, Groceries &amp; Sweets
+                  </span>
+                </div>
+
+                {/* Description */}
+                <p className="text-xs sm:text-sm text-purple-100/90 leading-relaxed max-w-xl font-normal line-clamp-2">
+                  Stock up your festive home with pure ingredients, sacred puja essentials, fragrant agarbathi, and fresh groceries at guaranteed festival prices in Bapatla.
+                </p>
+
+                {/* 4 Client-Attractive Benefit Pills */}
+                <div className="grid grid-cols-3 gap-2 w-full max-w-lg pt-0.5">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-[11px] font-semibold">
+                    <span className="text-amber-300">⚡</span>
+                    <span>30-Min Fast Delivery</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-[11px] font-semibold">
+                    <span className="text-amber-300">🪔</span>
+                    <span>Free Diya on ₹499+</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-[11px] font-semibold">
+                    <span className="text-amber-300">✨</span>
+                    <span>Extra ₹100 1st Order</span>
+                  </div>
+                </div>
+
+                {/* CTA Buttons */}
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <Link
+                    href="/offers"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-purple-950 font-black text-xs sm:text-sm shadow-md hover:shadow-amber-400/25 hover:scale-105 active:scale-98 transition-all duration-200"
+                  >
+                    <span>Shop Diwali Deals Now</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-purple-950 stroke-[2.5]" />
+                  </Link>
+
+                  <Link
+                    href="/offers"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-xs border border-white/20 transition-all"
+                  >
+                    <span>View All 12+ Deals</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Side: High-Clarity Festive Packshot - Increased to 400px alignment */}
+              <div className="lg:col-span-5 flex items-center justify-center relative h-full">
+                <div className="relative w-full max-w-[480px] flex items-center justify-center group">
+                  <div className="absolute inset-0 bg-amber-400/25 rounded-full blur-3xl group-hover:bg-amber-400/35 transition-all pointer-events-none" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/diwali-offer-products.png"
+                    alt="Diwali Grocery Offers & Up to 30% OFF"
+                    className="relative z-10 w-auto h-[340px] sm:h-[370px] lg:h-[390px] max-h-[390px] max-w-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300 select-none"
+                    style={{ maxHeight: '390px', width: 'auto' }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= 5. RENTAL CARS IN BAPATLA ================= */}
         <section id="rental-cars" className="w-full my-6 sm:my-8 scroll-mt-20">
-          {/* Full-Width Premium Orange Hero Banner */}
           <CarRentalHeroBanner
             onExploreCars={() => {
               const el = document.getElementById('rental-tariff-plans');
@@ -913,427 +1009,560 @@ export default function Home() {
             }}
           />
 
-          {/* Pricing Tariffs & Trust Pillars (Accessible via 'Explore Cars') */}
-          <div id="rental-tariff-plans" className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 scroll-mt-24">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+          {/* Plan Based Design Directly Below Car Banner */}
+          <div id="rental-tariff-plans" className="max-w-[1240px] mx-auto px-4 sm:px-6 py-8 sm:py-12 scroll-mt-24">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
               <div>
-                <span className="text-xs font-bold text-[#137A2C] uppercase tracking-wider block">
-                  Transparent Hourly &amp; Daily Pricing
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-[#9A3412] font-black text-xs uppercase tracking-wider mb-2">
+                  <Sparkles className="w-3.5 h-3.5 text-[#EA580C]" />
+                  <span>Bapatla Rental Tariff &amp; Packages</span>
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-gray-900 mt-0.5">
+                <h3 className="text-2xl sm:text-3xl font-black text-gray-900 mt-1">
                   Choose Your Vehicle &amp; Rental Plan
                 </h3>
-              </div>
-              <button
-                onClick={() => {
-                  setRentalCarType('5-seater');
-                  setIsRentalModalOpen(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#137A2C] hover:bg-[#0E5C21] text-white text-xs font-bold transition-all shadow-xs cursor-pointer w-fit"
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Book a Car Online</span>
-              </button>
-            </div>
-
-            {/* Pricing & Vehicle Category Cards (Two Column Grid) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
-              {/* CARD 1: ANY 5 SEATER */}
-              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
-                <div>
-                  {/* Vehicle Header & Image */}
-                  <div className="p-5 sm:p-6 pb-2">
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold">
-                        Compact SUV &amp; Hatchback
-                      </span>
-                    <span className="text-xs font-semibold text-gray-500">
-                      Up to 5 Passengers
-                    </span>
-                  </div>
-
-                  <h3 className="text-2xl font-black text-[#142333]">Any 5 Seater</h3>
-                  <p className="text-xs text-gray-500 mt-0.5 font-normal">
-                    Mahindra Thar, Maruti Fronx, Baleno, Swift &amp; more
-                  </p>
-                </div>
-
-                {/* Car Packshot Image */}
-                <div className="w-full h-48 sm:h-56 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/car-5-seater.jpg"
-                    alt="Any 5 Seater Car Rental in Bapatla"
-                    className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-300 drop-shadow-md"
-                  />
-                </div>
-
-                {/* Tariff Plans Table */}
-                <div className="p-5 sm:p-6 pt-2">
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">
-                    Rental Tariff Plans
-                  </div>
-
-                  <div className="space-y-2.5">
-                    {/* 6 Hours */}
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 hover:bg-emerald-50/50 border border-gray-100 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-white border border-gray-200/70 flex items-center justify-center text-gray-700">
-                          <Clock className="w-4 h-4 text-[#137A2C]" />
-                        </div>
-                        <div>
-                          <span className="text-sm font-bold text-gray-900 block leading-tight">6 Hours</span>
-                          <span className="text-[11px] text-gray-500">Short trips &amp; local errands</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-lg font-black text-[#137A2C] block leading-tight">₹900</span>
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                          120 KM Included
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* 12 Hours */}
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-50/40 border border-emerald-100 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-white border border-emerald-200 flex items-center justify-center text-gray-700">
-                          <Clock className="w-4 h-4 text-[#137A2C]" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-sm font-bold text-gray-900 leading-tight">12 Hours</span>
-                            <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-emerald-600 text-white">Popular</span>
-                          </div>
-                          <span className="text-[11px] text-gray-500">Day outings &amp; beach tours</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-lg font-black text-[#137A2C] block leading-tight">₹1,490</span>
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                          200 KM Included
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* 24 Hours */}
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 hover:bg-emerald-50/50 border border-gray-100 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-white border border-gray-200/70 flex items-center justify-center text-gray-700">
-                          <Clock className="w-4 h-4 text-[#137A2C]" />
-                        </div>
-                        <div>
-                          <span className="text-sm font-bold text-gray-900 block leading-tight">24 Hours</span>
-                          <span className="text-[11px] text-gray-500">Full day &amp; outstation travel</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-lg font-black text-[#137A2C] block leading-tight">₹2,490</span>
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                          400 KM Included
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1 max-w-xl">
+                  Transparent hourly &amp; daily pricing with generous included kilometers. No hidden charges.
+                </p>
               </div>
 
-              {/* Action Buttons */}
-              <div className="p-5 sm:p-6 pt-0 flex gap-3">
+              <div className="flex items-center gap-2.5">
                 <button
                   onClick={() => {
                     setRentalCarType('5-seater');
                     setIsRentalModalOpen(true);
                   }}
-                  className="flex-1 py-3 px-4 rounded-xl bg-[#137A2C] hover:bg-[#0E5C21] text-white font-bold text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#137A2C] hover:bg-[#0E5C21] text-white text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
                 >
-                  Book 5-Seater Now
+                  <Calendar className="w-4 h-4" />
+                  <span>Book a Car Online</span>
                 </button>
                 <a
-                  href="https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%205-Seater%20car%20in%20Bapatla"
+                  href="https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%20car%20in%20Bapatla"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs sm:text-sm transition-all text-center"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white hover:bg-orange-50 text-[#9A3412] border border-orange-200 text-xs sm:text-sm font-bold transition-all shadow-xs"
                 >
-                  WhatsApp
+                  <MessageSquare className="w-4 h-4 text-emerald-600" />
+                  <span>WhatsApp</span>
                 </a>
               </div>
             </div>
 
-            {/* CARD 2: ANY 7 SEATER */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
-              <div>
-                {/* Vehicle Header & Image */}
-                <div className="p-5 sm:p-6 pb-2">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="px-3 py-1 rounded-full bg-purple-50 text-purple-900 border border-purple-200 text-xs font-bold">
-                      Luxury Family MPV
-                    </span>
-                    <span className="text-xs font-semibold text-gray-500">
-                      Up to 7-8 Passengers
-                    </span>
-                  </div>
-
-                  <h3 className="text-2xl font-black text-[#142333]">Any 7 Seater</h3>
-                  <p className="text-xs text-gray-500 mt-0.5 font-normal">
-                    Toyota Innova Hycross, Maruti Ertiga, Carens &amp; more
-                  </p>
-                </div>
-
-                {/* Car Packshot Image */}
-                <div className="w-full h-48 sm:h-56 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/car-7-seater.jpg"
-                    alt="Any 7 Seater Car Rental in Bapatla"
-                    className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-300 drop-shadow-md"
-                  />
-                </div>
-
-                {/* Tariff Plans Table */}
-                <div className="p-5 sm:p-6 pt-2">
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">
-                    Rental Tariff Plans
-                  </div>
-
-                  <div className="space-y-2.5">
-                    {/* 6 Hours */}
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 hover:bg-purple-50/50 border border-gray-100 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-white border border-gray-200/70 flex items-center justify-center text-gray-700">
-                          <Clock className="w-4 h-4 text-purple-700" />
-                        </div>
-                        <div>
-                          <span className="text-sm font-bold text-gray-900 block leading-tight">6 Hours</span>
-                          <span className="text-[11px] text-gray-500">Family temple visits &amp; dinners</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-lg font-black text-purple-900 block leading-tight">₹1,800</span>
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                          120 KM Included
-                        </span>
-                      </div>
+            {/* Pricing & Vehicle Category Cards (Two Column Grid) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-10">
+              {/* CARD 1: ANY 5 SEATER */}
+              <div className="bg-white rounded-3xl border border-orange-200/60 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group">
+                <div>
+                  {/* Vehicle Header */}
+                  <div className="p-6 pb-4 bg-gradient-to-r from-orange-50/80 via-white to-amber-50/40 border-b border-orange-100">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="px-3 py-1 rounded-full bg-orange-100 text-[#9A3412] border border-orange-200 text-xs font-black">
+                        Compact SUV &amp; Hatchback
+                      </span>
+                      <span className="text-xs font-bold text-gray-500 flex items-center gap-1">
+                        <Car className="w-3.5 h-3.5 text-[#9A3412]" />
+                        Up to 5 Passengers
+                      </span>
                     </div>
 
-                    {/* 12 Hours */}
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-purple-50/40 border border-purple-100 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-white border border-purple-200 flex items-center justify-center text-gray-700">
-                          <Clock className="w-4 h-4 text-purple-700" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-sm font-bold text-gray-900 leading-tight">12 Hours</span>
-                            <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-purple-700 text-white">Popular</span>
+                    <h3 className="text-2xl sm:text-[26px] font-black text-gray-900">Any 5 Seater</h3>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1 font-medium">
+                      Maruti Swift • Toyota Etios • Hyundai Venue &amp; more
+                    </p>
+                  </div>
+
+                  {/* Car Packshot Image - Reduced size */}
+                  <div className="w-full h-36 sm:h-44 bg-gradient-to-b from-gray-50/60 to-white flex items-center justify-center p-3 sm:p-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/images/car-5-seater-lineup.png"
+                      alt="Any 5 Seater Car Rental in Bapatla - Maruti Swift, Toyota Etios, Hyundai Venue"
+                      className="max-h-[125px] sm:max-h-[150px] max-w-[85%] sm:max-w-[78%] object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-md select-none"
+                    />
+                  </div>
+
+                  {/* Tariff Plans Table (Dynamic Orange Highlights on Selection & Hover) */}
+                  <div className="p-6 pt-2">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">
+                        Rental Tariff Plans
+                      </span>
+                      <span className="text-[11px] font-semibold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
+                        Click a plan to select
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      {/* Plan 1: 6 Hr */}
+                      <div
+                        onClick={() => setSelected5SeaterPlan('6hr')}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
+                          selected5SeaterPlan === '6hr'
+                            ? 'bg-orange-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                            : 'bg-gray-50/80 hover:bg-orange-50/40 border border-gray-200/80 hover:border-orange-300'
+                        }`}
+                      >
+                        {selected5SeaterPlan === '6hr' && (
+                          <div className="absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full bg-[#EA580C] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
+                            Selected Plan
                           </div>
-                          <span className="text-[11px] text-gray-500">Full day family &amp; beach trip</span>
+                        )}
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
+                              selected5SeaterPlan === '6hr'
+                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                                : 'bg-white border border-gray-200 text-gray-500'
+                            }`}
+                          >
+                            <Clock className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-black text-gray-900 block leading-tight">6 Hours</span>
+                            <span className="text-[11px] text-gray-500">Local city rides &amp; short errands</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span
+                            className={`text-xl font-black block leading-tight transition-colors ${
+                              selected5SeaterPlan === '6hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                            }`}
+                          >
+                            ₹900
+                          </span>
+                          <span
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
+                              selected5SeaterPlan === '6hr'
+                                ? 'text-orange-900 bg-orange-100 border-orange-300 shadow-2xs'
+                                : 'text-gray-600 bg-gray-100 border-gray-200'
+                            }`}
+                          >
+                            120 KM Included
+                          </span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-lg font-black text-purple-900 block leading-tight">₹2,490</span>
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                          200 KM Included
-                        </span>
+
+                      {/* Plan 2: 12 Hr */}
+                      <div
+                        onClick={() => setSelected5SeaterPlan('12hr')}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
+                          selected5SeaterPlan === '12hr'
+                            ? 'bg-orange-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                            : 'bg-gray-50/80 hover:bg-orange-50/40 border border-gray-200/80 hover:border-orange-300'
+                        }`}
+                      >
+                        <div
+                          className={`absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shadow-xs ${
+                            selected5SeaterPlan === '12hr'
+                              ? 'bg-[#EA580C] text-white ring-2 ring-orange-100'
+                              : 'bg-gray-200 text-gray-700'
+                          }`}
+                        >
+                          Most Popular
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
+                              selected5SeaterPlan === '12hr'
+                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                                : 'bg-white border border-gray-200 text-gray-500'
+                            }`}
+                          >
+                            <Clock className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-black text-gray-900 block leading-tight">12 Hours</span>
+                            <span className="text-[11px] text-gray-600">Day outings &amp; Suryalanka Beach</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span
+                            className={`text-xl font-black block leading-tight transition-colors ${
+                              selected5SeaterPlan === '12hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                            }`}
+                          >
+                            ₹1,490
+                          </span>
+                          <span
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
+                              selected5SeaterPlan === '12hr'
+                                ? 'text-orange-900 bg-orange-100 border-orange-300 shadow-2xs'
+                                : 'text-gray-600 bg-gray-100 border-gray-200'
+                            }`}
+                          >
+                            200 KM Included
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Plan 3: 24 Hr */}
+                      <div
+                        onClick={() => setSelected5SeaterPlan('24hr')}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
+                          selected5SeaterPlan === '24hr'
+                            ? 'bg-orange-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                            : 'bg-gray-50/80 hover:bg-orange-50/40 border border-gray-200/80 hover:border-orange-300'
+                        }`}
+                      >
+                        {selected5SeaterPlan === '24hr' ? (
+                          <div className="absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full bg-[#EA580C] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
+                            Best Value • Selected
+                          </div>
+                        ) : (
+                          <div className="absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full bg-gray-200 text-gray-700 text-[9px] font-black uppercase tracking-wider">
+                            Best Value
+                          </div>
+                        )}
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
+                              selected5SeaterPlan === '24hr'
+                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                                : 'bg-white border border-gray-200 text-gray-500'
+                            }`}
+                          >
+                            <Clock className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-black text-gray-900 block leading-tight">24 Hours</span>
+                            <span className="text-[11px] text-gray-500">Full day trips &amp; outstation travel</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span
+                            className={`text-xl font-black block leading-tight transition-colors ${
+                              selected5SeaterPlan === '24hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                            }`}
+                          >
+                            ₹2,490
+                          </span>
+                          <span
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
+                              selected5SeaterPlan === '24hr'
+                                ? 'text-orange-900 bg-orange-100 border-orange-300 shadow-2xs'
+                                : 'text-gray-600 bg-gray-100 border-gray-200'
+                            }`}
+                          >
+                            400 KM Included
+                          </span>
+                        </div>
                       </div>
                     </div>
+                  </div>
+                </div>
 
-                    {/* 24 Hours */}
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 hover:bg-purple-50/50 border border-gray-100 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-white border border-gray-200/70 flex items-center justify-center text-gray-700">
-                          <Clock className="w-4 h-4 text-purple-700" />
+                {/* Card 1 Actions */}
+                <div className="p-6 pt-0 flex gap-3">
+                  <button
+                    onClick={() => {
+                      setRentalCarType('5-seater');
+                      setRentalDuration(selected5SeaterPlan);
+                      setIsRentalModalOpen(true);
+                    }}
+                    className="flex-1 py-3 px-4 rounded-xl bg-[#9A3412] hover:bg-[#7C2D12] text-white font-bold text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
+                  >
+                    Book 5-Seater ({selected5SeaterPlan === '6hr' ? '6 Hr • ₹900' : selected5SeaterPlan === '12hr' ? '12 Hr • ₹1,490' : '24 Hr • ₹2,490'})
+                  </button>
+                  <a
+                    href={`https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%205-Seater%20car%20in%20Bapatla%20for%20${selected5SeaterPlan === '6hr' ? '6%20Hours%20(Rs.900)' : selected5SeaterPlan === '12hr' ? '12%20Hours%20(Rs.1490)' : '24%20Hours%20(Rs.2490)'}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="py-3 px-4 rounded-xl bg-orange-100 hover:bg-orange-200 text-[#9A3412] font-bold text-xs sm:text-sm transition-all text-center flex items-center gap-1.5"
+                  >
+                    <MessageSquare className="w-4 h-4 text-emerald-600" />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* CARD 2: ANY 7 SEATER */}
+              <div className="bg-white rounded-3xl border border-amber-200/60 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group">
+                <div>
+                  {/* Vehicle Header */}
+                  <div className="p-6 pb-4 bg-gradient-to-r from-amber-50/80 via-white to-orange-50/40 border-b border-amber-100">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-950 border border-amber-200 text-xs font-black">
+                        Luxury Family MPV
+                      </span>
+                      <span className="text-xs font-bold text-gray-500 flex items-center gap-1">
+                        <Car className="w-3.5 h-3.5 text-amber-700" />
+                        Up to 7-8 Passengers
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl sm:text-[26px] font-black text-gray-900">Any 7 Seater</h3>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1 font-medium">
+                      Toyota Innova Crysta • Kia Carens • Maruti Ertiga &amp; more
+                    </p>
+                  </div>
+
+                  {/* Car Packshot Image - Reduced size */}
+                  <div className="w-full h-36 sm:h-44 bg-gradient-to-b from-gray-50/60 to-white flex items-center justify-center p-3 sm:p-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/images/car-7-seater-lineup.png"
+                      alt="Any 7 Seater Car Rental in Bapatla - Toyota Innova Crysta, Kia Carens, Maruti Ertiga"
+                      className="max-h-[125px] sm:max-h-[150px] max-w-[85%] sm:max-w-[78%] object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-md select-none"
+                    />
+                  </div>
+
+                  {/* Tariff Plans Table (Dynamic Orange Highlights on Selection & Hover) */}
+                  <div className="p-6 pt-2">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">
+                        Rental Tariff Plans
+                      </span>
+                      <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                        Click a plan to select
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      {/* Plan 1: 6 Hr */}
+                      <div
+                        onClick={() => setSelected7SeaterPlan('6hr')}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
+                          selected7SeaterPlan === '6hr'
+                            ? 'bg-amber-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                            : 'bg-gray-50/80 hover:bg-amber-50/40 border border-gray-200/80 hover:border-orange-300'
+                        }`}
+                      >
+                        {selected7SeaterPlan === '6hr' && (
+                          <div className="absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full bg-[#EA580C] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
+                            Selected Plan
+                          </div>
+                        )}
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
+                              selected7SeaterPlan === '6hr'
+                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                                : 'bg-white border border-gray-200 text-gray-500'
+                            }`}
+                          >
+                            <Clock className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-black text-gray-900 block leading-tight">6 Hours</span>
+                            <span className="text-[11px] text-gray-500">Family temple visits &amp; functions</span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-sm font-bold text-gray-900 block leading-tight">24 Hours</span>
-                          <span className="text-[11px] text-gray-500">Weekend getaway &amp; outstation</span>
+                        <div className="text-right">
+                          <span
+                            className={`text-xl font-black block leading-tight transition-colors ${
+                              selected7SeaterPlan === '6hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                            }`}
+                          >
+                            ₹1,800
+                          </span>
+                          <span
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
+                              selected7SeaterPlan === '6hr'
+                                ? 'text-amber-900 bg-amber-100 border-amber-300 shadow-2xs'
+                                : 'text-gray-600 bg-gray-100 border-gray-200'
+                            }`}
+                          >
+                            120 KM Included
+                          </span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-lg font-black text-purple-900 block leading-tight">₹3,490</span>
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                          400 KM Included
-                        </span>
+
+                      {/* Plan 2: 12 Hr */}
+                      <div
+                        onClick={() => setSelected7SeaterPlan('12hr')}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
+                          selected7SeaterPlan === '12hr'
+                            ? 'bg-amber-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                            : 'bg-gray-50/80 hover:bg-amber-50/40 border border-gray-200/80 hover:border-orange-300'
+                        }`}
+                      >
+                        <div
+                          className={`absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shadow-xs ${
+                            selected7SeaterPlan === '12hr'
+                              ? 'bg-[#EA580C] text-white ring-2 ring-orange-100'
+                              : 'bg-gray-200 text-gray-700'
+                          }`}
+                        >
+                          Most Popular
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
+                              selected7SeaterPlan === '12hr'
+                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                                : 'bg-white border border-gray-200 text-gray-500'
+                            }`}
+                          >
+                            <Clock className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-black text-gray-900 block leading-tight">12 Hours</span>
+                            <span className="text-[11px] text-gray-600">Full day family outing &amp; Suryalanka</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span
+                            className={`text-xl font-black block leading-tight transition-colors ${
+                              selected7SeaterPlan === '12hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                            }`}
+                          >
+                            ₹2,490
+                          </span>
+                          <span
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
+                              selected7SeaterPlan === '12hr'
+                                ? 'text-amber-900 bg-amber-100 border-amber-300 shadow-2xs'
+                                : 'text-gray-600 bg-gray-100 border-gray-200'
+                            }`}
+                          >
+                            200 KM Included
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Plan 3: 24 Hr */}
+                      <div
+                        onClick={() => setSelected7SeaterPlan('24hr')}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
+                          selected7SeaterPlan === '24hr'
+                            ? 'bg-amber-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                            : 'bg-gray-50/80 hover:bg-amber-50/40 border border-gray-200/80 hover:border-orange-300'
+                        }`}
+                      >
+                        {selected7SeaterPlan === '24hr' ? (
+                          <div className="absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full bg-[#EA580C] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
+                            Best Value • Selected
+                          </div>
+                        ) : (
+                          <div className="absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full bg-gray-200 text-gray-700 text-[9px] font-black uppercase tracking-wider">
+                            Best Value
+                          </div>
+                        )}
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
+                              selected7SeaterPlan === '24hr'
+                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                                : 'bg-white border border-gray-200 text-gray-500'
+                            }`}
+                          >
+                            <Clock className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-black text-gray-900 block leading-tight">24 Hours</span>
+                            <span className="text-[11px] text-gray-500">Vijayawada, Hyderabad &amp; outstation</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span
+                            className={`text-xl font-black block leading-tight transition-colors ${
+                              selected7SeaterPlan === '24hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                            }`}
+                          >
+                            ₹3,490
+                          </span>
+                          <span
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
+                              selected7SeaterPlan === '24hr'
+                                ? 'text-amber-900 bg-amber-100 border-amber-300 shadow-2xs'
+                                : 'text-gray-600 bg-gray-100 border-gray-200'
+                            }`}
+                          >
+                            400 KM Included
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="p-5 sm:p-6 pt-0 flex gap-3">
-                <button
-                  onClick={() => {
-                    setRentalCarType('7-seater');
-                    setIsRentalModalOpen(true);
-                  }}
-                  className="flex-1 py-3 px-4 rounded-xl bg-purple-900 hover:bg-purple-950 text-white font-bold text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
-                >
-                  Book 7-Seater Now
-                </button>
-                <a
-                  href="https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%207-Seater%20car%20in%20Bapatla"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs sm:text-sm transition-all text-center"
-                >
-                  WhatsApp
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* 4 Trust Pillars (Directly from Brochure) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 sm:p-6 rounded-3xl bg-[#F7FAF8] border border-emerald-100">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-100 text-[#137A2C] flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5 text-[#137A2C]" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-[13px] font-bold text-gray-900">Safe &amp; Reliable</h4>
-                <p className="text-[11px] text-gray-500 mt-0.5">GPS enabled &amp; full insurance</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                <Car className="w-5 h-5 text-amber-700" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-[13px] font-bold text-gray-900">Well Maintained</h4>
-                <p className="text-[11px] text-gray-500 mt-0.5">Spotless &amp; sanitised cars</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-                <User className="w-5 h-5 text-blue-700" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-[13px] font-bold text-gray-900">Professional Service</h4>
-                <p className="text-[11px] text-gray-500 mt-0.5">Doorstep delivery in Bapatla</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
-                <Clock className="w-5 h-5 text-purple-700" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-[13px] font-bold text-gray-900">Flexible Rental Plans</h4>
-                <p className="text-[11px] text-gray-500 mt-0.5">6h, 12h, 24h &amp; outstation</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-        {/* ================= 5. DIWALI OFFERS (NEXT / AT LAST) ================= */}
-        <section
-          id="diwali-offers"
-          className="w-full bg-gradient-to-r from-[#24033E] via-[#3B0763] via-40% via-[#5B108E] via-75% to-[#24033E] my-8 sm:my-10 rounded-none shadow-xl scroll-mt-20 relative overflow-hidden border-y-2 border-amber-400/30"
-        >
-          {/* Decorative Festive Background Glows & Pattern */}
-          <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#F59E0B_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
-
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-14 relative z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
-              {/* Left Side: Copy, Badges, Highlights & CTA */}
-              <div className="lg:col-span-7 flex flex-col items-start justify-center text-left space-y-4 sm:space-y-5">
-                {/* Festive Dhamaka Tag */}
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-400/25 to-yellow-300/15 border border-amber-400/40 text-amber-300 text-xs sm:text-[13px] font-black tracking-wide shadow-sm backdrop-blur-xs">
-                  <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-                  <span className="uppercase tracking-wider">Diwali Mahotsav Dhamaka Offers</span>
-                </div>
-
-                {/* Main Headline */}
-                <h3 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-white leading-[1.15] tracking-tight">
-                  Celebrate &amp; Save Big with{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 drop-shadow-sm">
-                    Diwali Offers!
-                  </span>
-                </h3>
-
-                {/* Discount Banner Strip */}
-                <div className="inline-flex flex-wrap items-center gap-2 px-4 py-2 rounded-xl bg-amber-400/15 border border-amber-300/30 text-amber-200">
-                  <span className="text-xl sm:text-2xl font-black text-amber-300 tracking-tight">
-                    UP TO 30% - 50% OFF
-                  </span>
-                  <span className="text-xs sm:text-sm font-semibold text-purple-100">
-                    on Pooja Essentials, Groceries &amp; Sweets
-                  </span>
-                </div>
-
-                {/* Description */}
-                <p className="text-sm sm:text-base text-purple-100/90 leading-relaxed max-w-xl font-normal">
-                  Stock up your festive home with pure ingredients, sacred puja essentials, fragrant agarbathi, and fresh groceries at guaranteed festival prices in Bapatla.
-                </p>
-
-                {/* 4 Client-Attractive Benefit Pills */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 w-full max-w-xl pt-1">
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-xs font-semibold">
-                    <span className="text-amber-300 text-sm">⚡</span>
-                    <span>30-Min Fast Delivery</span>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-xs font-semibold">
-                    <span className="text-amber-300 text-sm">🪔</span>
-                    <span>Free Diya on ₹499+</span>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-xs font-semibold col-span-2 sm:col-span-1">
-                    <span className="text-amber-300 text-sm">✨</span>
-                    <span>Extra ₹100 1st Order</span>
-                  </div>
-                </div>
-
-                {/* Featured Festive Deal Highlights Pills */}
-                <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-                  <span className="text-purple-200/80 font-bold uppercase tracking-wider text-[11px]">
-                    Hot Deals:
-                  </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white/10 text-amber-200 font-medium border border-white/10">
-                    🪔 Nandini Ghee @ ₹289
-                  </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white/10 text-amber-200 font-medium border border-white/10">
-                    ✨ Ambica Agarbathi @ ₹79
-                  </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white/10 text-amber-200 font-medium border border-white/10">
-                    🌾 Sona Masoori Rice @ ₹299
-                  </span>
-                </div>
-
-                {/* CTA Buttons */}
-                <div className="flex flex-wrap items-center gap-3 pt-2">
-                  <Link
-                    href="/offers"
-                    className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-purple-950 font-black text-sm sm:text-base shadow-lg hover:shadow-amber-400/25 hover:scale-105 active:scale-98 transition-all duration-200"
+                {/* Card 2 Actions */}
+                <div className="p-6 pt-0 flex gap-3">
+                  <button
+                    onClick={() => {
+                      setRentalCarType('7-seater');
+                      setRentalDuration(selected7SeaterPlan);
+                      setIsRentalModalOpen(true);
+                    }}
+                    className="flex-1 py-3 px-4 rounded-xl bg-[#451A03] hover:bg-[#2A1002] text-white font-bold text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
                   >
-                    <span>Shop Diwali Deals Now</span>
-                    <ArrowRight className="w-4 h-4 text-purple-950 stroke-[2.5]" />
-                  </Link>
-
-                  <Link
-                    href="/offers"
-                    className="inline-flex items-center gap-1.5 px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm backdrop-blur-xs border border-white/20 transition-all"
+                    Book 7-Seater ({selected7SeaterPlan === '6hr' ? '6 Hr • ₹1,800' : selected7SeaterPlan === '12hr' ? '12 Hr • ₹2,490' : '24 Hr • ₹3,490'})
+                  </button>
+                  <a
+                    href={`https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%207-Seater%20car%20in%20Bapatla%20for%20${selected7SeaterPlan === '6hr' ? '6%20Hours%20(Rs.1800)' : selected7SeaterPlan === '12hr' ? '12%20Hours%20(Rs.2490)' : '24%20Hours%20(Rs.3490)'}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="py-3 px-4 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs sm:text-sm transition-all text-center flex items-center gap-1.5"
                   >
-                    <span>View All 12+ Deals</span>
-                  </Link>
+                    <MessageSquare className="w-4 h-4 text-emerald-600" />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* 4 Trust Pillars (Directly from Client Brochure) */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-orange-50/70 via-amber-50/50 to-orange-50/70 border border-orange-200/80 shadow-xs">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white border border-emerald-200 text-[#137A2C] flex items-center justify-center shrink-0 shadow-2xs">
+                  <ShieldCheck className="w-5 h-5 text-[#137A2C]" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-gray-900">Safe &amp; Reliable</h4>
+                  <p className="text-[11px] text-gray-600 mt-0.5">GPS enabled &amp; full insurance</p>
                 </div>
               </div>
 
-              {/* Right Side: High-Clarity Festive Packshot with Glow Effect */}
-              <div className="lg:col-span-5 flex items-center justify-center relative">
-                <div className="relative w-full max-w-[460px] flex items-center justify-center group">
-                  <div className="absolute inset-0 bg-amber-400/20 rounded-full blur-2xl group-hover:bg-amber-400/30 transition-all" />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/diwali-offer-products.png"
-                    alt="Diwali Grocery Offers & Up to 30% OFF"
-                    className="relative z-10 w-full max-w-[440px] h-auto object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
-                  />
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white border border-orange-200 text-[#EA580C] flex items-center justify-center shrink-0 shadow-2xs">
+                  <Car className="w-5 h-5 text-[#EA580C]" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-gray-900">Well Maintained</h4>
+                  <p className="text-[11px] text-gray-600 mt-0.5">Spotless &amp; sanitised vehicles</p>
                 </div>
               </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white border border-blue-200 text-blue-600 flex items-center justify-center shrink-0 shadow-2xs">
+                  <User className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-gray-900">Professional Service</h4>
+                  <p className="text-[11px] text-gray-600 mt-0.5">Doorstep delivery in Bapatla</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs">
+                  <Clock className="w-5 h-5 text-amber-700" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-gray-900">Flexible Rental Plans</h4>
+                  <p className="text-[11px] text-gray-600 mt-0.5">6h, 12h, 24h &amp; outstation</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Terms & Transparency Strip */}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200/70 text-[11px] text-gray-500">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Fuel by customer as per actual usage</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Valid Driving License &amp; Aadhaar Card required</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Transparent hourly extension rates</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>24x7 Roadside Assistance in Bapatla</span>
+              </span>
             </div>
           </div>
         </section>
