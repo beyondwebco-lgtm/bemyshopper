@@ -30,12 +30,13 @@ export default function AboutPage() {
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo Lockup */}
             <div className="flex items-center gap-8">
-              <Link href="/" className="flex items-center group">
+              <Link href="/" className="flex items-center py-1 group shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/images/logo.png"
                   alt="BeMyShopper"
-                  className="h-10 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform"
+                  className="h-9 sm:h-10 w-auto object-contain block shrink-0"
+                  style={{ height: '38px', width: 'auto', maxHeight: '38px' }}
                 />
               </Link>
 
@@ -288,7 +289,8 @@ export default function AboutPage() {
                 <img
                   src="/images/logo.png"
                   alt="BeMyShopper"
-                  className="h-8 w-auto object-contain"
+                  className="h-8 w-auto object-contain block shrink-0"
+                  style={{ height: '32px', width: 'auto', maxHeight: '32px' }}
                 />
               </div>
               <p className="text-xs sm:text-sm text-gray-500 max-w-md leading-relaxed">

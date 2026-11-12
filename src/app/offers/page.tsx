@@ -263,12 +263,13 @@ export default function DiwaliOffersPage() {
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo Lockup */}
             <div className="flex items-center gap-8">
-              <Link href="/" className="flex items-center group">
+              <Link href="/" className="flex items-center py-1 group shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/images/logo.png"
                   alt="BeMyShopper"
-                  className="h-10 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform"
+                  className="h-9 sm:h-10 w-auto object-contain block shrink-0"
+                  style={{ height: '38px', width: 'auto', maxHeight: '38px' }}
                 />
               </Link>
 
@@ -466,12 +467,13 @@ export default function DiwaliOffersPage() {
                   </div>
 
                   {/* Product Packshot */}
-                  <div className="w-full h-32 sm:h-36 flex items-center justify-center p-2 mb-2 bg-[#FAFAFA] rounded-xl group-hover:bg-[#FCF9FF] transition-colors">
+                  <div className="w-full h-28 sm:h-32 flex items-center justify-center p-2 mb-2 bg-[#FAFAFA] rounded-xl group-hover:bg-[#FCF9FF] transition-colors">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={item.img}
                       alt={item.name}
-                      className="max-h-full max-w-full object-contain group-hover:scale-108 transition-transform duration-300 drop-shadow-xs"
+                      className="max-h-[110px] sm:max-h-[120px] max-w-full object-contain group-hover:scale-108 transition-transform duration-300 drop-shadow-xs"
+                      style={{ maxHeight: '115px', maxWidth: '100%', objectFit: 'contain' }}
                     />
                   </div>
 

@@ -482,18 +482,19 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-2xs">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex items-center gap-6">
-            <a href="#" className="flex items-center">
+            <Link href="/" className="flex items-center py-1 shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/logo.png"
                 alt="Be My Shopper"
-                className="h-10 sm:h-11 w-auto object-contain"
+                className="h-9 sm:h-10 w-auto object-contain block shrink-0"
+                style={{ height: '38px', width: 'auto', maxHeight: '38px' }}
               />
-            </a>
+            </Link>
 
             {/* Navigation links */}
             <nav className="hidden md:flex items-center gap-6 text-[13px] font-medium">
@@ -717,14 +718,15 @@ export default function Home() {
               {categories.map((cat) => (
                 <div
                   key={cat.id}
-                  className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 sm:p-2.5 flex flex-col items-center justify-between h-[160px] sm:h-[175px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
+                  className={`group relative rounded-2xl bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 flex flex-col items-center justify-between h-[155px] sm:h-[165px] shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden`}
                 >
-                  <div className="w-full h-24 sm:h-26 flex items-center justify-center pt-2">
+                  <div className="w-full h-24 sm:h-26 flex items-center justify-center pt-1">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={cat.prodImg}
                       alt={cat.name.replace('\n', ' ')}
-                      className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300 select-none drop-shadow-2xs"
+                      className="max-h-[75px] max-w-[85px] object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
+                      style={{ maxHeight: '75px', maxWidth: '85px', objectFit: 'contain' }}
                     />
                   </div>
 
@@ -801,12 +803,13 @@ export default function Home() {
                     </div>
 
                     {/* Product Image */}
-                    <div className="w-full h-32 sm:h-36 flex items-center justify-center p-1.5 my-1">
+                    <div className="w-full h-28 sm:h-32 flex items-center justify-center p-1 my-1">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={item.img}
                         alt={item.name}
-                        className="max-h-full max-w-full object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
+                        className="max-h-[110px] sm:max-h-[120px] max-w-full object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
+                        style={{ maxHeight: '115px', maxWidth: '100%', objectFit: 'contain' }}
                       />
                     </div>
 
@@ -990,7 +993,8 @@ export default function Home() {
                 <img
                   src="/images/logo.png"
                   alt="BeMyShopper"
-                  className="h-8 w-auto object-contain"
+                  className="h-8 w-auto object-contain block shrink-0"
+                  style={{ height: '32px', width: 'auto', maxHeight: '32px' }}
                 />
               </div>
               <p className="text-xs sm:text-sm text-gray-500 max-w-md leading-relaxed">
