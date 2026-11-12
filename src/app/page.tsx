@@ -42,6 +42,7 @@ import {
   Phone,
 } from 'lucide-react';
 import { Hero } from '../components/Hero';
+import { CarRentalHeroBanner } from '../components/CarRentalHeroBanner';
 
 export default function Home() {
   // Dynamic Cart state: itemId -> quantity
@@ -897,81 +898,55 @@ export default function Home() {
         </section>
 
         {/* ================= 4. RENTAL CARS IN BAPATLA ================= */}
-        <section id="rental-cars" className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 scroll-mt-24">
-          {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#137A2C] border border-emerald-200/60 text-xs font-bold mb-2.5">
-                <Car className="w-3.5 h-3.5 text-[#137A2C]" />
-                <span>Bapatla Self-Drive &amp; Chauffeur Car Rentals</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#142333] tracking-tight flex items-center gap-2">
-                <span>Rental Cars in Bapatla</span>
-                <span className="text-amber-500 font-extrabold text-xl select-none align-middle">\ | /</span>
-              </h2>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1 max-w-2xl font-normal">
-                Success &amp; New Journeys in Your Life — Well-maintained 5-seater &amp; 7-seater cars delivered to your doorstep across Bapatla and Suryalanka Beach with zero hassle.
-              </p>
-            </div>
+        <section id="rental-cars" className="w-full my-6 sm:my-8 scroll-mt-20">
+          {/* Full-Width Premium Orange Hero Banner */}
+          <CarRentalHeroBanner
+            onExploreCars={() => {
+              const el = document.getElementById('rental-tariff-plans');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+            onOpenBookingModal={() => {
+              setRentalCarType('5-seater');
+              setIsRentalModalOpen(true);
+            }}
+          />
 
-            <div className="flex items-center gap-2.5 shrink-0">
+          {/* Pricing Tariffs & Trust Pillars (Accessible via 'Explore Cars') */}
+          <div id="rental-tariff-plans" className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 scroll-mt-24">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+              <div>
+                <span className="text-xs font-bold text-[#137A2C] uppercase tracking-wider block">
+                  Transparent Hourly &amp; Daily Pricing
+                </span>
+                <h3 className="text-xl sm:text-2xl font-black text-gray-900 mt-0.5">
+                  Choose Your Vehicle &amp; Rental Plan
+                </h3>
+              </div>
               <button
                 onClick={() => {
                   setRentalCarType('5-seater');
                   setIsRentalModalOpen(true);
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#137A2C] hover:bg-[#0E5C21] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#137A2C] hover:bg-[#0E5C21] text-white text-xs font-bold transition-all shadow-xs cursor-pointer w-fit"
               >
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-3.5 h-3.5" />
                 <span>Book a Car Online</span>
               </button>
-
-              <a
-                href="https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20would%20like%20to%20rent%20a%20car%20in%20Bapatla"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#137A2C] border border-emerald-200 text-xs sm:text-sm font-bold transition-all cursor-pointer"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>WhatsApp Enquiry</span>
-              </a>
             </div>
-          </div>
 
-          {/* Fleet Showcase Hero Banner */}
-          <div className="relative rounded-3xl overflow-hidden shadow-lg border border-gray-100 mb-8 group bg-gray-900">
-            <div className="relative h-[220px] sm:h-[300px] lg:h-[340px] w-full">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/car-rental-fleet.jpg"
-                alt="BeMyShopper Rental Cars Fleet in Bapatla"
-                className="w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10 flex flex-col justify-end p-5 sm:p-8 text-white">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-amber-300 text-[11px] font-bold w-fit mb-2 border border-white/20">
-                  <span>⭐ Verified Fleet • Zero Security Hassle</span>
-                </div>
-                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-tight">
-                  Explore Bapatla, Suryalanka Beach, Chirala &amp; Outstation
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-200 mt-1 max-w-2xl font-light">
-                  Choose from powerful 5-seater SUVs or spacious 7-seater MPVs. Spotless interiors, multi-point safety checks, and guaranteed best rental prices in town.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Pricing & Vehicle Category Cards (Two Column Grid) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
-            {/* CARD 1: ANY 5 SEATER */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
-              <div>
-                {/* Vehicle Header & Image */}
-                <div className="p-5 sm:p-6 pb-2">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold">
-                      Compact SUV &amp; Hatchback
-                    </span>
+            {/* Pricing & Vehicle Category Cards (Two Column Grid) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
+              {/* CARD 1: ANY 5 SEATER */}
+              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
+                <div>
+                  {/* Vehicle Header & Image */}
+                  <div className="p-5 sm:p-6 pb-2">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold">
+                        Compact SUV &amp; Hatchback
+                      </span>
                     <span className="text-xs font-semibold text-gray-500">
                       Up to 5 Passengers
                     </span>
@@ -1250,7 +1225,8 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
         {/* ================= 5. DIWALI OFFERS (NEXT / AT LAST) ================= */}
         <section
