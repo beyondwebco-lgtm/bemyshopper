@@ -288,6 +288,12 @@ export default function DiwaliOffersPage() {
                   Categories
                 </Link>
                 <Link
+                  href="/#rental-cars"
+                  className="text-gray-700 hover:text-[#1D7A34] transition-colors"
+                >
+                  Rental Cars
+                </Link>
+                <Link
                   href="/offers"
                   className="text-[#3C0764] font-bold border-b-2 border-[#3C0764] pb-0.5"
                 >

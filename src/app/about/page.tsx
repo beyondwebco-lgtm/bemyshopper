@@ -55,6 +55,12 @@ export default function AboutPage() {
                   Categories
                 </Link>
                 <Link
+                  href="/#rental-cars"
+                  className="text-gray-700 hover:text-[#1D7A34] transition-colors"
+                >
+                  Rental Cars
+                </Link>
+                <Link
                   href="/#diwali-offers"
                   className="text-gray-700 hover:text-[#1D7A34] transition-colors"
                 >

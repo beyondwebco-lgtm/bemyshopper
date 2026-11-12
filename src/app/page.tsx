@@ -36,6 +36,10 @@ import {
   Car,
   Store,
   CheckCircle2,
+  Clock,
+  Calendar,
+  MessageSquare,
+  Phone,
 } from 'lucide-react';
 import { Hero } from '../components/Hero';
 
@@ -51,6 +55,16 @@ export default function Home() {
   // Feedback
   const [addedItem, setAddedItem] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Rental Cars state
+  const [isRentalModalOpen, setIsRentalModalOpen] = useState(false);
+  const [rentalCarType, setRentalCarType] = useState<'5-seater' | '7-seater'>('5-seater');
+  const [rentalDuration, setRentalDuration] = useState<'6hr' | '12hr' | '24hr'>('12hr');
+  const [rentalName, setRentalName] = useState('');
+  const [rentalPhone, setRentalPhone] = useState('');
+  const [rentalDate, setRentalDate] = useState('');
+  const [rentalLocation, setRentalLocation] = useState('');
+  const [rentalSubmitted, setRentalSubmitted] = useState(false);
 
   const dailyScrollRef = useRef<HTMLDivElement>(null);
 
@@ -571,6 +585,17 @@ export default function Home() {
                 Essentials
               </button>
 
+              {/* Rental Cars link */}
+              <button
+                onClick={() => scrollToSection('rental-cars')}
+                className="text-gray-700 hover:text-[#1D7A34] transition-colors font-medium cursor-pointer inline-flex items-center gap-1.5"
+              >
+                <span>Rental Cars</span>
+                <span className="text-[10px] bg-emerald-100 text-[#137A2C] font-extrabold px-1.5 py-0.2 rounded-full">
+                  Bapatla
+                </span>
+              </button>
+
               {/* Offers link */}
               <button
                 onClick={() => scrollToSection('diwali-offers')}
@@ -871,7 +896,363 @@ export default function Home() {
           <Hero />
         </section>
 
-        {/* ================= 4. DIWALI OFFERS (NEXT / AT LAST) ================= */}
+        {/* ================= 4. RENTAL CARS IN BAPATLA ================= */}
+        <section id="rental-cars" className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 scroll-mt-24">
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#137A2C] border border-emerald-200/60 text-xs font-bold mb-2.5">
+                <Car className="w-3.5 h-3.5 text-[#137A2C]" />
+                <span>Bapatla Self-Drive &amp; Chauffeur Car Rentals</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-[#142333] tracking-tight flex items-center gap-2">
+                <span>Rental Cars in Bapatla</span>
+                <span className="text-amber-500 font-extrabold text-xl select-none align-middle">\ | /</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1 max-w-2xl font-normal">
+                Success &amp; New Journeys in Your Life — Well-maintained 5-seater &amp; 7-seater cars delivered to your doorstep across Bapatla and Suryalanka Beach with zero hassle.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              <button
+                onClick={() => {
+                  setRentalCarType('5-seater');
+                  setIsRentalModalOpen(true);
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#137A2C] hover:bg-[#0E5C21] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Book a Car Online</span>
+              </button>
+
+              <a
+                href="https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20would%20like%20to%20rent%20a%20car%20in%20Bapatla"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#137A2C] border border-emerald-200 text-xs sm:text-sm font-bold transition-all cursor-pointer"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>WhatsApp Enquiry</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Fleet Showcase Hero Banner */}
+          <div className="relative rounded-3xl overflow-hidden shadow-lg border border-gray-100 mb-8 group bg-gray-900">
+            <div className="relative h-[220px] sm:h-[300px] lg:h-[340px] w-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/car-rental-fleet.jpg"
+                alt="BeMyShopper Rental Cars Fleet in Bapatla"
+                className="w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10 flex flex-col justify-end p-5 sm:p-8 text-white">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-amber-300 text-[11px] font-bold w-fit mb-2 border border-white/20">
+                  <span>⭐ Verified Fleet • Zero Security Hassle</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-tight">
+                  Explore Bapatla, Suryalanka Beach, Chirala &amp; Outstation
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-200 mt-1 max-w-2xl font-light">
+                  Choose from powerful 5-seater SUVs or spacious 7-seater MPVs. Spotless interiors, multi-point safety checks, and guaranteed best rental prices in town.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Pricing & Vehicle Category Cards (Two Column Grid) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
+            {/* CARD 1: ANY 5 SEATER */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
+              <div>
+                {/* Vehicle Header & Image */}
+                <div className="p-5 sm:p-6 pb-2">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold">
+                      Compact SUV &amp; Hatchback
+                    </span>
+                    <span className="text-xs font-semibold text-gray-500">
+                      Up to 5 Passengers
+                    </span>
+                  </div>
+
+                  <h3 className="text-2xl font-black text-[#142333]">Any 5 Seater</h3>
+                  <p className="text-xs text-gray-500 mt-0.5 font-normal">
+                    Mahindra Thar, Maruti Fronx, Baleno, Swift &amp; more
+                  </p>
+                </div>
+
+                {/* Car Packshot Image */}
+                <div className="w-full h-48 sm:h-56 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/car-5-seater.jpg"
+                    alt="Any 5 Seater Car Rental in Bapatla"
+                    className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-300 drop-shadow-md"
+                  />
+                </div>
+
+                {/* Tariff Plans Table */}
+                <div className="p-5 sm:p-6 pt-2">
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">
+                    Rental Tariff Plans
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {/* 6 Hours */}
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 hover:bg-emerald-50/50 border border-gray-100 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-white border border-gray-200/70 flex items-center justify-center text-gray-700">
+                          <Clock className="w-4 h-4 text-[#137A2C]" />
+                        </div>
+                        <div>
+                          <span className="text-sm font-bold text-gray-900 block leading-tight">6 Hours</span>
+                          <span className="text-[11px] text-gray-500">Short trips &amp; local errands</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-black text-[#137A2C] block leading-tight">₹900</span>
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          120 KM Included
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 12 Hours */}
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-50/40 border border-emerald-100 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-white border border-emerald-200 flex items-center justify-center text-gray-700">
+                          <Clock className="w-4 h-4 text-[#137A2C]" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-bold text-gray-900 leading-tight">12 Hours</span>
+                            <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-emerald-600 text-white">Popular</span>
+                          </div>
+                          <span className="text-[11px] text-gray-500">Day outings &amp; beach tours</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-black text-[#137A2C] block leading-tight">₹1,490</span>
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          200 KM Included
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 24 Hours */}
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 hover:bg-emerald-50/50 border border-gray-100 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-white border border-gray-200/70 flex items-center justify-center text-gray-700">
+                          <Clock className="w-4 h-4 text-[#137A2C]" />
+                        </div>
+                        <div>
+                          <span className="text-sm font-bold text-gray-900 block leading-tight">24 Hours</span>
+                          <span className="text-[11px] text-gray-500">Full day &amp; outstation travel</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-black text-[#137A2C] block leading-tight">₹2,490</span>
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          400 KM Included
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="p-5 sm:p-6 pt-0 flex gap-3">
+                <button
+                  onClick={() => {
+                    setRentalCarType('5-seater');
+                    setIsRentalModalOpen(true);
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl bg-[#137A2C] hover:bg-[#0E5C21] text-white font-bold text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
+                >
+                  Book 5-Seater Now
+                </button>
+                <a
+                  href="https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%205-Seater%20car%20in%20Bapatla"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs sm:text-sm transition-all text-center"
+                >
+                  WhatsApp
+                </a>
+              </div>
+            </div>
+
+            {/* CARD 2: ANY 7 SEATER */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
+              <div>
+                {/* Vehicle Header & Image */}
+                <div className="p-5 sm:p-6 pb-2">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="px-3 py-1 rounded-full bg-purple-50 text-purple-900 border border-purple-200 text-xs font-bold">
+                      Luxury Family MPV
+                    </span>
+                    <span className="text-xs font-semibold text-gray-500">
+                      Up to 7-8 Passengers
+                    </span>
+                  </div>
+
+                  <h3 className="text-2xl font-black text-[#142333]">Any 7 Seater</h3>
+                  <p className="text-xs text-gray-500 mt-0.5 font-normal">
+                    Toyota Innova Hycross, Maruti Ertiga, Carens &amp; more
+                  </p>
+                </div>
+
+                {/* Car Packshot Image */}
+                <div className="w-full h-48 sm:h-56 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/car-7-seater.jpg"
+                    alt="Any 7 Seater Car Rental in Bapatla"
+                    className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-300 drop-shadow-md"
+                  />
+                </div>
+
+                {/* Tariff Plans Table */}
+                <div className="p-5 sm:p-6 pt-2">
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">
+                    Rental Tariff Plans
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {/* 6 Hours */}
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 hover:bg-purple-50/50 border border-gray-100 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-white border border-gray-200/70 flex items-center justify-center text-gray-700">
+                          <Clock className="w-4 h-4 text-purple-700" />
+                        </div>
+                        <div>
+                          <span className="text-sm font-bold text-gray-900 block leading-tight">6 Hours</span>
+                          <span className="text-[11px] text-gray-500">Family temple visits &amp; dinners</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-black text-purple-900 block leading-tight">₹1,800</span>
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          120 KM Included
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 12 Hours */}
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-purple-50/40 border border-purple-100 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-white border border-purple-200 flex items-center justify-center text-gray-700">
+                          <Clock className="w-4 h-4 text-purple-700" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-bold text-gray-900 leading-tight">12 Hours</span>
+                            <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-purple-700 text-white">Popular</span>
+                          </div>
+                          <span className="text-[11px] text-gray-500">Full day family &amp; beach trip</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-black text-purple-900 block leading-tight">₹2,490</span>
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          200 KM Included
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 24 Hours */}
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 hover:bg-purple-50/50 border border-gray-100 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-white border border-gray-200/70 flex items-center justify-center text-gray-700">
+                          <Clock className="w-4 h-4 text-purple-700" />
+                        </div>
+                        <div>
+                          <span className="text-sm font-bold text-gray-900 block leading-tight">24 Hours</span>
+                          <span className="text-[11px] text-gray-500">Weekend getaway &amp; outstation</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-black text-purple-900 block leading-tight">₹3,490</span>
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          400 KM Included
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="p-5 sm:p-6 pt-0 flex gap-3">
+                <button
+                  onClick={() => {
+                    setRentalCarType('7-seater');
+                    setIsRentalModalOpen(true);
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl bg-purple-900 hover:bg-purple-950 text-white font-bold text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
+                >
+                  Book 7-Seater Now
+                </button>
+                <a
+                  href="https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%207-Seater%20car%20in%20Bapatla"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs sm:text-sm transition-all text-center"
+                >
+                  WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* 4 Trust Pillars (Directly from Brochure) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 sm:p-6 rounded-3xl bg-[#F7FAF8] border border-emerald-100">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-100 text-[#137A2C] flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5 text-[#137A2C]" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-[13px] font-bold text-gray-900">Safe &amp; Reliable</h4>
+                <p className="text-[11px] text-gray-500 mt-0.5">GPS enabled &amp; full insurance</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                <Car className="w-5 h-5 text-amber-700" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-[13px] font-bold text-gray-900">Well Maintained</h4>
+                <p className="text-[11px] text-gray-500 mt-0.5">Spotless &amp; sanitised cars</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                <User className="w-5 h-5 text-blue-700" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-[13px] font-bold text-gray-900">Professional Service</h4>
+                <p className="text-[11px] text-gray-500 mt-0.5">Doorstep delivery in Bapatla</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                <Clock className="w-5 h-5 text-purple-700" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-[13px] font-bold text-gray-900">Flexible Rental Plans</h4>
+                <p className="text-[11px] text-gray-500 mt-0.5">6h, 12h, 24h &amp; outstation</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= 5. DIWALI OFFERS (NEXT / AT LAST) ================= */}
         <section
           id="diwali-offers"
           className="w-full bg-gradient-to-r from-[#24033E] via-[#3B0763] via-40% via-[#5B108E] via-75% to-[#24033E] my-8 sm:my-10 rounded-none shadow-xl scroll-mt-20 relative overflow-hidden border-y-2 border-amber-400/30"
@@ -1034,6 +1415,15 @@ export default function Home() {
                     className="hover:text-[#137A2C] transition-colors cursor-pointer"
                   >
                     Daily Essentials
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => scrollToSection('rental-cars')}
+                    className="hover:text-[#137A2C] transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>Rental Cars (Bapatla)</span>
+                    <span className="text-[9px] bg-emerald-100 text-[#137A2C] font-bold px-1 rounded">New</span>
                   </button>
                 </li>
                 <li>
@@ -1330,6 +1720,235 @@ export default function Home() {
                   })
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= RENTAL CAR BOOKING MODAL ================= */}
+      {isRentalModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative border border-gray-100 animate-in zoom-in-95 duration-200">
+            <button
+              onClick={() => {
+                setIsRentalModalOpen(false);
+                setRentalSubmitted(false);
+              }}
+              className="absolute top-5 right-5 p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {!rentalSubmitted ? (
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[#137A2C] text-xs font-bold mb-2">
+                  <Car className="w-3.5 h-3.5" />
+                  <span>Bapatla Car Rental Booking</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-[#142333]">
+                  Book Your Rental Car
+                </h3>
+                <p className="text-xs text-gray-500 mt-1 mb-5">
+                  Select your vehicle, duration, and let Sivaji &amp; the BeMyShopper team arrange your doorstep delivery in Bapatla.
+                </p>
+
+                {/* Form */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setRentalSubmitted(true);
+                  }}
+                  className="space-y-4 text-xs"
+                >
+                  {/* Select Vehicle Category */}
+                  <div>
+                    <label className="font-bold text-gray-800 block mb-1.5">
+                      Select Car Category
+                    </label>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setRentalCarType('5-seater')}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                          rentalCarType === '5-seater'
+                            ? 'border-[#137A2C] bg-emerald-50/50 shadow-xs'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-bold text-sm text-gray-900">Any 5 Seater</div>
+                        <div className="text-[11px] text-gray-500 mt-0.5">Thar / Fronx / Baleno</div>
+                        <div className="text-xs font-black text-[#137A2C] mt-1">From ₹900</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setRentalCarType('7-seater')}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                          rentalCarType === '7-seater'
+                            ? 'border-purple-600 bg-purple-50/50 shadow-xs'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-bold text-sm text-gray-900">Any 7 Seater</div>
+                        <div className="text-[11px] text-gray-500 mt-0.5">Innova Hycross / Ertiga</div>
+                        <div className="text-xs font-black text-purple-700 mt-1">From ₹1,800</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Duration Plan */}
+                  <div>
+                    <label className="font-bold text-gray-800 block mb-1.5">
+                      Select Duration Plan
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setRentalDuration('6hr')}
+                        className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                          rentalDuration === '6hr'
+                            ? 'border-[#137A2C] bg-emerald-50 text-[#137A2C] font-bold'
+                            : 'border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
+                        }`}
+                      >
+                        <div>6 Hours</div>
+                        <div className="text-[10px] text-gray-500">120 KM</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setRentalDuration('12hr')}
+                        className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                          rentalDuration === '12hr'
+                            ? 'border-[#137A2C] bg-emerald-50 text-[#137A2C] font-bold'
+                            : 'border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
+                        }`}
+                      >
+                        <div>12 Hours</div>
+                        <div className="text-[10px] text-gray-500">200 KM</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setRentalDuration('24hr')}
+                        className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                          rentalDuration === '24hr'
+                            ? 'border-[#137A2C] bg-emerald-50 text-[#137A2C] font-bold'
+                            : 'border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
+                        }`}
+                      >
+                        <div>24 Hours</div>
+                        <div className="text-[10px] text-gray-500">400 KM</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Name and Phone */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-gray-800 block mb-1">Your Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={rentalName}
+                        onChange={(e) => setRentalName(e.target.value)}
+                        placeholder="e.g. Sivaji / Suresh"
+                        className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C] text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-gray-800 block mb-1">Phone Number</label>
+                      <input
+                        type="tel"
+                        required
+                        value={rentalPhone}
+                        onChange={(e) => setRentalPhone(e.target.value)}
+                        placeholder="10-digit mobile number"
+                        className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C] text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Pickup Date & Location */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-gray-800 block mb-1">Pickup Date &amp; Time</label>
+                      <input
+                        type="text"
+                        required
+                        value={rentalDate}
+                        onChange={(e) => setRentalDate(e.target.value)}
+                        placeholder="e.g. Tomorrow 9:00 AM"
+                        className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C] text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-gray-800 block mb-1">Pickup Location in Bapatla</label>
+                      <input
+                        type="text"
+                        required
+                        value={rentalLocation}
+                        onChange={(e) => setRentalLocation(e.target.value)}
+                        placeholder="e.g. Railway Station / Town"
+                        className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C] text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      className="w-full py-3 rounded-2xl bg-[#137A2C] hover:bg-[#0E5C21] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>Confirm &amp; Reach Out on WhatsApp</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              <div className="text-center py-6 space-y-4">
+                <div className="w-14 h-14 rounded-full bg-emerald-100 text-[#137A2C] flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-8 h-8 text-[#137A2C]" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-gray-900">Enquiry Recorded!</h3>
+                  <p className="text-xs text-gray-600 mt-1 max-w-sm mx-auto">
+                    Thank you <strong>{rentalName || 'Customer'}</strong>. Your request for a{' '}
+                    <strong>{rentalCarType === '5-seater' ? '5-Seater' : '7-Seater'}</strong> car ({rentalDuration}) has been recorded.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 text-xs text-gray-700 text-left max-w-sm mx-auto">
+                  <div><strong>Pickup:</strong> {rentalDate || 'As requested'}</div>
+                  <div><strong>Location:</strong> {rentalLocation || 'Bapatla'}</div>
+                  <div><strong>Phone:</strong> {rentalPhone}</div>
+                </div>
+
+                <div className="flex flex-col gap-2 pt-2">
+                  <a
+                    href={`https://wa.me/919999999999?text=${encodeURIComponent(
+                      `Hi BeMyShopper, I would like to book a ${rentalCarType === '5-seater' ? '5-Seater' : '7-Seater'} car for ${rentalDuration}. Name: ${rentalName}, Phone: ${rentalPhone}, Date: ${rentalDate}, Location: ${rentalLocation}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs flex items-center justify-center gap-2 shadow cursor-pointer"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span>Send Details to WhatsApp Directly</span>
+                  </a>
+
+                  <button
+                    onClick={() => {
+                      setIsRentalModalOpen(false);
+                      setRentalSubmitted(false);
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
