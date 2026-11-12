@@ -642,9 +642,6 @@ export default function Home() {
       </header>
 
       <main>
-        {/* Auto-scrolling Hero Carousel */}
-        <Hero />
-
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           
           {/* 1. Value Proposition Features Strip */}
@@ -696,8 +693,53 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ================= 1. FIRST: SECTION: TOP ESSENTIALS ================= */}
-          <section id="top-essentials" className="py-6 sm:py-8 scroll-mt-24">
+          {/* ================= 1. SHOP BY CATEGORY (ON TOP) ================= */}
+          <section id="categories" className="py-6 sm:py-8 scroll-mt-24">
+            {/* Header: Shop by Category with Sparkle \ | / and Pill Button */}
+            <div className="flex items-center justify-between mb-5 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#142333] flex items-center gap-1.5 tracking-tight">
+                <span>Shop by Category</span>
+                <span className="text-amber-500 font-extrabold text-xl select-none align-middle tracking-wider ml-1">
+                  \ | /
+                </span>
+              </h2>
+              <button
+                onClick={() => scrollToSection('categories')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF5EC] hover:bg-[#D8EEDF] text-[#137A2C] text-xs sm:text-[13px] font-semibold transition-colors shadow-2xs cursor-pointer"
+              >
+                <span>View All Categories</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#137A2C]" />
+              </button>
+            </div>
+
+            {/* 10 Category Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
+              {categories.map((cat) => (
+                <div
+                  key={cat.id}
+                  className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 sm:p-2.5 flex flex-col items-center justify-between h-[160px] sm:h-[175px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
+                >
+                  <div className="w-full h-24 sm:h-26 flex items-center justify-center pt-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={cat.prodImg}
+                      alt={cat.name.replace('\n', ' ')}
+                      className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300 select-none drop-shadow-2xs"
+                    />
+                  </div>
+
+                  <div className="w-full h-9 pb-1 flex items-center justify-center">
+                    <span className="text-[11px] sm:text-[12px] font-bold text-gray-900 leading-[1.2] text-center whitespace-pre-line tracking-tight">
+                      {cat.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ================= 2. TOP ESSENTIALS (NEXT) ================= */}
+          <section id="top-essentials" className="py-6 sm:py-8 pb-10 scroll-mt-24">
             {/* Header: Green icon, Title, Sparkle \ | /, Subtitle */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3.5">
@@ -819,196 +861,14 @@ export default function Home() {
               })}
             </div>
           </section>
-
-          {/* ================= 2. SECOND: SECTION: SHOP BY CATEGORY ================= */}
-          <section id="categories" className="py-6 sm:py-8 scroll-mt-24">
-            {/* Header: Shop by Category with Sparkle \ | / and Pill Button */}
-            <div className="flex items-center justify-between mb-5 sm:mb-6">
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[#142333] flex items-center gap-1.5 tracking-tight">
-                <span>Shop by Category</span>
-                <span className="text-amber-500 font-extrabold text-xl select-none align-middle tracking-wider ml-1">
-                  \ | /
-                </span>
-              </h2>
-              <button
-                onClick={() => scrollToSection('categories')}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF5EC] hover:bg-[#D8EEDF] text-[#137A2C] text-xs sm:text-[13px] font-semibold transition-colors shadow-2xs cursor-pointer"
-              >
-                <span>View All Categories</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#137A2C]" />
-              </button>
-            </div>
-
-            {/* 10 Category Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
-              {categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 sm:p-2.5 flex flex-col items-center justify-between h-[160px] sm:h-[175px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
-                >
-                  <div className="w-full h-24 sm:h-26 flex items-center justify-center pt-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={cat.prodImg}
-                      alt={cat.name.replace('\n', ' ')}
-                      className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300 select-none drop-shadow-2xs"
-                    />
-                  </div>
-
-                  <div className="w-full h-9 pb-1 flex items-center justify-center">
-                    <span className="text-[11px] sm:text-[12px] font-bold text-gray-900 leading-[1.2] text-center whitespace-pre-line tracking-tight">
-                      {cat.name}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ================= 3. THIRD: SECTION: ALL YOUR DAILY ESSENTIALS (SCROLL NEXT) ================= */}
-          <section id="daily-essentials" className="py-6 sm:py-8 pb-10 scroll-mt-24">
-            {/* Header with Title, Sparkle \ | / and Scroll Navigation Buttons */}
-            <div className="flex items-center justify-between mb-5 sm:mb-6">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs border border-amber-200/60">
-                  <Sparkles className="w-5 h-5 text-amber-600" strokeWidth={2.2} />
-                </div>
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#142333] flex items-center gap-1.5 leading-tight">
-                    <span>All Your Daily Essentials</span>
-                    <span className="text-amber-500 font-extrabold text-lg select-none ml-0.5">\ | /</span>
-                  </h2>
-                  <p className="text-xs sm:text-[13px] text-gray-500 font-normal mt-0.5">
-                    Fresh groceries, daily kitchen staples &amp; dairy — scroll to explore all
-                  </p>
-                </div>
-              </div>
-
-              {/* Horizontal Scroll Controls */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => scrollDaily('left')}
-                  aria-label="Scroll Daily Essentials Left"
-                  className="w-9 h-9 rounded-full bg-white border border-gray-200 text-gray-700 hover:text-[#137A2C] hover:border-[#137A2C] hover:bg-[#EAF5EC] flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => scrollDaily('right')}
-                  aria-label="Scroll Daily Essentials Right"
-                  className="w-9 h-9 rounded-full bg-white border border-gray-200 text-gray-700 hover:text-[#137A2C] hover:border-[#137A2C] hover:bg-[#EAF5EC] flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Horizontal Scroll Product Carousel */}
-            <div
-              ref={dailyScrollRef}
-              className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-4 scroll-smooth"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {dailyEssentials.map((item) => {
-                const isLiked = !!wishlist[item.id];
-                const isAdded = addedItem === item.id;
-
-                return (
-                  <div
-                    key={item.id}
-                    className="w-[200px] sm:w-[220px] shrink-0 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-3 sm:p-3.5 flex flex-col justify-between relative group"
-                  >
-                    {/* Top Row: Badge & Wishlist Heart */}
-                    <div className="flex items-center justify-between h-5 mb-1">
-                      {item.badge ? (
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1 leading-none shadow-2xs ${item.badge.color}`}
-                        >
-                          <span>{item.badge.icon}</span>
-                          <span>{item.badge.text}</span>
-                        </span>
-                      ) : (
-                        <div />
-                      )}
-
-                      <button
-                        onClick={() => toggleWishlist(item.id)}
-                        aria-label="Save to Wishlist"
-                        className="p-1 text-gray-300 hover:text-red-500 transition-colors cursor-pointer"
-                      >
-                        <Heart
-                          className={`w-4 h-4 transition-transform duration-200 hover:scale-110 ${
-                            isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'
-                          }`}
-                          strokeWidth={2}
-                        />
-                      </button>
-                    </div>
-
-                    {/* Product Image */}
-                    <div className="w-full h-28 sm:h-32 flex items-center justify-center p-1.5 my-1 bg-gray-50/70 rounded-xl group-hover:bg-[#F3F9F4] transition-colors">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.img}
-                        alt={item.name}
-                        className="max-h-full max-w-full object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
-                      />
-                    </div>
-
-                    {/* Details */}
-                    <div className="w-full pt-1">
-                      <h4 className="text-xs sm:text-[13px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[34px]">
-                        {item.name}
-                      </h4>
-                      <p className="text-[11px] text-gray-400 font-medium mt-0.5">
-                        {item.pack}
-                      </p>
-
-                      {/* Pricing */}
-                      <div className="flex items-center justify-between mt-2 pt-0.5">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-sm sm:text-base font-extrabold text-gray-900">
-                            {item.price}
-                          </span>
-                          <span className="text-[11px] text-gray-400 line-through">
-                            {item.originalPrice}
-                          </span>
-                        </div>
-                        <span className="text-[10px] sm:text-[11px] font-bold text-[#137A2C] bg-[#EAF5EC] px-1.5 py-0.5 rounded-md">
-                          {item.discount}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Add to Cart */}
-                    <button
-                      onClick={() => handleAddToCart(item.id)}
-                      className={`w-full mt-3 py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${
-                        isAdded
-                          ? 'bg-[#0E5C21] text-white'
-                          : 'bg-[#137A2C] hover:bg-[#0F6323] text-white'
-                      }`}
-                    >
-                      {isAdded ? (
-                        <>
-                          <Check className="w-4 h-4 stroke-[2.5]" />
-                          <span>Added</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingCart className="w-4 h-4 stroke-[2]" />
-                          <span>Add to Cart</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
         </div>
 
-        {/* ================= 4. FOURTH / AT LAST: OFFERS BANNER (PROPER & CLIENT ATTRACTIVE) ================= */}
+        {/* ================= 3. THE SECTION UPLOADED BY USER (HERO CAROUSEL: "ALL YOUR DAILY ESSENTIALS IN ONE PLACE") ================= */}
+        <section id="daily-essentials" className="w-full my-4 sm:my-6 scroll-mt-20">
+          <Hero />
+        </section>
+
+        {/* ================= 4. DIWALI OFFERS (NEXT / AT LAST) ================= */}
         <section
           id="diwali-offers"
           className="w-full bg-gradient-to-r from-[#24033E] via-[#3B0763] via-40% via-[#5B108E] via-75% to-[#24033E] my-8 sm:my-10 rounded-none shadow-xl scroll-mt-20 relative overflow-hidden border-y-2 border-amber-400/30"
