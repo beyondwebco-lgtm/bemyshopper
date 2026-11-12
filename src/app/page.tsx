@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import {
   MapPin,
@@ -8,6 +8,8 @@ import {
   User,
   ShoppingCart,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ArrowRight,
   Truck,
   ShieldCheck,
@@ -50,6 +52,15 @@ export default function Home() {
   const [addedItem, setAddedItem] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const dailyScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollDaily = (direction: 'left' | 'right') => {
+    if (dailyScrollRef.current) {
+      const scrollAmount = direction === 'left' ? -320 : 320;
+      dailyScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
@@ -68,7 +79,7 @@ export default function Home() {
       [id]: (prev[id] || 0) + 1,
     }));
     setAddedItem(id);
-    const item = essentials.find((e) => e.id === id);
+    const item = allProducts.find((e) => e.id === id);
     showToast(`Added ${item?.name || 'item'} to cart 🛒`);
     setTimeout(() => setAddedItem(null), 1200);
   };
@@ -98,7 +109,7 @@ export default function Home() {
   const toggleWishlist = (id: string) => {
     setWishlist((prev) => {
       const willLike = !prev[id];
-      const item = essentials.find((e) => e.id === id);
+      const item = allProducts.find((e) => e.id === id);
       showToast(willLike ? `Saved ${item?.name || 'item'} to favorites ❤️` : `Removed from favorites`);
       return { ...prev, [id]: willLike };
     });
@@ -323,6 +334,151 @@ export default function Home() {
     },
   ];
 
+  const dailyEssentials = [
+    {
+      id: 'daily-nandini-ghee',
+      name: 'Nandini Pure Cow Ghee',
+      pack: '500 ml',
+      img: '/images/prod-nandini-ghee.png',
+      price: '₹289',
+      originalPrice: '₹320',
+      discount: 'Save 10%',
+      badge: { text: 'Trending', icon: '🔥', color: 'bg-[#FED7AA] text-[#C2410C]' },
+    },
+    {
+      id: 'daily-rice',
+      name: 'Premium Sona Masoori Rice',
+      pack: '5 kg',
+      img: '/images/prod-rice-5kg.png',
+      price: '₹329',
+      originalPrice: '₹349',
+      discount: 'Save 6%',
+      badge: { text: 'Daily Staple', icon: '🍚', color: 'bg-emerald-600 text-white' },
+    },
+    {
+      id: 'daily-fruits-veg',
+      name: 'Farm Fresh Fruits & Vegetables',
+      pack: '1 kg Assorted Basket',
+      img: '/images/cat-prod-fruits-veg.png',
+      price: '₹149',
+      originalPrice: '₹180',
+      discount: 'Save 17%',
+      badge: { text: 'Farm Fresh', icon: '🌿', color: 'bg-[#48BB78] text-white' },
+    },
+    {
+      id: 'daily-red-label',
+      name: 'Brooke Bond Red Label Tea',
+      pack: '500 g',
+      img: '/images/prod-red-label.png',
+      price: '₹299',
+      originalPrice: '₹335',
+      discount: 'Save 11%',
+      badge: { text: 'Bestseller', icon: '👑', color: 'bg-[#48BB78] text-white' },
+    },
+    {
+      id: 'daily-pulses',
+      name: 'Daily Kitchen Grains & Toor Dal',
+      pack: '1 kg Pack',
+      img: '/images/cat-prod-groceries.png',
+      price: '₹139',
+      originalPrice: '₹165',
+      discount: 'Save 16%',
+      badge: { text: 'Pure & Clean', icon: '🌾', color: 'bg-amber-500 text-white' },
+    },
+    {
+      id: 'daily-maggi',
+      name: 'Maggi 2-Minute Masala Noodles',
+      pack: '420 g (Pack of 4)',
+      img: '/images/prod-maggi.png',
+      price: '₹115',
+      originalPrice: '₹125',
+      discount: 'Save 8%',
+      badge: { text: 'Quick Snack', icon: '⚡', color: 'bg-yellow-400 text-yellow-950' },
+    },
+    {
+      id: 'daily-horlicks',
+      name: 'Horlicks Health Drink',
+      pack: '500 g',
+      img: '/images/prod-horlicks.png',
+      price: '₹329',
+      originalPrice: '₹360',
+      discount: 'Save 9%',
+      badge: null,
+    },
+    {
+      id: 'daily-surf-excel',
+      name: 'Surf Excel Detergent Powder',
+      pack: '1 kg',
+      img: '/images/prod-surf-excel.png',
+      price: '₹349',
+      originalPrice: '₹399',
+      discount: 'Save 13%',
+      badge: { text: 'Bestseller', icon: '👑', color: 'bg-[#48BB78] text-white' },
+    },
+    {
+      id: 'daily-vim',
+      name: 'Vim Dishwash Liquid Lemon',
+      pack: '750 ml',
+      img: '/images/prod-vim-dishwash.png',
+      price: '₹135',
+      originalPrice: '₹145',
+      discount: 'Save 7%',
+      badge: null,
+    },
+    {
+      id: 'daily-colgate',
+      name: 'Colgate Strong Teeth Toothpaste',
+      pack: '150 g',
+      img: '/images/prod-colgate.png',
+      price: '₹129',
+      originalPrice: '₹145',
+      discount: 'Save 11%',
+      badge: null,
+    },
+    {
+      id: 'daily-dove',
+      name: 'Dove Beauty Bathing Bar',
+      pack: '125 g (Pack of 3)',
+      img: '/images/prod-dove-soap.png',
+      price: '₹165',
+      originalPrice: '₹195',
+      discount: 'Save 15%',
+      badge: null,
+    },
+    {
+      id: 'daily-ambica-agarbatti',
+      name: 'Ambica Durbar Bathi (Agarbathi)',
+      pack: 'Pack of 5',
+      img: '/images/prod-ambica-agarbatti.png',
+      price: '₹89',
+      originalPrice: '₹99',
+      discount: 'Save 10%',
+      badge: { text: 'Sacred Pooja', icon: '🪔', color: 'bg-orange-500 text-white' },
+    },
+    {
+      id: 'daily-harpic',
+      name: 'Harpic Power Plus Cleaner',
+      pack: '1 L',
+      img: '/images/prod-harpic.png',
+      price: '₹189',
+      originalPrice: '₹210',
+      discount: 'Save 10%',
+      badge: { text: 'Trending', icon: '🔥', color: 'bg-[#FED7AA] text-[#C2410C]' },
+    },
+    {
+      id: 'daily-toilet-tissue',
+      name: 'Toilet Tissue Roll (3 Ply)',
+      pack: 'Pack of 4',
+      img: '/images/prod-toilet-tissue.png',
+      price: '₹149',
+      originalPrice: '₹165',
+      discount: 'Save 10%',
+      badge: null,
+    },
+  ];
+
+  const allProducts = [...essentials, ...dailyEssentials];
+
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
       {/* Top Navigation Bar */}
@@ -406,13 +562,21 @@ export default function Home() {
                 )}
               </div>
 
+              {/* Top Essentials link */}
+              <button
+                onClick={() => scrollToSection('top-essentials')}
+                className="text-gray-700 hover:text-[#1D7A34] transition-colors font-medium cursor-pointer"
+              >
+                Essentials
+              </button>
+
               {/* Offers link */}
-              <Link
-                href="/offers"
+              <button
+                onClick={() => scrollToSection('diwali-offers')}
                 className="text-gray-700 hover:text-[#1D7A34] transition-colors font-medium cursor-pointer"
               >
                 Offers
-              </Link>
+              </button>
 
               <Link
                 href="/about"
@@ -483,7 +647,7 @@ export default function Home() {
 
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           
-          {/* 1. Value Proposition Features Strip (Placed TOP to Diwali Offers) */}
+          {/* 1. Value Proposition Features Strip */}
           <section className="py-5 sm:py-6 border-t border-b border-gray-100 my-4 sm:my-5">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               {/* 1. Fast Delivery */}
@@ -531,138 +695,32 @@ export default function Home() {
               </div>
             </div>
           </section>
-        </div>
 
-        {/* 2. Full Bleed Diwali Offers Banner (Targeted by Navbar Offers button) */}
-        <section
-          id="diwali-offers"
-          className="w-full bg-gradient-to-r from-[#3C0764] via-[#6B21A8]/90 via-45% via-purple-200/50 via-75% to-transparent my-6 sm:my-8 rounded-none shadow-xs scroll-mt-20"
-        >
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-10">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-              {/* Left Side: On Dark Purple background with crisp high-contrast white & gold */}
-              <div className="md:col-span-7 flex flex-col items-start justify-center text-left space-y-3 sm:space-y-4">
-                {/* Festive Tag */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/30 text-amber-300 text-xs font-semibold tracking-wide shadow-2xs">
-                  <span>🪔</span>
-                  <span>Diwali Special Offers</span>
-                </div>
-
-                {/* Main Headline */}
-                <h3 className="text-2xl sm:text-3xl lg:text-[34px] font-extrabold text-white leading-tight tracking-tight">
-                  Buy Groceries with{' '}
-                  <span className="text-amber-400 drop-shadow-sm">Diwali Offers!</span>
-                </h3>
-
-                {/* Description */}
-                <p className="text-sm sm:text-base text-purple-100/90 leading-relaxed max-w-xl">
-                  Up to <span className="text-amber-300 font-bold">30% OFF</span> on Groceries, Pooja Essentials &amp; Home Care. Stock up your festive kitchen with pure ingredients and guaranteed lowest prices.
-                </p>
-
-                {/* Client Attractive Highlights */}
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/15 text-white text-xs font-medium backdrop-blur-xs border border-white/10">
-                    ⚡ 30-Min Fast Delivery
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/15 text-white text-xs font-medium backdrop-blur-xs border border-white/10">
-                    🎁 Free Diya on Orders ₹499+
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/15 text-white text-xs font-medium backdrop-blur-xs border border-white/10">
-                    ✨ Extra ₹100 OFF on 1st Order
-                  </span>
-                </div>
-
-                {/* CTA Button */}
-                <div className="pt-2">
-                  <Link
-                    href="/offers"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-[#3C0764] hover:bg-amber-50 font-bold text-sm sm:text-base shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-98 transition-all duration-200"
-                  >
-                    <span>Shop Diwali Deals</span>
-                    <ArrowRight className="w-4 h-4 text-[#3C0764]" />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Right Side: Turning into Light Purple & Transparent where products sit */}
-              <div className="md:col-span-5 flex items-center justify-center lg:justify-end">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/diwali-offer-products.png"
-                  alt="Diwali Grocery Offers & Up to 30% OFF"
-                  className="w-full max-w-[450px] h-auto object-contain drop-shadow-md hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-          <section id="categories" className="py-6 sm:py-8">
-            {/* Header: Shop by Category with Sparkle \ | / and Pill Button */}
-            <div className="flex items-center justify-between mb-5 sm:mb-6">
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[#142333] flex items-center gap-1.5 tracking-tight">
-                <span>Shop by Category</span>
-                <span className="text-amber-500 font-extrabold text-xl select-none align-middle tracking-wider ml-1">
-                  \ | /
-                </span>
-              </h2>
-              <a
-                href="#"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF5EC] hover:bg-[#D8EEDF] text-[#137A2C] text-xs sm:text-[13px] font-semibold transition-colors shadow-2xs"
-              >
-                <span>View All Categories</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#137A2C]" />
-              </a>
-            </div>
-
-            {/* 10 Category Cards properly aligned with high clarity */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
-              {categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 sm:p-2.5 flex flex-col items-center justify-between h-[160px] sm:h-[175px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
-                >
-                  {/* Top: Product Visual - Perfectly centered with high clarity */}
-                  <div className="w-full h-24 sm:h-26 flex items-center justify-center pt-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={cat.prodImg}
-                      alt={cat.name.replace('\n', ' ')}
-                      className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300 select-none drop-shadow-2xs"
-                    />
-                  </div>
-
-                  {/* Bottom: Crisp Real HTML Typography - Perfectly baseline-aligned */}
-                  <div className="w-full h-9 pb-1 flex items-center justify-center">
-                    <span className="text-[11px] sm:text-[12px] font-bold text-gray-900 leading-[1.2] text-center whitespace-pre-line tracking-tight">
-                      {cat.name}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* 4. Section: Top Essentials */}
-          <section id="top-essentials" className="py-6 sm:py-8 pb-16 scroll-mt-24">
+          {/* ================= 1. FIRST: SECTION: TOP ESSENTIALS ================= */}
+          <section id="top-essentials" className="py-6 sm:py-8 scroll-mt-24">
             {/* Header: Green icon, Title, Sparkle \ | /, Subtitle */}
-            <div className="flex items-center gap-3.5 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-[#EAF5EC] flex items-center justify-center text-[#137A2C] shrink-0 shadow-2xs">
-                <ShoppingBag className="w-5 h-5 text-[#137A2C]" strokeWidth={2.2} />
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-[#EAF5EC] flex items-center justify-center text-[#137A2C] shrink-0 shadow-2xs">
+                  <ShoppingBag className="w-5 h-5 text-[#137A2C]" strokeWidth={2.2} />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#142333] flex items-center gap-1.5 leading-tight">
+                    <span>Top Essentials</span>
+                    <span className="text-[#137A2C] font-extrabold text-lg select-none ml-0.5">\ | /</span>
+                  </h2>
+                  <p className="text-xs sm:text-[13px] text-gray-500 font-normal mt-0.5">
+                    Your daily needs, always in stock &amp; delivered fresh
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-[#142333] flex items-center gap-1.5 leading-tight">
-                  <span>Top Essentials</span>
-                  <span className="text-[#137A2C] font-extrabold text-lg select-none ml-0.5">\ | /</span>
-                </h2>
-                <p className="text-xs sm:text-[13px] text-gray-500 font-normal mt-0.5">
-                  Your daily needs, always in stock
-                </p>
-              </div>
+
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[#137A2C] text-xs font-bold border border-emerald-100">
+                <span>🔥 In High Demand</span>
+              </span>
             </div>
 
-            {/* 6 Responsive Grid Cards */}
+            {/* 12 Responsive Grid Cards */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
               {essentials.map((item) => {
                 const isLiked = !!wishlist[item.id];
@@ -689,7 +747,7 @@ export default function Home() {
                       <button
                         onClick={() => toggleWishlist(item.id)}
                         aria-label="Save to Wishlist"
-                        className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                        className="p-1 text-gray-300 hover:text-red-500 transition-colors cursor-pointer"
                       >
                         <Heart
                           className={`w-4 h-4 transition-transform duration-200 hover:scale-110 ${
@@ -700,7 +758,7 @@ export default function Home() {
                       </button>
                     </div>
 
-                    {/* Product Image: High Clarity, Centered with soft backdrop */}
+                    {/* Product Image */}
                     <div className="w-full h-32 sm:h-36 flex items-center justify-center p-1.5 my-1">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -738,7 +796,194 @@ export default function Home() {
                     {/* Full Width Add to Cart Button */}
                     <button
                       onClick={() => handleAddToCart(item.id)}
-                      className={`w-full mt-3 py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 ${
+                      className={`w-full mt-3 py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${
+                        isAdded
+                          ? 'bg-[#0E5C21] text-white'
+                          : 'bg-[#137A2C] hover:bg-[#0F6323] text-white'
+                      }`}
+                    >
+                      {isAdded ? (
+                        <>
+                          <Check className="w-4 h-4 stroke-[2.5]" />
+                          <span>Added</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="w-4 h-4 stroke-[2]" />
+                          <span>Add to Cart</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* ================= 2. SECOND: SECTION: SHOP BY CATEGORY ================= */}
+          <section id="categories" className="py-6 sm:py-8 scroll-mt-24">
+            {/* Header: Shop by Category with Sparkle \ | / and Pill Button */}
+            <div className="flex items-center justify-between mb-5 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#142333] flex items-center gap-1.5 tracking-tight">
+                <span>Shop by Category</span>
+                <span className="text-amber-500 font-extrabold text-xl select-none align-middle tracking-wider ml-1">
+                  \ | /
+                </span>
+              </h2>
+              <button
+                onClick={() => scrollToSection('categories')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF5EC] hover:bg-[#D8EEDF] text-[#137A2C] text-xs sm:text-[13px] font-semibold transition-colors shadow-2xs cursor-pointer"
+              >
+                <span>View All Categories</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#137A2C]" />
+              </button>
+            </div>
+
+            {/* 10 Category Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
+              {categories.map((cat) => (
+                <div
+                  key={cat.id}
+                  className={`group relative rounded-2xl sm:rounded-[20px] bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 sm:p-2.5 flex flex-col items-center justify-between h-[160px] sm:h-[175px] shadow-2xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
+                >
+                  <div className="w-full h-24 sm:h-26 flex items-center justify-center pt-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={cat.prodImg}
+                      alt={cat.name.replace('\n', ' ')}
+                      className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300 select-none drop-shadow-2xs"
+                    />
+                  </div>
+
+                  <div className="w-full h-9 pb-1 flex items-center justify-center">
+                    <span className="text-[11px] sm:text-[12px] font-bold text-gray-900 leading-[1.2] text-center whitespace-pre-line tracking-tight">
+                      {cat.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ================= 3. THIRD: SECTION: ALL YOUR DAILY ESSENTIALS (SCROLL NEXT) ================= */}
+          <section id="daily-essentials" className="py-6 sm:py-8 pb-10 scroll-mt-24">
+            {/* Header with Title, Sparkle \ | / and Scroll Navigation Buttons */}
+            <div className="flex items-center justify-between mb-5 sm:mb-6">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs border border-amber-200/60">
+                  <Sparkles className="w-5 h-5 text-amber-600" strokeWidth={2.2} />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#142333] flex items-center gap-1.5 leading-tight">
+                    <span>All Your Daily Essentials</span>
+                    <span className="text-amber-500 font-extrabold text-lg select-none ml-0.5">\ | /</span>
+                  </h2>
+                  <p className="text-xs sm:text-[13px] text-gray-500 font-normal mt-0.5">
+                    Fresh groceries, daily kitchen staples &amp; dairy — scroll to explore all
+                  </p>
+                </div>
+              </div>
+
+              {/* Horizontal Scroll Controls */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => scrollDaily('left')}
+                  aria-label="Scroll Daily Essentials Left"
+                  className="w-9 h-9 rounded-full bg-white border border-gray-200 text-gray-700 hover:text-[#137A2C] hover:border-[#137A2C] hover:bg-[#EAF5EC] flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => scrollDaily('right')}
+                  aria-label="Scroll Daily Essentials Right"
+                  className="w-9 h-9 rounded-full bg-white border border-gray-200 text-gray-700 hover:text-[#137A2C] hover:border-[#137A2C] hover:bg-[#EAF5EC] flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Horizontal Scroll Product Carousel */}
+            <div
+              ref={dailyScrollRef}
+              className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-4 scroll-smooth"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {dailyEssentials.map((item) => {
+                const isLiked = !!wishlist[item.id];
+                const isAdded = addedItem === item.id;
+
+                return (
+                  <div
+                    key={item.id}
+                    className="w-[200px] sm:w-[220px] shrink-0 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-3 sm:p-3.5 flex flex-col justify-between relative group"
+                  >
+                    {/* Top Row: Badge & Wishlist Heart */}
+                    <div className="flex items-center justify-between h-5 mb-1">
+                      {item.badge ? (
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1 leading-none shadow-2xs ${item.badge.color}`}
+                        >
+                          <span>{item.badge.icon}</span>
+                          <span>{item.badge.text}</span>
+                        </span>
+                      ) : (
+                        <div />
+                      )}
+
+                      <button
+                        onClick={() => toggleWishlist(item.id)}
+                        aria-label="Save to Wishlist"
+                        className="p-1 text-gray-300 hover:text-red-500 transition-colors cursor-pointer"
+                      >
+                        <Heart
+                          className={`w-4 h-4 transition-transform duration-200 hover:scale-110 ${
+                            isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'
+                          }`}
+                          strokeWidth={2}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Product Image */}
+                    <div className="w-full h-28 sm:h-32 flex items-center justify-center p-1.5 my-1 bg-gray-50/70 rounded-xl group-hover:bg-[#F3F9F4] transition-colors">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.img}
+                        alt={item.name}
+                        className="max-h-full max-w-full object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
+                      />
+                    </div>
+
+                    {/* Details */}
+                    <div className="w-full pt-1">
+                      <h4 className="text-xs sm:text-[13px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[34px]">
+                        {item.name}
+                      </h4>
+                      <p className="text-[11px] text-gray-400 font-medium mt-0.5">
+                        {item.pack}
+                      </p>
+
+                      {/* Pricing */}
+                      <div className="flex items-center justify-between mt-2 pt-0.5">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-sm sm:text-base font-extrabold text-gray-900">
+                            {item.price}
+                          </span>
+                          <span className="text-[11px] text-gray-400 line-through">
+                            {item.originalPrice}
+                          </span>
+                        </div>
+                        <span className="text-[10px] sm:text-[11px] font-bold text-[#137A2C] bg-[#EAF5EC] px-1.5 py-0.5 rounded-md">
+                          {item.discount}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Add to Cart */}
+                    <button
+                      onClick={() => handleAddToCart(item.id)}
+                      className={`w-full mt-3 py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${
                         isAdded
                           ? 'bg-[#0E5C21] text-white'
                           : 'bg-[#137A2C] hover:bg-[#0F6323] text-white'
@@ -762,6 +1007,116 @@ export default function Home() {
             </div>
           </section>
         </div>
+
+        {/* ================= 4. FOURTH / AT LAST: OFFERS BANNER (PROPER & CLIENT ATTRACTIVE) ================= */}
+        <section
+          id="diwali-offers"
+          className="w-full bg-gradient-to-r from-[#24033E] via-[#3B0763] via-40% via-[#5B108E] via-75% to-[#24033E] my-8 sm:my-10 rounded-none shadow-xl scroll-mt-20 relative overflow-hidden border-y-2 border-amber-400/30"
+        >
+          {/* Decorative Festive Background Glows & Pattern */}
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#F59E0B_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-14 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+              {/* Left Side: Copy, Badges, Highlights & CTA */}
+              <div className="lg:col-span-7 flex flex-col items-start justify-center text-left space-y-4 sm:space-y-5">
+                {/* Festive Dhamaka Tag */}
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-400/25 to-yellow-300/15 border border-amber-400/40 text-amber-300 text-xs sm:text-[13px] font-black tracking-wide shadow-sm backdrop-blur-xs">
+                  <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                  <span className="uppercase tracking-wider">Diwali Mahotsav Dhamaka Offers</span>
+                </div>
+
+                {/* Main Headline */}
+                <h3 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-white leading-[1.15] tracking-tight">
+                  Celebrate &amp; Save Big with{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 drop-shadow-sm">
+                    Diwali Offers!
+                  </span>
+                </h3>
+
+                {/* Discount Banner Strip */}
+                <div className="inline-flex flex-wrap items-center gap-2 px-4 py-2 rounded-xl bg-amber-400/15 border border-amber-300/30 text-amber-200">
+                  <span className="text-xl sm:text-2xl font-black text-amber-300 tracking-tight">
+                    UP TO 30% - 50% OFF
+                  </span>
+                  <span className="text-xs sm:text-sm font-semibold text-purple-100">
+                    on Pooja Essentials, Groceries &amp; Sweets
+                  </span>
+                </div>
+
+                {/* Description */}
+                <p className="text-sm sm:text-base text-purple-100/90 leading-relaxed max-w-xl font-normal">
+                  Stock up your festive home with pure ingredients, sacred puja essentials, fragrant agarbathi, and fresh groceries at guaranteed festival prices in Bapatla.
+                </p>
+
+                {/* 4 Client-Attractive Benefit Pills */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 w-full max-w-xl pt-1">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-xs font-semibold">
+                    <span className="text-amber-300 text-sm">⚡</span>
+                    <span>30-Min Fast Delivery</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-xs font-semibold">
+                    <span className="text-amber-300 text-sm">🪔</span>
+                    <span>Free Diya on ₹499+</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-xs font-semibold col-span-2 sm:col-span-1">
+                    <span className="text-amber-300 text-sm">✨</span>
+                    <span>Extra ₹100 1st Order</span>
+                  </div>
+                </div>
+
+                {/* Featured Festive Deal Highlights Pills */}
+                <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+                  <span className="text-purple-200/80 font-bold uppercase tracking-wider text-[11px]">
+                    Hot Deals:
+                  </span>
+                  <span className="px-2.5 py-1 rounded-lg bg-white/10 text-amber-200 font-medium border border-white/10">
+                    🪔 Nandini Ghee @ ₹289
+                  </span>
+                  <span className="px-2.5 py-1 rounded-lg bg-white/10 text-amber-200 font-medium border border-white/10">
+                    ✨ Ambica Agarbathi @ ₹79
+                  </span>
+                  <span className="px-2.5 py-1 rounded-lg bg-white/10 text-amber-200 font-medium border border-white/10">
+                    🌾 Sona Masoori Rice @ ₹299
+                  </span>
+                </div>
+
+                {/* CTA Buttons */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <Link
+                    href="/offers"
+                    className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-purple-950 font-black text-sm sm:text-base shadow-lg hover:shadow-amber-400/25 hover:scale-105 active:scale-98 transition-all duration-200"
+                  >
+                    <span>Shop Diwali Deals Now</span>
+                    <ArrowRight className="w-4 h-4 text-purple-950 stroke-[2.5]" />
+                  </Link>
+
+                  <Link
+                    href="/offers"
+                    className="inline-flex items-center gap-1.5 px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm backdrop-blur-xs border border-white/20 transition-all"
+                  >
+                    <span>View All 12+ Deals</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Side: High-Clarity Festive Packshot with Glow Effect */}
+              <div className="lg:col-span-5 flex items-center justify-center relative">
+                <div className="relative w-full max-w-[460px] flex items-center justify-center group">
+                  <div className="absolute inset-0 bg-amber-400/20 rounded-full blur-2xl group-hover:bg-amber-400/30 transition-all" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/diwali-offer-products.png"
+                    alt="Diwali Grocery Offers & Up to 30% OFF"
+                    className="relative z-10 w-full max-w-[440px] h-auto object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* ================= COMPREHENSIVE SITE FOOTER ================= */}
@@ -795,6 +1150,14 @@ export default function Home() {
               <ul className="space-y-2 text-xs text-gray-600">
                 <li>
                   <button
+                    onClick={() => scrollToSection('top-essentials')}
+                    className="hover:text-[#137A2C] transition-colors cursor-pointer"
+                  >
+                    Top Essentials
+                  </button>
+                </li>
+                <li>
+                  <button
                     onClick={() => scrollToSection('categories')}
                     className="hover:text-[#137A2C] transition-colors cursor-pointer"
                   >
@@ -802,19 +1165,19 @@ export default function Home() {
                   </button>
                 </li>
                 <li>
-                  <Link
-                    href="/offers"
-                    className="hover:text-[#137A2C] transition-colors"
+                  <button
+                    onClick={() => scrollToSection('daily-essentials')}
+                    className="hover:text-[#137A2C] transition-colors cursor-pointer"
                   >
-                    Diwali Offers
-                  </Link>
+                    Daily Essentials
+                  </button>
                 </li>
                 <li>
                   <button
-                    onClick={() => scrollToSection('top-essentials')}
+                    onClick={() => scrollToSection('diwali-offers')}
                     className="hover:text-[#137A2C] transition-colors cursor-pointer"
                   >
-                    Top Essentials
+                    Diwali Offers
                   </button>
                 </li>
                 <li>
@@ -904,7 +1267,7 @@ export default function Home() {
                 </div>
               ) : (
                 Object.entries(cartItems).map(([id, qty]) => {
-                  const item = essentials.find((e) => e.id === id);
+                  const item = allProducts.find((e) => e.id === id);
                   if (!item) return null;
                   const unitPrice = parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0;
 
@@ -979,7 +1342,7 @@ export default function Home() {
                     <span>Subtotal</span>
                     <span className="font-semibold text-gray-900">
                       ₹{Object.entries(cartItems).reduce((sum, [id, qty]) => {
-                        const item = essentials.find((e) => e.id === id);
+                        const item = allProducts.find((e) => e.id === id);
                         if (!item) return sum;
                         const num = parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0;
                         return sum + num * qty;
@@ -994,7 +1357,7 @@ export default function Home() {
                     <span>Total Amount</span>
                     <span className="text-base text-[#137A2C]">
                       ₹{Object.entries(cartItems).reduce((sum, [id, qty]) => {
-                        const item = essentials.find((e) => e.id === id);
+                        const item = allProducts.find((e) => e.id === id);
                         if (!item) return sum;
                         const num = parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0;
                         return sum + num * qty;
@@ -1058,7 +1421,7 @@ export default function Home() {
                 Object.keys(wishlist)
                   .filter((id) => wishlist[id])
                   .map((id) => {
-                    const item = essentials.find((e) => e.id === id);
+                    const item = allProducts.find((e) => e.id === id);
                     if (!item) return null;
 
                     return (
