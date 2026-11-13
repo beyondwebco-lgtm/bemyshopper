@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useShop } from '../../context/ShopContext';
 import {
   Sparkles,
   ArrowLeft,
@@ -194,60 +195,46 @@ const diwaliOffers: OfferProduct[] = [
 ];
 
 export default function DiwaliOffersPage() {
+  const {
+    cartItems,
+    addToCart,
+    updateCartQuantity,
+    removeCartItem,
+    clearCart,
+    totalCartCount,
+    wishlist,
+    toggleWishlist,
+    totalWishlistCount,
+    toastMessage,
+    showToast,
+    registerProducts,
+    getProduct,
+  } = useShop();
+
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
-  const [cartItems, setCartItems] = useState<Record<string, number>>({});
-  const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [addedItem, setAddedItem] = useState<string | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 2500);
-  };
+  useEffect(() => {
+    registerProducts(diwaliOffers);
+  }, [registerProducts]);
 
   const handleAddToCart = (id: string) => {
-    setCartItems((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1,
-    }));
     setAddedItem(id);
     setTimeout(() => setAddedItem(null), 1500);
     const item = diwaliOffers.find((p) => p.id === id);
-    if (item) showToast(`Added ${item.name} to cart!`);
+    addToCart(id, item?.name);
   };
 
   const updateCartQty = (id: string, delta: number) => {
-    setCartItems((prev) => {
-      const current = prev[id] || 0;
-      const next = current + delta;
-      if (next <= 0) {
-        const copy = { ...prev };
-        delete copy[id];
-        return copy;
-      }
-      return { ...prev, [id]: next };
-    });
+    updateCartQuantity(id, delta);
   };
-
-  const toggleWishlist = (id: string) => {
-    setWishlist((prev) => {
-      const next = !prev[id];
-      const item = diwaliOffers.find((p) => p.id === id);
-      if (next && item) {
-        showToast(`Saved ${item.name} to favourites!`);
-      }
-      return { ...prev, [id]: next };
-    });
-  };
-
-  const totalCartCount = Object.values(cartItems).reduce((a, b) => a + b, 0);
-  const totalWishlistCount = Object.values(wishlist).filter(Boolean).length;
 
   const cartSubtotal = Object.entries(cartItems).reduce((sum, [id, qty]) => {
-    const item = diwaliOffers.find((p) => p.id === id);
-    return sum + (item ? item.rawPrice * qty : 0);
+    const item = diwaliOffers.find((p) => p.id === id) || getProduct(id);
+    const raw = item ? (item as any).rawPrice || parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0 : 0;
+    return sum + raw * qty;
   }, 0);
 
   const filteredProducts =
@@ -587,7 +574,7 @@ export default function DiwaliOffersPage() {
                 </div>
               ) : (
                 Object.entries(cartItems).map(([id, qty]) => {
-                  const item = diwaliOffers.find((p) => p.id === id);
+                  const item = diwaliOffers.find((p) => p.id === id) || getProduct(id);
                   if (!item) return null;
 
                   return (
@@ -703,7 +690,7 @@ export default function DiwaliOffersPage() {
                 Object.keys(wishlist)
                   .filter((id) => wishlist[id])
                   .map((id) => {
-                    const item = diwaliOffers.find((p) => p.id === id);
+                    const item = diwaliOffers.find((p) => p.id === id) || getProduct(id);
                     if (!item) return null;
 
                     return (

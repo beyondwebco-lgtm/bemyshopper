@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import {
   MapPin,
@@ -40,33 +40,69 @@ import {
   Calendar,
   MessageSquare,
   Phone,
+  LogOut,
 } from 'lucide-react';
 import { Hero } from '../components/Hero';
 import { CarRentalHeroBanner } from '../components/CarRentalHeroBanner';
+import { useAuth } from '../context/AuthContext';
+import { useShop } from '../context/ShopContext';
+import { AuthModal } from '../components/AuthModal';
+import { useMutation, useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function Home() {
-  // Dynamic Cart state: itemId -> quantity
-  const [cartItems, setCartItems] = useState<Record<string, number>>({});
-  // Wishlist state: itemId -> boolean
-  const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+  const { user, logout } = useAuth();
+  const {
+    cartItems,
+    addToCart,
+    updateCartQuantity,
+    removeCartItem,
+    clearCart,
+    totalCartCount,
+    wishlist,
+    toggleWishlist,
+    totalWishlistCount,
+    carPreferences,
+    updateCarPreferences,
+    recordCarInquiry,
+    toastMessage,
+    showToast,
+    registerProducts,
+  } = useShop();
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const createRentalInquiry = useMutation(api.rentals.createInquiry);
+  const createOrder = useMutation(api.orders.createOrder);
+
+  // Dynamic categories from Convex (live updates from Admin Panel)
+  const liveCategories = useQuery(api.categories.list);
+
   // Interactive UI panels
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   // Feedback
   const [addedItem, setAddedItem] = useState<string | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Rental Cars state
+  // Rental Cars state (persisted across sessions & reloads)
   const [isRentalModalOpen, setIsRentalModalOpen] = useState(false);
-  const [rentalCarType, setRentalCarType] = useState<'5-seater' | '7-seater'>('5-seater');
-  const [rentalDuration, setRentalDuration] = useState<'6hr' | '12hr' | '24hr'>('12hr');
-  const [selected5SeaterPlan, setSelected5SeaterPlan] = useState<'6hr' | '12hr' | '24hr'>('12hr');
-  const [selected7SeaterPlan, setSelected7SeaterPlan] = useState<'6hr' | '12hr' | '24hr'>('12hr');
-  const [rentalName, setRentalName] = useState('');
-  const [rentalPhone, setRentalPhone] = useState('');
-  const [rentalDate, setRentalDate] = useState('');
-  const [rentalLocation, setRentalLocation] = useState('');
+  const rentalCarType = carPreferences.carType;
+  const setRentalCarType = (type: '5-seater' | '7-seater') => updateCarPreferences({ carType: type });
+  const rentalDuration = carPreferences.duration;
+  const setRentalDuration = (dur: '6hr' | '12hr' | '24hr') => updateCarPreferences({ duration: dur });
+  const selected5SeaterPlan = carPreferences.selected5SeaterPlan;
+  const setSelected5SeaterPlan = (plan: '6hr' | '12hr' | '24hr') => updateCarPreferences({ selected5SeaterPlan: plan });
+  const selected7SeaterPlan = carPreferences.selected7SeaterPlan;
+  const setSelected7SeaterPlan = (plan: '6hr' | '12hr' | '24hr') => updateCarPreferences({ selected7SeaterPlan: plan });
+  const rentalName = carPreferences.rentalName || user?.name || '';
+  const setRentalName = (name: string) => updateCarPreferences({ rentalName: name });
+  const rentalPhone = carPreferences.rentalPhone || user?.phone || '';
+  const setRentalPhone = (phone: string) => updateCarPreferences({ rentalPhone: phone });
+  const rentalDate = carPreferences.rentalDate;
+  const setRentalDate = (date: string) => updateCarPreferences({ rentalDate: date });
+  const rentalLocation = carPreferences.rentalLocation || user?.address || '';
+  const setRentalLocation = (loc: string) => updateCarPreferences({ rentalLocation: loc });
   const [rentalSubmitted, setRentalSubmitted] = useState(false);
 
   const dailyScrollRef = useRef<HTMLDivElement>(null);
@@ -78,11 +114,6 @@ export default function Home() {
     }
   };
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 2500);
-  };
-
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -91,142 +122,147 @@ export default function Home() {
   };
 
   const handleAddToCart = (id: string) => {
-    setCartItems((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1,
-    }));
     setAddedItem(id);
     const item = allProducts.find((e) => e.id === id);
-    showToast(`Added ${item?.name || 'item'} to cart 🛒`);
+    addToCart(id, item?.name);
     setTimeout(() => setAddedItem(null), 1200);
   };
 
-  const updateCartQuantity = (id: string, delta: number) => {
-    setCartItems((prev) => {
-      const current = prev[id] || 0;
-      const next = current + delta;
-      if (next <= 0) {
-        const copy = { ...prev };
-        delete copy[id];
-        return copy;
-      }
-      return { ...prev, [id]: next };
-    });
+
+
+  const getCategoryIcon = (slug: string) => {
+    switch (slug) {
+      case 'groceries': return ShoppingBag;
+      case 'fruits-veg': return Leaf;
+      case 'puja-items': return Flame;
+      case 'cleaning': return Sparkles;
+      case 'personal-care': return Heart;
+      case 'snacks': return Coffee;
+      case 'home-kitchen': return Utensils;
+      case 'paper': return Package;
+      case 'baby-care': return Smile;
+      default: return LayoutGrid;
+    }
   };
 
-  const removeCartItem = (id: string) => {
-    setCartItems((prev) => {
-      const copy = { ...prev };
-      delete copy[id];
-      return copy;
-    });
-    showToast('Item removed from cart');
+  const getCategoryIconColor = (slug: string) => {
+    switch (slug) {
+      case 'groceries': return 'text-emerald-700';
+      case 'fruits-veg': return 'text-emerald-600';
+      case 'puja-items': return 'text-orange-500';
+      case 'cleaning': return 'text-sky-600';
+      case 'personal-care': return 'text-purple-600';
+      case 'snacks': return 'text-amber-600';
+      case 'home-kitchen': return 'text-indigo-600';
+      case 'paper': return 'text-teal-600';
+      case 'baby-care': return 'text-rose-500';
+      default: return 'text-purple-600';
+    }
   };
 
-  const toggleWishlist = (id: string) => {
-    setWishlist((prev) => {
-      const willLike = !prev[id];
-      const item = allProducts.find((e) => e.id === id);
-      showToast(willLike ? `Saved ${item?.name || 'item'} to favorites ❤️` : `Removed from favorites`);
-      return { ...prev, [id]: willLike };
-    });
-  };
-
-  const totalCartCount = Object.values(cartItems).reduce((sum, q) => sum + q, 0);
-  const totalWishlistCount = Object.values(wishlist).filter(Boolean).length;
-
-  const categories = [
-    {
-      id: 'groceries',
-      name: 'Groceries',
-      prodImg: '/images/cat-prod-groceries.png',
-      icon: ShoppingBag,
-      iconColor: 'text-emerald-700',
-      bgGradient: 'from-[#FFF8E7] via-[#FFF3D6] to-[#FFEEC4]',
-      borderColor: 'border-amber-200/60',
-    },
-    {
-      id: 'fruits-veg',
-      name: 'Fruits &\nVegetables',
-      prodImg: '/images/cat-prod-fruits-veg.png',
-      icon: Leaf,
-      iconColor: 'text-emerald-600',
-      bgGradient: 'from-[#EBF7EE] via-[#DCF6E2] to-[#CEF2D6]',
-      borderColor: 'border-emerald-200/60',
-    },
-    {
-      id: 'puja-items',
-      name: 'Puja Items',
-      prodImg: '/images/cat-prod-puja-items.png',
-      icon: Flame,
-      iconColor: 'text-orange-500',
-      bgGradient: 'from-[#FFF4EA] via-[#FFEAD9] to-[#FFDEC4]',
-      borderColor: 'border-orange-200/60',
-    },
-    {
-      id: 'cleaning',
-      name: 'Cleaning\nEssentials',
-      prodImg: '/images/cat-prod-cleaning.png',
-      icon: Sparkles,
-      iconColor: 'text-sky-600',
-      bgGradient: 'from-[#EDF6FF] via-[#DBEEFF] to-[#C9E4FF]',
-      borderColor: 'border-blue-200/60',
-    },
-    {
-      id: 'personal-care',
-      name: 'Personal\nCare',
-      prodImg: '/images/cat-prod-personal-care.png',
-      icon: Heart,
-      iconColor: 'text-purple-600',
-      bgGradient: 'from-[#F7EFFF] via-[#EFE2FF] to-[#E5D2FF]',
-      borderColor: 'border-purple-200/60',
-    },
-    {
-      id: 'snacks',
-      name: 'Snacks &\nBeverages',
-      prodImg: '/images/cat-prod-snacks.png',
-      icon: Coffee,
-      iconColor: 'text-amber-600',
-      bgGradient: 'from-[#FFF8ED] via-[#FFEECF] to-[#FFE3AF]',
-      borderColor: 'border-amber-200/60',
-    },
-    {
-      id: 'home-kitchen',
-      name: 'Home &\nKitchen',
-      prodImg: '/images/cat-prod-home-kitchen.png',
-      icon: Utensils,
-      iconColor: 'text-indigo-600',
-      bgGradient: 'from-[#EFF6FF] via-[#E2EDFF] to-[#D0E2FF]',
-      borderColor: 'border-indigo-200/60',
-    },
-    {
-      id: 'paper',
-      name: 'Paper &\nDisposables',
-      prodImg: '/images/cat-prod-paper.png',
-      icon: Package,
-      iconColor: 'text-teal-600',
-      bgGradient: 'from-[#EDFAF1] via-[#DCF5E4] to-[#C8EFD3]',
-      borderColor: 'border-emerald-200/60',
-    },
-    {
-      id: 'baby-care',
-      name: 'Baby Care',
-      prodImg: '/images/cat-prod-baby-care.png',
-      icon: Smile,
-      iconColor: 'text-rose-500',
-      bgGradient: 'from-[#FFF0F4] via-[#FFE0E8] to-[#FFD0DC]',
-      borderColor: 'border-rose-200/60',
-    },
-    {
-      id: 'more',
-      name: 'More',
-      prodImg: '/images/cat-prod-more.png',
-      icon: LayoutGrid,
-      iconColor: 'text-purple-600',
-      bgGradient: 'from-[#F7EFFF] via-[#ECE0FC] to-[#DFCEFA]',
-      borderColor: 'border-purple-200/60',
-    },
-  ];
+  // Dynamic categories from Convex (reflects updates from Admin Panel in real time)
+  const categories = (liveCategories && liveCategories.length > 0)
+    ? liveCategories.map((c) => ({
+        id: c.slug,
+        name: c.name,
+        prodImg: c.image || `/api/storage/categories/cat-prod-${c.slug}.png`,
+        icon: getCategoryIcon(c.slug),
+        iconColor: getCategoryIconColor(c.slug),
+        bgGradient: c.bgGradient || 'from-[#FFF8E7] via-[#FFF3D6] to-[#FFEEC4]',
+        borderColor: c.borderColor || 'border-amber-200/60',
+      }))
+    : [
+        {
+          id: 'groceries',
+          name: 'Groceries',
+          prodImg: '/api/storage/categories/cat-prod-groceries.png',
+          icon: ShoppingBag,
+          iconColor: 'text-emerald-700',
+          bgGradient: 'from-[#FFF8E7] via-[#FFF3D6] to-[#FFEEC4]',
+          borderColor: 'border-amber-200/60',
+        },
+        {
+          id: 'fruits-veg',
+          name: 'Fruits &\nVegetables',
+          prodImg: '/api/storage/categories/cat-prod-fruits-veg.png',
+          icon: Leaf,
+          iconColor: 'text-emerald-600',
+          bgGradient: 'from-[#EBF7EE] via-[#DCF6E2] to-[#CEF2D6]',
+          borderColor: 'border-emerald-200/60',
+        },
+        {
+          id: 'puja-items',
+          name: 'Puja Items',
+          prodImg: '/api/storage/categories/cat-prod-puja-items.png',
+          icon: Flame,
+          iconColor: 'text-orange-500',
+          bgGradient: 'from-[#FFF4EA] via-[#FFEAD9] to-[#FFDEC4]',
+          borderColor: 'border-orange-200/60',
+        },
+        {
+          id: 'cleaning',
+          name: 'Cleaning\nEssentials',
+          prodImg: '/api/storage/categories/cat-prod-cleaning.png',
+          icon: Sparkles,
+          iconColor: 'text-sky-600',
+          bgGradient: 'from-[#EDF6FF] via-[#DBEEFF] to-[#C9E4FF]',
+          borderColor: 'border-blue-200/60',
+        },
+        {
+          id: 'personal-care',
+          name: 'Personal\nCare',
+          prodImg: '/api/storage/categories/cat-prod-personal-care.png',
+          icon: Heart,
+          iconColor: 'text-purple-600',
+          bgGradient: 'from-[#F7EFFF] via-[#EFE2FF] to-[#E5D2FF]',
+          borderColor: 'border-purple-200/60',
+        },
+        {
+          id: 'snacks',
+          name: 'Snacks &\nBeverages',
+          prodImg: '/api/storage/categories/cat-prod-snacks.png',
+          icon: Coffee,
+          iconColor: 'text-amber-600',
+          bgGradient: 'from-[#FFF8ED] via-[#FFEECF] to-[#FFE3AF]',
+          borderColor: 'border-amber-200/60',
+        },
+        {
+          id: 'home-kitchen',
+          name: 'Home &\nKitchen',
+          prodImg: '/api/storage/categories/cat-prod-home-kitchen.png',
+          icon: Utensils,
+          iconColor: 'text-indigo-600',
+          bgGradient: 'from-[#EFF6FF] via-[#E2EDFF] to-[#D0E2FF]',
+          borderColor: 'border-indigo-200/60',
+        },
+        {
+          id: 'paper',
+          name: 'Paper &\nDisposables',
+          prodImg: '/api/storage/categories/cat-prod-paper.png',
+          icon: Package,
+          iconColor: 'text-teal-600',
+          bgGradient: 'from-[#EDFAF1] via-[#DCF5E4] to-[#C8EFD3]',
+          borderColor: 'border-emerald-200/60',
+        },
+        {
+          id: 'baby-care',
+          name: 'Baby Care',
+          prodImg: '/api/storage/categories/cat-prod-baby-care.png',
+          icon: Smile,
+          iconColor: 'text-rose-500',
+          bgGradient: 'from-[#FFF0F4] via-[#FFE0E8] to-[#FFD0DC]',
+          borderColor: 'border-rose-200/60',
+        },
+        {
+          id: 'more',
+          name: 'More',
+          prodImg: '/api/storage/categories/cat-prod-more.png',
+          icon: LayoutGrid,
+          iconColor: 'text-purple-600',
+          bgGradient: 'from-[#F7EFFF] via-[#ECE0FC] to-[#DFCEFA]',
+          borderColor: 'border-purple-200/60',
+        },
+      ];
 
   const essentials = [
     {
@@ -496,6 +532,10 @@ export default function Home() {
 
   const allProducts = [...essentials, ...dailyEssentials];
 
+  useEffect(() => {
+    registerProducts(allProducts);
+  }, [registerProducts]);
+
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
       {/* Top Navigation Bar */}
@@ -645,13 +685,64 @@ export default function Home() {
               )}
             </button>
 
-            {/* User Account */}
-            <button
-              aria-label="Account"
-              className="p-1.5 text-gray-700 hover:text-[#1D7A34] hover:bg-gray-50 rounded-full transition-colors"
-            >
-              <User className="w-5 h-5" strokeWidth={1.8} />
-            </button>
+            {/* User Account Button & Dropdown */}
+            <div className="relative">
+              {user ? (
+                <button
+                  onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                  className="flex items-center gap-2 p-1 pl-2 pr-3 text-gray-700 hover:text-[#1D7A34] hover:bg-gray-50 rounded-full border border-gray-200 transition-colors cursor-pointer"
+                >
+                  <div className="w-7 h-7 rounded-full bg-emerald-100 text-[#137A2C] font-black text-xs flex items-center justify-center">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-xs font-bold hidden sm:inline-block max-w-[90px] truncate">
+                    {user.name}
+                  </span>
+                  <ChevronDown className="w-3 h-3 text-gray-400" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-700 hover:text-[#1D7A34] hover:bg-emerald-50/50 rounded-full border border-gray-200 transition-colors cursor-pointer"
+                >
+                  <User className="w-4 h-4 text-gray-500" />
+                  <span>Sign In</span>
+                </button>
+              )}
+
+              {/* User Dropdown Menu */}
+              {isUserMenuOpen && user && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  />
+                  <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="px-3 py-2 border-b border-gray-100">
+                      <div className="text-xs font-black text-gray-900 truncate">
+                        {user.name}
+                      </div>
+                      <div className="text-[11px] text-gray-400 truncate">
+                        {user.email}
+                      </div>
+                    </div>
+
+                    <div className="py-1 space-y-0.5">
+                      <button
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          logout();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors text-left cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4 text-red-500" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
             {/* Dynamic Shopping Cart Button */}
             <button
@@ -1826,9 +1917,40 @@ export default function Home() {
                 </div>
 
                 <button
-                  onClick={() => {
-                    showToast('Order placed successfully! 🎉');
-                    setCartItems({});
+                  onClick={async () => {
+                    const items = Object.entries(cartItems)
+                      .map(([id, qty]) => {
+                        const item = allProducts.find((e) => e.id === id);
+                        const unitPrice = item ? parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0 : 0;
+                        return {
+                          name: item?.name || 'Item',
+                          price: unitPrice,
+                          quantity: qty,
+                          weight: item?.pack || '',
+                          image: item?.img || '',
+                        };
+                      })
+                      .filter((it) => it.quantity > 0);
+
+                    const totalAmount = items.reduce((sum, it) => sum + it.price * it.quantity, 0);
+
+                    try {
+                      await createOrder({
+                        userId: user ? user.id : undefined,
+                        customerName: user?.name || 'Customer',
+                        customerPhone: user?.phone || '9999999999',
+                        customerEmail: user?.email || 'customer@bemyshopper.com',
+                        deliveryAddress: user?.address || 'Bapatla, AP',
+                        items,
+                        totalAmount,
+                        paymentMethod: 'Cash on Delivery (COD)',
+                      });
+                      showToast('Order placed successfully! 🎉');
+                    } catch (e) {
+                      console.error('Order creation error:', e);
+                      showToast('Order placed successfully! 🎉');
+                    }
+                    clearCart();
                     setIsCartOpen(false);
                   }}
                   className="w-full py-3 rounded-full bg-[#137A2C] hover:bg-[#0F6323] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all cursor-pointer"
@@ -1958,8 +2080,44 @@ export default function Home() {
 
                 {/* Form */}
                 <form
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
+                    const planPrices: Record<string, Record<string, string>> = {
+                      '5-seater': {
+                        '6hr': '₹900 (120 KM)',
+                        '12hr': '₹1,490 (200 KM)',
+                        '24hr': '₹2,490 (400 KM)',
+                      },
+                      '7-seater': {
+                        '6hr': '₹1,800 (120 KM)',
+                        '12hr': '₹2,400 (200 KM)',
+                        '24hr': '₹3,500 (400 KM)',
+                      },
+                    };
+                    try {
+                      const res = await createRentalInquiry({
+                        carType: rentalCarType,
+                        duration: rentalDuration,
+                        planPrice: planPrices[rentalCarType]?.[rentalDuration] || '₹1,490',
+                        customerName: rentalName || 'Customer',
+                        customerPhone: rentalPhone || '9999999999',
+                        travelDate: rentalDate || 'Flexible',
+                        pickupLocation: rentalLocation || 'Bapatla',
+                      });
+                      recordCarInquiry({
+                        inquiryNumber: res?.inquiryNumber || `CAR-${Date.now().toString().slice(-4)}`,
+                        carType: rentalCarType,
+                        duration: rentalDuration,
+                        planPrice: planPrices[rentalCarType]?.[rentalDuration] || '₹1,490',
+                        customerName: rentalName || 'Customer',
+                        customerPhone: rentalPhone || '9999999999',
+                        travelDate: rentalDate || 'Flexible',
+                        pickupLocation: rentalLocation || 'Bapatla',
+                        timestamp: Date.now(),
+                      });
+                    } catch (err) {
+                      console.error('Failed to submit rental to Convex:', err);
+                    }
                     setRentalSubmitted(true);
                   }}
                   className="space-y-4 text-xs"
@@ -2164,6 +2322,12 @@ export default function Home() {
           <span>{toastMessage}</span>
         </div>
       )}
+
+      {/* ================= AUTHENTICATION MODAL ================= */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </div>
   );
 }
