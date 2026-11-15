@@ -4,30 +4,83 @@ import { r2Client, R2_BUCKET, R2_PUBLIC_URL } from '@/lib/r2';
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const file = formData.get('file') as File | null;
-    const folder = (formData.get('folder') as string) || 'categories';
+    let buffer: Buffer | null = null;
+    let contentType = 'image/jpeg';
+    let ext = 'jpg';
+    let baseName = 'pasted-image';
+    let folder = 'categories';
+    let fileSize = 0;
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    const contentTypeHeader = req.headers.get('content-type') || '';
+
+    if (contentTypeHeader.includes('application/json')) {
+      const body = await req.json();
+      folder = body.folder || 'products';
+      const imageUrl = (body.url || body.imageUrl || '').trim();
+      const dataUrl = (body.dataUrl || '').trim();
+
+      if (dataUrl && dataUrl.startsWith('data:image/')) {
+        const matches = dataUrl.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+        if (matches) {
+          ext = matches[1].replace('+xml', '');
+          contentType = `image/${matches[1]}`;
+          buffer = Buffer.from(matches[2], 'base64');
+          fileSize = buffer.length;
+        }
+      } else if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
+        const fetchRes = await fetch(imageUrl);
+        if (!fetchRes.ok) {
+          throw new Error('Failed to fetch image from external URL');
+        }
+        const arrayBuf = await fetchRes.arrayBuffer();
+        buffer = Buffer.from(arrayBuf);
+        contentType = fetchRes.headers.get('content-type') || 'image/jpeg';
+        ext = contentType.split('/')[1]?.split(';')[0]?.replace('+xml', '') || 'jpg';
+        baseName = imageUrl.split('/').pop()?.split('?')[0]?.replace(/\.[^/.]+$/, '') || 'image';
+        fileSize = buffer.length;
+      } else if (imageUrl && imageUrl.startsWith('/')) {
+        return NextResponse.json({
+          success: true,
+          url: imageUrl,
+        });
+      }
+    } else {
+      const formData = await req.formData();
+      const file = formData.get('file') as File | null;
+      folder = (formData.get('folder') as string) || 'products';
+      const directUrl = (formData.get('url') as string | null)?.trim();
+
+      if (directUrl && (directUrl.startsWith('http://') || directUrl.startsWith('https://'))) {
+        const fetchRes = await fetch(directUrl);
+        if (!fetchRes.ok) throw new Error('Failed to fetch image from URL');
+        const arrayBuf = await fetchRes.arrayBuffer();
+        buffer = Buffer.from(arrayBuf);
+        contentType = fetchRes.headers.get('content-type') || 'image/jpeg';
+        ext = contentType.split('/')[1]?.split(';')[0]?.replace('+xml', '') || 'jpg';
+        fileSize = buffer.length;
+      } else if (file) {
+        if (!file.type.startsWith('image/')) {
+          return NextResponse.json({ error: 'Only image files are permitted' }, { status: 400 });
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          return NextResponse.json({ error: 'File size exceeds 10MB limit' }, { status: 400 });
+        }
+        buffer = Buffer.from(await file.arrayBuffer());
+        contentType = file.type;
+        ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+        baseName = file.name.replace(/\.[^/.]+$/, '');
+        fileSize = file.size;
+      }
     }
 
-    // Validate mime type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'Only image files are permitted' }, { status: 400 });
+    if (!buffer) {
+      return NextResponse.json({ error: 'No image provided or unsupported image format' }, { status: 400 });
     }
 
-    // Max file size: 10MB
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size exceeds 10MB limit' }, { status: 400 });
-    }
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-    const sanitizedBase = file.name
-      .replace(/\.[^/.]+$/, '')
+    const sanitizedBase = baseName
       .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-');
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/(^-|-$)/g, '') || 'image';
     const key = `${folder}/${sanitizedBase}-${Date.now()}.${ext}`;
 
     await r2Client.send(
@@ -35,11 +88,10 @@ export async function POST(req: NextRequest) {
         Bucket: R2_BUCKET,
         Key: key,
         Body: buffer,
-        ContentType: file.type,
+        ContentType: contentType,
       })
     );
 
-    // If a public domain or r2.dev URL is configured, use it, otherwise use our proxy endpoint
     const url = R2_PUBLIC_URL
       ? `${R2_PUBLIC_URL.replace(/\/$/, '')}/${key}`
       : `/api/storage/${key}`;
@@ -48,8 +100,8 @@ export async function POST(req: NextRequest) {
       success: true,
       url,
       key,
-      size: file.size,
-      contentType: file.type,
+      size: fileSize,
+      contentType,
     });
   } catch (err: unknown) {
     console.error('R2 upload error:', err);

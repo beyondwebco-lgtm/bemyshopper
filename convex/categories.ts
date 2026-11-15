@@ -86,7 +86,7 @@ export const HOME_DEFAULT_CATEGORIES = [
   {
     name: "More",
     slug: "more",
-    image: "/api/storage/categories/cat-prod-more.png",
+    image: "",
     bgGradient: "from-[#F7EFFF] via-[#ECE0FC] to-[#DFCEFA]",
     borderColor: "border-purple-200/60",
     description: "Specialty collections, local regional products, and seasonal items",

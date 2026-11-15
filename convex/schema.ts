@@ -45,10 +45,18 @@ export default defineSchema({
     inStock: v.boolean(),
     rating: v.optional(v.number()),
     isPopular: v.optional(v.boolean()),
+    isTopEssential: v.optional(v.boolean()),
+    isOffer: v.optional(v.boolean()),
+    badgeText: v.optional(v.string()),
+    badgeIcon: v.optional(v.string()),
+    badgeColor: v.optional(v.string()),
+    discount: v.optional(v.string()),
+    displayOrder: v.optional(v.number()),
     createdAt: v.number(),
   })
     .index("by_category", ["category"])
-    .index("by_in_stock", ["inStock"]),
+    .index("by_in_stock", ["inStock"])
+    .index("by_top_essential", ["isTopEssential"]),
 
   // Orders placed by customers, managed by admin
   orders: defineTable({

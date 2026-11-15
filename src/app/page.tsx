@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
   MapPin,
@@ -77,6 +77,8 @@ export default function Home() {
 
   // Dynamic categories from Convex (live updates from Admin Panel)
   const liveCategories = useQuery(api.categories.list);
+  // Dynamic Top Essentials from Convex (live updates from Admin Panel)
+  const liveTopEssentials = useQuery(api.products.listTopEssentials);
 
   // Interactive UI panels
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -84,6 +86,35 @@ export default function Home() {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   // Feedback
   const [addedItem, setAddedItem] = useState<string | null>(null);
+
+  // Dynamic Offer Banner State (Synced with Admin Panel)
+  const [offerBanner, setOfferBanner] = useState({
+    badge: 'Diwali Mahotsav Dhamaka Offers',
+    title: 'Celebrate & Save Big with Diwali Offers!',
+    subtitle: 'Stock up your festive home with pure ingredients, sacred puja essentials, fragrant agarbathi, and fresh groceries at guaranteed festival prices in Bapatla.',
+    image: '/images/diwali-offer-products.png',
+  });
+
+  useEffect(() => {
+    const loadBanner = () => {
+      try {
+        const saved = localStorage.getItem('bemyshopper_offer_banner');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setOfferBanner((prev) => ({ ...prev, ...parsed }));
+        }
+      } catch {
+        // ignore
+      }
+    };
+    loadBanner();
+    window.addEventListener('storage', loadBanner);
+    window.addEventListener('bemyshopper_offer_banner_updated', loadBanner);
+    return () => {
+      window.removeEventListener('storage', loadBanner);
+      window.removeEventListener('bemyshopper_offer_banner_updated', loadBanner);
+    };
+  }, []);
 
   // Rental Cars state (persisted across sessions & reloads)
   const [isRentalModalOpen, setIsRentalModalOpen] = useState(false);
@@ -160,232 +191,37 @@ export default function Home() {
     }
   };
 
-  // Dynamic categories from Convex (reflects updates from Admin Panel in real time)
-  const categories = (liveCategories && liveCategories.length > 0)
-    ? liveCategories.map((c) => ({
-        id: c.slug,
-        name: c.name,
-        prodImg: c.image || `/api/storage/categories/cat-prod-${c.slug}.png`,
-        icon: getCategoryIcon(c.slug),
-        iconColor: getCategoryIconColor(c.slug),
-        bgGradient: c.bgGradient || 'from-[#FFF8E7] via-[#FFF3D6] to-[#FFEEC4]',
-        borderColor: c.borderColor || 'border-amber-200/60',
-      }))
-    : [
-        {
-          id: 'groceries',
-          name: 'Groceries',
-          prodImg: '/api/storage/categories/cat-prod-groceries.png',
-          icon: ShoppingBag,
-          iconColor: 'text-emerald-700',
-          bgGradient: 'from-[#FFF8E7] via-[#FFF3D6] to-[#FFEEC4]',
-          borderColor: 'border-amber-200/60',
-        },
-        {
-          id: 'fruits-veg',
-          name: 'Fruits &\nVegetables',
-          prodImg: '/api/storage/categories/cat-prod-fruits-veg.png',
-          icon: Leaf,
-          iconColor: 'text-emerald-600',
-          bgGradient: 'from-[#EBF7EE] via-[#DCF6E2] to-[#CEF2D6]',
-          borderColor: 'border-emerald-200/60',
-        },
-        {
-          id: 'puja-items',
-          name: 'Puja Items',
-          prodImg: '/api/storage/categories/cat-prod-puja-items.png',
-          icon: Flame,
-          iconColor: 'text-orange-500',
-          bgGradient: 'from-[#FFF4EA] via-[#FFEAD9] to-[#FFDEC4]',
-          borderColor: 'border-orange-200/60',
-        },
-        {
-          id: 'cleaning',
-          name: 'Cleaning\nEssentials',
-          prodImg: '/api/storage/categories/cat-prod-cleaning.png',
-          icon: Sparkles,
-          iconColor: 'text-sky-600',
-          bgGradient: 'from-[#EDF6FF] via-[#DBEEFF] to-[#C9E4FF]',
-          borderColor: 'border-blue-200/60',
-        },
-        {
-          id: 'personal-care',
-          name: 'Personal\nCare',
-          prodImg: '/api/storage/categories/cat-prod-personal-care.png',
-          icon: Heart,
-          iconColor: 'text-purple-600',
-          bgGradient: 'from-[#F7EFFF] via-[#EFE2FF] to-[#E5D2FF]',
-          borderColor: 'border-purple-200/60',
-        },
-        {
-          id: 'snacks',
-          name: 'Snacks &\nBeverages',
-          prodImg: '/api/storage/categories/cat-prod-snacks.png',
-          icon: Coffee,
-          iconColor: 'text-amber-600',
-          bgGradient: 'from-[#FFF8ED] via-[#FFEECF] to-[#FFE3AF]',
-          borderColor: 'border-amber-200/60',
-        },
-        {
-          id: 'home-kitchen',
-          name: 'Home &\nKitchen',
-          prodImg: '/api/storage/categories/cat-prod-home-kitchen.png',
-          icon: Utensils,
-          iconColor: 'text-indigo-600',
-          bgGradient: 'from-[#EFF6FF] via-[#E2EDFF] to-[#D0E2FF]',
-          borderColor: 'border-indigo-200/60',
-        },
-        {
-          id: 'paper',
-          name: 'Paper &\nDisposables',
-          prodImg: '/api/storage/categories/cat-prod-paper.png',
-          icon: Package,
-          iconColor: 'text-teal-600',
-          bgGradient: 'from-[#EDFAF1] via-[#DCF5E4] to-[#C8EFD3]',
-          borderColor: 'border-emerald-200/60',
-        },
-        {
-          id: 'baby-care',
-          name: 'Baby Care',
-          prodImg: '/api/storage/categories/cat-prod-baby-care.png',
-          icon: Smile,
-          iconColor: 'text-rose-500',
-          bgGradient: 'from-[#FFF0F4] via-[#FFE0E8] to-[#FFD0DC]',
-          borderColor: 'border-rose-200/60',
-        },
-        {
-          id: 'more',
-          name: 'More',
-          prodImg: '/api/storage/categories/cat-prod-more.png',
-          icon: LayoutGrid,
-          iconColor: 'text-purple-600',
-          bgGradient: 'from-[#F7EFFF] via-[#ECE0FC] to-[#DFCEFA]',
-          borderColor: 'border-purple-200/60',
-        },
-      ];
+  // Dynamic categories strictly from Convex (reflects updates from Admin Panel in real time)
+  const isCategoriesLoading = liveCategories === undefined;
+  const categories = (liveCategories || []).map((c) => ({
+    id: c.slug,
+    name: c.name,
+    prodImg: c.image || '',
+    icon: getCategoryIcon(c.slug),
+    iconColor: getCategoryIconColor(c.slug),
+    bgGradient: c.bgGradient || 'from-[#FFF8E7] via-[#FFF3D6] to-[#FFEEC4]',
+    borderColor: c.borderColor || 'border-amber-200/60',
+  }));
 
-  const essentials = [
-    {
-      id: 'surf-excel',
-      name: 'Surf Excel Detergent Powder',
-      pack: '1 kg',
-      img: '/images/prod-surf-excel.png',
-      price: '₹349',
-      originalPrice: '₹399',
-      discount: 'Save 13%',
-      badge: { text: 'Bestseller', icon: '👑', color: 'bg-[#48BB78] text-white' },
-    },
-    {
-      id: 'vim-dishwash',
-      name: 'Vim Dishwash Liquid',
-      pack: '750 ml',
-      img: '/images/prod-vim-dishwash.png',
-      price: '₹135',
-      originalPrice: '₹145',
-      discount: 'Save 7%',
-      badge: null,
-    },
-    {
-      id: 'ambica-agarbatti',
-      name: 'Ambica Durbar Bathi (Agarbathi)',
-      pack: 'Pack of 5',
-      img: '/images/prod-ambica-agarbatti.png',
-      price: '₹89',
-      originalPrice: '₹99',
-      discount: 'Save 10%',
-      badge: null,
-    },
-    {
-      id: 'rice-5kg',
-      name: 'Rice',
-      pack: '5 kg',
-      img: '/images/prod-rice-5kg.png',
-      price: '₹329',
-      originalPrice: '₹349',
-      discount: 'Save 6%',
-      badge: null,
-    },
-    {
-      id: 'toilet-tissue',
-      name: 'Toilet Tissue Roll (3 Ply)',
-      pack: 'Pack of 4',
-      img: '/images/prod-toilet-tissue.png',
-      price: '₹149',
-      originalPrice: '₹165',
-      discount: 'Save 10%',
-      badge: null,
-    },
-    {
-      id: 'nandini-ghee',
-      name: 'Nandini Ghee',
-      pack: '500 ml',
-      img: '/images/prod-nandini-ghee.png',
-      price: '₹289',
-      originalPrice: '₹320',
-      discount: 'Save 10%',
-      badge: { text: 'Trending', icon: '🔥', color: 'bg-[#FED7AA] text-[#C2410C]' },
-    },
-    {
-      id: 'red-label',
-      name: 'Brooke Bond Red Label Tea',
-      pack: '500 g',
-      img: '/images/prod-red-label.png',
-      price: '₹299',
-      originalPrice: '₹335',
-      discount: 'Save 11%',
-      badge: { text: 'Bestseller', icon: '👑', color: 'bg-[#48BB78] text-white' },
-    },
-    {
-      id: 'maggi',
-      name: 'Maggi 2-Minute Noodles',
-      pack: '420 g (Pack of 4)',
-      img: '/images/prod-maggi.png',
-      price: '₹115',
-      originalPrice: '₹125',
-      discount: 'Save 8%',
-      badge: null,
-    },
-    {
-      id: 'horlicks',
-      name: 'Horlicks Health Drink',
-      pack: '500 g',
-      img: '/images/prod-horlicks.png',
-      price: '₹329',
-      originalPrice: '₹360',
-      discount: 'Save 9%',
-      badge: null,
-    },
-    {
-      id: 'dove-soap',
-      name: 'Dove Beauty Bathing Bar',
-      pack: '125 g (Pack of 3)',
-      img: '/images/prod-dove-soap.png',
-      price: '₹165',
-      originalPrice: '₹195',
-      discount: 'Save 15%',
-      badge: null,
-    },
-    {
-      id: 'colgate',
-      name: 'Colgate Strong Teeth Toothpaste',
-      pack: '150 g',
-      img: '/images/prod-colgate.png',
-      price: '₹129',
-      originalPrice: '₹145',
-      discount: 'Save 11%',
-      badge: null,
-    },
-    {
-      id: 'harpic',
-      name: 'Harpic Power Plus Toilet Cleaner',
-      pack: '1 L',
-      img: '/images/prod-harpic.png',
-      price: '₹189',
-      originalPrice: '₹210',
-      discount: 'Save 10%',
-      badge: { text: 'Trending', icon: '🔥', color: 'bg-[#FED7AA] text-[#C2410C]' },
-    },
-  ];
+  // Dynamic Top Essentials strictly from Convex (live updates with Cloudflare R2 photos)
+  const isTopEssentialsLoading = liveTopEssentials === undefined;
+  const essentials = (liveTopEssentials || []).map((p) => ({
+    id: p._id,
+    name: p.name,
+    pack: p.weight,
+    img: p.image || '/images/prod-surf-excel.png',
+    price: `₹${p.price}`,
+    originalPrice: p.originalPrice ? `₹${p.originalPrice}` : '',
+    discount: p.discount || '',
+    inStock: p.inStock !== false,
+    badge: p.badgeText
+      ? {
+        text: p.badgeText,
+        icon: p.badgeIcon || '⭐',
+        color: p.badgeColor || 'bg-[#48BB78] text-white',
+      }
+      : null,
+  }));
 
   const dailyEssentials = [
     {
@@ -530,11 +366,13 @@ export default function Home() {
     },
   ];
 
-  const allProducts = [...essentials, ...dailyEssentials];
+  const allProducts = useMemo(() => {
+    return [...essentials, ...dailyEssentials];
+  }, [essentials]);
 
   useEffect(() => {
     registerProducts(allProducts);
-  }, [registerProducts]);
+  }, [registerProducts, allProducts]);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
@@ -566,17 +404,15 @@ export default function Home() {
               <div className="relative">
                 <button
                   onClick={() => setIsCategoriesOpen((prev) => !prev)}
-                  className={`flex items-center gap-1.5 transition-colors font-medium px-3 py-1.5 rounded-full ${
-                    isCategoriesOpen
-                      ? 'text-[#1D7A34] bg-[#EAF5EC]'
-                      : 'text-gray-700 hover:text-[#1D7A34] hover:bg-gray-50'
-                  }`}
+                  className={`flex items-center gap-1.5 transition-colors font-medium px-3 py-1.5 rounded-full ${isCategoriesOpen
+                    ? 'text-[#1D7A34] bg-[#EAF5EC]'
+                    : 'text-gray-700 hover:text-[#1D7A34] hover:bg-gray-50'
+                    }`}
                 >
                   <span>Categories</span>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      isCategoriesOpen ? 'rotate-180 text-[#1D7A34]' : 'text-gray-500'
-                    }`}
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${isCategoriesOpen ? 'rotate-180 text-[#1D7A34]' : 'text-gray-500'
+                      }`}
                   />
                 </button>
 
@@ -595,11 +431,11 @@ export default function Home() {
                         {categories.map((cat) => {
                           const CatIcon = cat.icon;
                           return (
-                            <button
+                            <Link
                               key={cat.id}
+                              href={`/category/${cat.id}`}
                               onClick={() => {
                                 setIsCategoriesOpen(false);
-                                scrollToSection('categories');
                               }}
                               className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors text-left group/item w-full"
                             >
@@ -611,7 +447,7 @@ export default function Home() {
                               <span className="text-xs font-semibold text-gray-800 group-hover/item:text-[#1D7A34] transition-colors leading-tight">
                                 {cat.name.replace('\n', ' ')}
                               </span>
-                            </button>
+                            </Link>
                           );
                         })}
                       </div>
@@ -673,9 +509,8 @@ export default function Home() {
               className="relative p-1.5 text-gray-700 hover:text-red-500 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
             >
               <Heart
-                className={`w-5 h-5 transition-colors ${
-                  totalWishlistCount > 0 ? 'fill-red-500 text-red-500' : ''
-                }`}
+                className={`w-5 h-5 transition-colors ${totalWishlistCount > 0 ? 'fill-red-500 text-red-500' : ''
+                  }`}
                 strokeWidth={1.8}
               />
               {totalWishlistCount > 0 && (
@@ -763,7 +598,7 @@ export default function Home() {
 
       <main>
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-          
+
           {/* 1. Value Proposition Features Strip */}
           <section className="py-5 sm:py-6 border-t border-b border-gray-100 my-4 sm:my-5">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
@@ -823,39 +658,55 @@ export default function Home() {
                   \ | /
                 </span>
               </h2>
-              <button
-                onClick={() => scrollToSection('categories')}
+              <Link
+                href={`/category/${categories[0]?.id || 'groceries'}`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF5EC] hover:bg-[#D8EEDF] text-[#137A2C] text-xs sm:text-[13px] font-semibold transition-colors shadow-2xs cursor-pointer"
               >
                 <span>View All Categories</span>
                 <ArrowRight className="w-3.5 h-3.5 text-[#137A2C]" />
-              </button>
+              </Link>
             </div>
 
-            {/* 10 Category Cards */}
+            {/* Category Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
-              {categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  className={`group relative rounded-2xl bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 flex flex-col items-center justify-between h-[155px] sm:h-[165px] shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden`}
-                >
-                  <div className="w-full h-24 sm:h-26 flex items-center justify-center pt-1">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={cat.prodImg}
-                      alt={cat.name.replace('\n', ' ')}
-                      className="max-h-[75px] max-w-[85px] object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
-                      style={{ maxHeight: '75px', maxWidth: '85px', objectFit: 'contain' }}
-                    />
-                  </div>
+              {isCategoriesLoading ? (
+                [...Array(10)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl bg-gray-100/80 animate-pulse h-[155px] sm:h-[165px]"
+                  />
+                ))
+              ) : (
+                categories.map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/category/${cat.id}`}
+                    className={`group relative rounded-2xl bg-gradient-to-b ${cat.bgGradient} border ${cat.borderColor} p-2 flex flex-col items-center justify-between h-[155px] sm:h-[165px] shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden`}
+                  >
+                    <div className="w-full h-24 sm:h-26 flex items-center justify-center pt-1">
+                      {cat.prodImg ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={cat.prodImg}
+                          alt={cat.name.replace('\n', ' ')}
+                          className="max-h-[75px] max-w-[85px] object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
+                          style={{ maxHeight: '75px', maxWidth: '85px', objectFit: 'contain' }}
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-2xl bg-white/70 flex items-center justify-center text-purple-600 shadow-2xs">
+                          <LayoutGrid className="w-6 h-6" />
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="w-full h-9 pb-1 flex items-center justify-center">
-                    <span className="text-[11px] sm:text-[12px] font-bold text-gray-900 leading-[1.2] text-center whitespace-pre-line tracking-tight">
-                      {cat.name}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                    <div className="w-full h-9 pb-1 flex items-center justify-center">
+                      <span className="text-[11px] sm:text-[12px] font-bold text-gray-900 leading-[1.2] text-center whitespace-pre-line tracking-tight">
+                        {cat.name}
+                      </span>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
           </section>
 
@@ -883,105 +734,129 @@ export default function Home() {
               </span>
             </div>
 
-            {/* 12 Responsive Grid Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-              {essentials.map((item) => {
-                const isLiked = !!wishlist[item.id];
-                const isAdded = addedItem === item.id;
-
-                return (
+            {/* Responsive Grid Cards */}
+            {isTopEssentialsLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                {[...Array(6)].map((_, i) => (
                   <div
-                    key={item.id}
-                    className="bg-white rounded-2xl border border-gray-100 hover:border-gray-200/90 shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-3 sm:p-3.5 flex flex-col justify-between relative group"
+                    key={i}
+                    className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-3.5 flex flex-col justify-between animate-pulse h-64"
                   >
-                    {/* Top Row: Badge & Wishlist Heart */}
-                    <div className="flex items-center justify-between h-5 mb-1">
-                      {item.badge ? (
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1 leading-none shadow-2xs ${item.badge.color}`}
-                        >
-                          <span>{item.badge.icon}</span>
-                          <span>{item.badge.text}</span>
-                        </span>
-                      ) : (
-                        <div />
-                      )}
+                    <div className="h-4 bg-gray-100 rounded w-16 mb-2" />
+                    <div className="w-full h-24 bg-gray-100 rounded-xl my-2" />
+                    <div className="h-3.5 bg-gray-100 rounded w-3/4 mb-1" />
+                    <div className="h-3 bg-gray-100 rounded w-1/2 mb-3" />
+                    <div className="h-8 bg-gray-100 rounded-xl w-full" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                {essentials.map((item) => {
+                  const isLiked = !!wishlist[item.id];
+                  const isAdded = addedItem === item.id;
 
-                      <button
-                        onClick={() => toggleWishlist(item.id)}
-                        aria-label="Save to Wishlist"
-                        className="p-1 text-gray-300 hover:text-red-500 transition-colors cursor-pointer"
-                      >
-                        <Heart
-                          className={`w-4 h-4 transition-transform duration-200 hover:scale-110 ${
-                            isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'
-                          }`}
-                          strokeWidth={2}
-                        />
-                      </button>
-                    </div>
-
-                    {/* Product Image */}
-                    <div className="w-full h-28 sm:h-32 flex items-center justify-center p-1 my-1">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.img}
-                        alt={item.name}
-                        className="max-h-[110px] sm:max-h-[120px] max-w-full object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
-                        style={{ maxHeight: '115px', maxWidth: '100%', objectFit: 'contain' }}
-                      />
-                    </div>
-
-                    {/* Product Details */}
-                    <div className="w-full pt-1">
-                      <h4 className="text-xs sm:text-[13px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[34px]">
-                        {item.name}
-                      </h4>
-                      <p className="text-[11px] text-gray-400 font-medium mt-0.5">
-                        {item.pack}
-                      </p>
-
-                      {/* Pricing & Discount */}
-                      <div className="flex items-center justify-between mt-2 pt-0.5">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-sm sm:text-base font-extrabold text-gray-900">
-                            {item.price}
+                  return (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-2xl border border-gray-100 hover:border-gray-200/90 shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-3 sm:p-3.5 flex flex-col justify-between relative group"
+                    >
+                      {/* Top Row: Badge & Wishlist Heart */}
+                      <div className="flex items-center justify-between h-5 mb-1">
+                        {item.badge ? (
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1 leading-none shadow-2xs ${item.badge.color}`}
+                          >
+                            <span>{item.badge.icon}</span>
+                            <span>{item.badge.text}</span>
                           </span>
-                          <span className="text-[11px] text-gray-400 line-through">
-                            {item.originalPrice}
+                        ) : (
+                          <div />
+                        )}
+
+                        <button
+                          onClick={() => toggleWishlist(item.id)}
+                          aria-label="Save to Wishlist"
+                          className="p-1 text-gray-300 hover:text-red-500 transition-colors cursor-pointer"
+                        >
+                          <Heart
+                            className={`w-4 h-4 transition-transform duration-200 hover:scale-110 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'
+                              }`}
+                            strokeWidth={2}
+                          />
+                        </button>
+                      </div>
+
+                      {/* Product Image */}
+                      <div className="w-full h-28 sm:h-32 flex items-center justify-center p-1 my-1">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.img}
+                          alt={item.name}
+                          className="max-h-[110px] sm:max-h-[120px] max-w-full object-contain group-hover:scale-108 transition-transform duration-300 select-none drop-shadow-2xs"
+                          style={{ maxHeight: '115px', maxWidth: '100%', objectFit: 'contain' }}
+                        />
+                      </div>
+
+                      {/* Product Details */}
+                      <div className="w-full pt-1">
+                        <h4 className="text-xs sm:text-[13px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[34px]">
+                          {item.name}
+                        </h4>
+                        <p className="text-[11px] text-gray-400 font-medium mt-0.5">
+                          {item.pack}
+                        </p>
+
+                        {/* Pricing & Discount */}
+                        <div className="flex items-center justify-between mt-2 pt-0.5">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-sm sm:text-base font-extrabold text-gray-900">
+                              {item.price}
+                            </span>
+                            <span className="text-[11px] text-gray-400 line-through">
+                              {item.originalPrice}
+                            </span>
+                          </div>
+                          <span className="text-[10px] sm:text-[11px] font-bold text-[#137A2C] bg-[#EAF5EC] px-1.5 py-0.5 rounded-md">
+                            {item.discount}
                           </span>
                         </div>
-                        <span className="text-[10px] sm:text-[11px] font-bold text-[#137A2C] bg-[#EAF5EC] px-1.5 py-0.5 rounded-md">
-                          {item.discount}
-                        </span>
                       </div>
-                    </div>
 
-                    {/* Full Width Add to Cart Button */}
-                    <button
-                      onClick={() => handleAddToCart(item.id)}
-                      className={`w-full mt-3 py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${
-                        isAdded
-                          ? 'bg-[#0E5C21] text-white'
-                          : 'bg-[#137A2C] hover:bg-[#0F6323] text-white'
-                      }`}
-                    >
-                      {isAdded ? (
-                        <>
-                          <Check className="w-4 h-4 stroke-[2.5]" />
-                          <span>Added</span>
-                        </>
+                      {/* Full Width Add to Cart Button */}
+                      {item.inStock === false ? (
+                        <button
+                          disabled
+                          className="w-full mt-3 py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold bg-gray-100 text-gray-400 cursor-not-allowed text-center"
+                        >
+                          Out of Stock
+                        </button>
                       ) : (
-                        <>
-                          <ShoppingCart className="w-4 h-4 stroke-[2]" />
-                          <span>Add to Cart</span>
-                        </>
+                        <button
+                          onClick={() => handleAddToCart(item.id)}
+                          className={`w-full mt-3 py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${isAdded
+                            ? 'bg-[#0E5C21] text-white'
+                            : 'bg-[#137A2C] hover:bg-[#0F6323] text-white'
+                            }`}
+                        >
+                          {isAdded ? (
+                            <>
+                              <Check className="w-4 h-4 stroke-[2.5]" />
+                              <span>Added</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingCart className="w-4 h-4 stroke-[2]" />
+                              <span>Add to Cart</span>
+                            </>
+                          )}
+                        </button>
                       )}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </section>
         </div>
 
@@ -1007,63 +882,27 @@ export default function Home() {
                 {/* Festive Dhamaka Tag */}
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400/25 to-yellow-300/15 border border-amber-400/40 text-amber-300 text-xs font-black tracking-wide shadow-sm backdrop-blur-xs">
                   <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-                  <span className="uppercase tracking-wider">Diwali Mahotsav Dhamaka Offers</span>
+                  <span className="uppercase tracking-wider">{offerBanner.badge}</span>
                 </div>
 
                 {/* Main Headline */}
                 <h3 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-white leading-tight tracking-tight">
-                  Celebrate &amp; Save Big with{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 drop-shadow-sm">
-                    Diwali Offers!
-                  </span>
+                  {offerBanner.title}
                 </h3>
 
-                {/* Discount Banner Strip */}
-                <div className="inline-flex flex-wrap items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-400/15 border border-amber-300/30 text-amber-200 text-xs sm:text-sm">
-                  <span className="text-base sm:text-lg font-black text-amber-300 tracking-tight">
-                    UP TO 30% - 50% OFF
-                  </span>
-                  <span className="text-purple-100 font-medium">
-                    on Pooja Essentials, Groceries &amp; Sweets
-                  </span>
-                </div>
-
                 {/* Description */}
-                <p className="text-xs sm:text-sm text-purple-100/90 leading-relaxed max-w-xl font-normal line-clamp-2">
-                  Stock up your festive home with pure ingredients, sacred puja essentials, fragrant agarbathi, and fresh groceries at guaranteed festival prices in Bapatla.
+                <p className="text-xs sm:text-sm text-purple-100/90 leading-relaxed max-w-xl font-normal">
+                  {offerBanner.subtitle}
                 </p>
 
-                {/* 4 Client-Attractive Benefit Pills */}
-                <div className="grid grid-cols-3 gap-2 w-full max-w-lg pt-0.5">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-[11px] font-semibold">
-                    <span className="text-amber-300">⚡</span>
-                    <span>30-Min Fast Delivery</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-[11px] font-semibold">
-                    <span className="text-amber-300">🪔</span>
-                    <span>Free Diya on ₹499+</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-white text-[11px] font-semibold">
-                    <span className="text-amber-300">✨</span>
-                    <span>Extra ₹100 1st Order</span>
-                  </div>
-                </div>
-
-                {/* CTA Buttons */}
-                <div className="flex flex-wrap items-center gap-3 pt-1">
+                {/* CTA Button */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
                   <Link
                     href="/offers"
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-purple-950 font-black text-xs sm:text-sm shadow-md hover:shadow-amber-400/25 hover:scale-105 active:scale-98 transition-all duration-200"
                   >
                     <span>Shop Diwali Deals Now</span>
                     <ArrowRight className="w-3.5 h-3.5 text-purple-950 stroke-[2.5]" />
-                  </Link>
-
-                  <Link
-                    href="/offers"
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-xs border border-white/20 transition-all"
-                  >
-                    <span>View All 12+ Deals</span>
                   </Link>
                 </div>
               </div>
@@ -1074,9 +913,12 @@ export default function Home() {
                   <div className="absolute inset-0 bg-amber-400/25 rounded-full blur-3xl group-hover:bg-amber-400/35 transition-all pointer-events-none" />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/images/diwali-offer-products.png"
-                    alt="Diwali Grocery Offers & Up to 30% OFF"
+                    src={offerBanner.image || '/images/diwali-offer-products.png'}
+                    alt={offerBanner.title}
                     className="relative z-10 w-auto h-[340px] sm:h-[370px] lg:h-[390px] max-h-[390px] max-w-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300 select-none"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/diwali-offer-products.png';
+                    }}
                     style={{ maxHeight: '390px', width: 'auto' }}
                   />
                 </div>
@@ -1188,11 +1030,10 @@ export default function Home() {
                       {/* Plan 1: 6 Hr */}
                       <div
                         onClick={() => setSelected5SeaterPlan('6hr')}
-                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
-                          selected5SeaterPlan === '6hr'
-                            ? 'bg-orange-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
-                            : 'bg-gray-50/80 hover:bg-orange-50/40 border border-gray-200/80 hover:border-orange-300'
-                        }`}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${selected5SeaterPlan === '6hr'
+                          ? 'bg-orange-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                          : 'bg-gray-50/80 hover:bg-orange-50/40 border border-gray-200/80 hover:border-orange-300'
+                          }`}
                       >
                         {selected5SeaterPlan === '6hr' && (
                           <div className="absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full bg-[#EA580C] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
@@ -1201,11 +1042,10 @@ export default function Home() {
                         )}
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
-                              selected5SeaterPlan === '6hr'
-                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
-                                : 'bg-white border border-gray-200 text-gray-500'
-                            }`}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${selected5SeaterPlan === '6hr'
+                              ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                              : 'bg-white border border-gray-200 text-gray-500'
+                              }`}
                           >
                             <Clock className="w-4 h-4" />
                           </div>
@@ -1216,18 +1056,16 @@ export default function Home() {
                         </div>
                         <div className="text-right">
                           <span
-                            className={`text-xl font-black block leading-tight transition-colors ${
-                              selected5SeaterPlan === '6hr' ? 'text-[#9A3412]' : 'text-gray-800'
-                            }`}
+                            className={`text-xl font-black block leading-tight transition-colors ${selected5SeaterPlan === '6hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                              }`}
                           >
                             ₹900
                           </span>
                           <span
-                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
-                              selected5SeaterPlan === '6hr'
-                                ? 'text-orange-900 bg-orange-100 border-orange-300 shadow-2xs'
-                                : 'text-gray-600 bg-gray-100 border-gray-200'
-                            }`}
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected5SeaterPlan === '6hr'
+                              ? 'text-orange-900 bg-orange-100 border-orange-300 shadow-2xs'
+                              : 'text-gray-600 bg-gray-100 border-gray-200'
+                              }`}
                           >
                             120 KM Included
                           </span>
@@ -1237,28 +1075,25 @@ export default function Home() {
                       {/* Plan 2: 12 Hr */}
                       <div
                         onClick={() => setSelected5SeaterPlan('12hr')}
-                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
-                          selected5SeaterPlan === '12hr'
-                            ? 'bg-orange-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
-                            : 'bg-gray-50/80 hover:bg-orange-50/40 border border-gray-200/80 hover:border-orange-300'
-                        }`}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${selected5SeaterPlan === '12hr'
+                          ? 'bg-orange-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                          : 'bg-gray-50/80 hover:bg-orange-50/40 border border-gray-200/80 hover:border-orange-300'
+                          }`}
                       >
                         <div
-                          className={`absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shadow-xs ${
-                            selected5SeaterPlan === '12hr'
-                              ? 'bg-[#EA580C] text-white ring-2 ring-orange-100'
-                              : 'bg-gray-200 text-gray-700'
-                          }`}
+                          className={`absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shadow-xs ${selected5SeaterPlan === '12hr'
+                            ? 'bg-[#EA580C] text-white ring-2 ring-orange-100'
+                            : 'bg-gray-200 text-gray-700'
+                            }`}
                         >
                           Most Popular
                         </div>
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
-                              selected5SeaterPlan === '12hr'
-                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
-                                : 'bg-white border border-gray-200 text-gray-500'
-                            }`}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${selected5SeaterPlan === '12hr'
+                              ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                              : 'bg-white border border-gray-200 text-gray-500'
+                              }`}
                           >
                             <Clock className="w-4 h-4" />
                           </div>
@@ -1269,18 +1104,16 @@ export default function Home() {
                         </div>
                         <div className="text-right">
                           <span
-                            className={`text-xl font-black block leading-tight transition-colors ${
-                              selected5SeaterPlan === '12hr' ? 'text-[#9A3412]' : 'text-gray-800'
-                            }`}
+                            className={`text-xl font-black block leading-tight transition-colors ${selected5SeaterPlan === '12hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                              }`}
                           >
                             ₹1,490
                           </span>
                           <span
-                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
-                              selected5SeaterPlan === '12hr'
-                                ? 'text-orange-900 bg-orange-100 border-orange-300 shadow-2xs'
-                                : 'text-gray-600 bg-gray-100 border-gray-200'
-                            }`}
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected5SeaterPlan === '12hr'
+                              ? 'text-orange-900 bg-orange-100 border-orange-300 shadow-2xs'
+                              : 'text-gray-600 bg-gray-100 border-gray-200'
+                              }`}
                           >
                             200 KM Included
                           </span>
@@ -1290,11 +1123,10 @@ export default function Home() {
                       {/* Plan 3: 24 Hr */}
                       <div
                         onClick={() => setSelected5SeaterPlan('24hr')}
-                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
-                          selected5SeaterPlan === '24hr'
-                            ? 'bg-orange-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
-                            : 'bg-gray-50/80 hover:bg-orange-50/40 border border-gray-200/80 hover:border-orange-300'
-                        }`}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${selected5SeaterPlan === '24hr'
+                          ? 'bg-orange-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                          : 'bg-gray-50/80 hover:bg-orange-50/40 border border-gray-200/80 hover:border-orange-300'
+                          }`}
                       >
                         {selected5SeaterPlan === '24hr' ? (
                           <div className="absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full bg-[#EA580C] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
@@ -1307,11 +1139,10 @@ export default function Home() {
                         )}
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
-                              selected5SeaterPlan === '24hr'
-                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
-                                : 'bg-white border border-gray-200 text-gray-500'
-                            }`}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${selected5SeaterPlan === '24hr'
+                              ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                              : 'bg-white border border-gray-200 text-gray-500'
+                              }`}
                           >
                             <Clock className="w-4 h-4" />
                           </div>
@@ -1322,18 +1153,16 @@ export default function Home() {
                         </div>
                         <div className="text-right">
                           <span
-                            className={`text-xl font-black block leading-tight transition-colors ${
-                              selected5SeaterPlan === '24hr' ? 'text-[#9A3412]' : 'text-gray-800'
-                            }`}
+                            className={`text-xl font-black block leading-tight transition-colors ${selected5SeaterPlan === '24hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                              }`}
                           >
                             ₹2,490
                           </span>
                           <span
-                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
-                              selected5SeaterPlan === '24hr'
-                                ? 'text-orange-900 bg-orange-100 border-orange-300 shadow-2xs'
-                                : 'text-gray-600 bg-gray-100 border-gray-200'
-                            }`}
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected5SeaterPlan === '24hr'
+                              ? 'text-orange-900 bg-orange-100 border-orange-300 shadow-2xs'
+                              : 'text-gray-600 bg-gray-100 border-gray-200'
+                              }`}
                           >
                             400 KM Included
                           </span>
@@ -1413,11 +1242,10 @@ export default function Home() {
                       {/* Plan 1: 6 Hr */}
                       <div
                         onClick={() => setSelected7SeaterPlan('6hr')}
-                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
-                          selected7SeaterPlan === '6hr'
-                            ? 'bg-amber-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
-                            : 'bg-gray-50/80 hover:bg-amber-50/40 border border-gray-200/80 hover:border-orange-300'
-                        }`}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${selected7SeaterPlan === '6hr'
+                          ? 'bg-amber-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                          : 'bg-gray-50/80 hover:bg-amber-50/40 border border-gray-200/80 hover:border-orange-300'
+                          }`}
                       >
                         {selected7SeaterPlan === '6hr' && (
                           <div className="absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full bg-[#EA580C] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
@@ -1426,11 +1254,10 @@ export default function Home() {
                         )}
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
-                              selected7SeaterPlan === '6hr'
-                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
-                                : 'bg-white border border-gray-200 text-gray-500'
-                            }`}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${selected7SeaterPlan === '6hr'
+                              ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                              : 'bg-white border border-gray-200 text-gray-500'
+                              }`}
                           >
                             <Clock className="w-4 h-4" />
                           </div>
@@ -1441,18 +1268,16 @@ export default function Home() {
                         </div>
                         <div className="text-right">
                           <span
-                            className={`text-xl font-black block leading-tight transition-colors ${
-                              selected7SeaterPlan === '6hr' ? 'text-[#9A3412]' : 'text-gray-800'
-                            }`}
+                            className={`text-xl font-black block leading-tight transition-colors ${selected7SeaterPlan === '6hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                              }`}
                           >
                             ₹1,800
                           </span>
                           <span
-                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
-                              selected7SeaterPlan === '6hr'
-                                ? 'text-amber-900 bg-amber-100 border-amber-300 shadow-2xs'
-                                : 'text-gray-600 bg-gray-100 border-gray-200'
-                            }`}
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected7SeaterPlan === '6hr'
+                              ? 'text-amber-900 bg-amber-100 border-amber-300 shadow-2xs'
+                              : 'text-gray-600 bg-gray-100 border-gray-200'
+                              }`}
                           >
                             120 KM Included
                           </span>
@@ -1462,28 +1287,25 @@ export default function Home() {
                       {/* Plan 2: 12 Hr */}
                       <div
                         onClick={() => setSelected7SeaterPlan('12hr')}
-                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
-                          selected7SeaterPlan === '12hr'
-                            ? 'bg-amber-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
-                            : 'bg-gray-50/80 hover:bg-amber-50/40 border border-gray-200/80 hover:border-orange-300'
-                        }`}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${selected7SeaterPlan === '12hr'
+                          ? 'bg-amber-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                          : 'bg-gray-50/80 hover:bg-amber-50/40 border border-gray-200/80 hover:border-orange-300'
+                          }`}
                       >
                         <div
-                          className={`absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shadow-xs ${
-                            selected7SeaterPlan === '12hr'
-                              ? 'bg-[#EA580C] text-white ring-2 ring-orange-100'
-                              : 'bg-gray-200 text-gray-700'
-                          }`}
+                          className={`absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shadow-xs ${selected7SeaterPlan === '12hr'
+                            ? 'bg-[#EA580C] text-white ring-2 ring-orange-100'
+                            : 'bg-gray-200 text-gray-700'
+                            }`}
                         >
                           Most Popular
                         </div>
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
-                              selected7SeaterPlan === '12hr'
-                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
-                                : 'bg-white border border-gray-200 text-gray-500'
-                            }`}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${selected7SeaterPlan === '12hr'
+                              ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                              : 'bg-white border border-gray-200 text-gray-500'
+                              }`}
                           >
                             <Clock className="w-4 h-4" />
                           </div>
@@ -1494,18 +1316,16 @@ export default function Home() {
                         </div>
                         <div className="text-right">
                           <span
-                            className={`text-xl font-black block leading-tight transition-colors ${
-                              selected7SeaterPlan === '12hr' ? 'text-[#9A3412]' : 'text-gray-800'
-                            }`}
+                            className={`text-xl font-black block leading-tight transition-colors ${selected7SeaterPlan === '12hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                              }`}
                           >
                             ₹2,490
                           </span>
                           <span
-                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
-                              selected7SeaterPlan === '12hr'
-                                ? 'text-amber-900 bg-amber-100 border-amber-300 shadow-2xs'
-                                : 'text-gray-600 bg-gray-100 border-gray-200'
-                            }`}
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected7SeaterPlan === '12hr'
+                              ? 'text-amber-900 bg-amber-100 border-amber-300 shadow-2xs'
+                              : 'text-gray-600 bg-gray-100 border-gray-200'
+                              }`}
                           >
                             200 KM Included
                           </span>
@@ -1515,11 +1335,10 @@ export default function Home() {
                       {/* Plan 3: 24 Hr */}
                       <div
                         onClick={() => setSelected7SeaterPlan('24hr')}
-                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${
-                          selected7SeaterPlan === '24hr'
-                            ? 'bg-amber-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
-                            : 'bg-gray-50/80 hover:bg-amber-50/40 border border-gray-200/80 hover:border-orange-300'
-                        }`}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 cursor-pointer relative ${selected7SeaterPlan === '24hr'
+                          ? 'bg-amber-50/70 border-2 border-[#EA580C] shadow-md ring-2 ring-orange-400/20'
+                          : 'bg-gray-50/80 hover:bg-amber-50/40 border border-gray-200/80 hover:border-orange-300'
+                          }`}
                       >
                         {selected7SeaterPlan === '24hr' ? (
                           <div className="absolute -top-2.5 right-6 px-2.5 py-0.5 rounded-full bg-[#EA580C] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
@@ -1532,11 +1351,10 @@ export default function Home() {
                         )}
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${
-                              selected7SeaterPlan === '24hr'
-                                ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
-                                : 'bg-white border border-gray-200 text-gray-500'
-                            }`}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs transition-all ${selected7SeaterPlan === '24hr'
+                              ? 'bg-white border-2 border-[#EA580C] text-[#EA580C]'
+                              : 'bg-white border border-gray-200 text-gray-500'
+                              }`}
                           >
                             <Clock className="w-4 h-4" />
                           </div>
@@ -1547,18 +1365,16 @@ export default function Home() {
                         </div>
                         <div className="text-right">
                           <span
-                            className={`text-xl font-black block leading-tight transition-colors ${
-                              selected7SeaterPlan === '24hr' ? 'text-[#9A3412]' : 'text-gray-800'
-                            }`}
+                            className={`text-xl font-black block leading-tight transition-colors ${selected7SeaterPlan === '24hr' ? 'text-[#9A3412]' : 'text-gray-800'
+                              }`}
                           >
                             ₹3,490
                           </span>
                           <span
-                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${
-                              selected7SeaterPlan === '24hr'
-                                ? 'text-amber-900 bg-amber-100 border-amber-300 shadow-2xs'
-                                : 'text-gray-600 bg-gray-100 border-gray-200'
-                            }`}
+                            className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected7SeaterPlan === '24hr'
+                              ? 'text-amber-900 bg-amber-100 border-amber-300 shadow-2xs'
+                              : 'text-gray-600 bg-gray-100 border-gray-200'
+                              }`}
                           >
                             400 KM Included
                           </span>
@@ -2131,11 +1947,10 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => setRentalCarType('5-seater')}
-                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                          rentalCarType === '5-seater'
-                            ? 'border-[#137A2C] bg-emerald-50/50 shadow-xs'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${rentalCarType === '5-seater'
+                          ? 'border-[#137A2C] bg-emerald-50/50 shadow-xs'
+                          : 'border-gray-200 hover:border-gray-300'
+                          }`}
                       >
                         <div className="font-bold text-sm text-gray-900">Any 5 Seater</div>
                         <div className="text-[11px] text-gray-500 mt-0.5">Thar / Fronx / Baleno</div>
@@ -2145,11 +1960,10 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => setRentalCarType('7-seater')}
-                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                          rentalCarType === '7-seater'
-                            ? 'border-purple-600 bg-purple-50/50 shadow-xs'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${rentalCarType === '7-seater'
+                          ? 'border-purple-600 bg-purple-50/50 shadow-xs'
+                          : 'border-gray-200 hover:border-gray-300'
+                          }`}
                       >
                         <div className="font-bold text-sm text-gray-900">Any 7 Seater</div>
                         <div className="text-[11px] text-gray-500 mt-0.5">Innova Hycross / Ertiga</div>
@@ -2167,11 +1981,10 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => setRentalDuration('6hr')}
-                        className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                          rentalDuration === '6hr'
-                            ? 'border-[#137A2C] bg-emerald-50 text-[#137A2C] font-bold'
-                            : 'border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
-                        }`}
+                        className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer ${rentalDuration === '6hr'
+                          ? 'border-[#137A2C] bg-emerald-50 text-[#137A2C] font-bold'
+                          : 'border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
+                          }`}
                       >
                         <div>6 Hours</div>
                         <div className="text-[10px] text-gray-500">120 KM</div>
@@ -2180,11 +1993,10 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => setRentalDuration('12hr')}
-                        className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                          rentalDuration === '12hr'
-                            ? 'border-[#137A2C] bg-emerald-50 text-[#137A2C] font-bold'
-                            : 'border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
-                        }`}
+                        className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer ${rentalDuration === '12hr'
+                          ? 'border-[#137A2C] bg-emerald-50 text-[#137A2C] font-bold'
+                          : 'border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
+                          }`}
                       >
                         <div>12 Hours</div>
                         <div className="text-[10px] text-gray-500">200 KM</div>
@@ -2193,11 +2005,10 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => setRentalDuration('24hr')}
-                        className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                          rentalDuration === '24hr'
-                            ? 'border-[#137A2C] bg-emerald-50 text-[#137A2C] font-bold'
-                            : 'border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
-                        }`}
+                        className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer ${rentalDuration === '24hr'
+                          ? 'border-[#137A2C] bg-emerald-50 text-[#137A2C] font-bold'
+                          : 'border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
+                          }`}
                       >
                         <div>24 Hours</div>
                         <div className="text-[10px] text-gray-500">400 KM</div>

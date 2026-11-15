@@ -1,6 +1,178 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// The 12 Top Essentials directly mapped to customer categories and live Cloudflare R2 images
+export const DEFAULT_TOP_ESSENTIALS = [
+  {
+    name: "Surf Excel Detergent Powder",
+    category: "cleaning",
+    price: 349,
+    originalPrice: 399,
+    weight: "1 kg",
+    image: "/api/storage/products/prod-surf-excel.png",
+    inStock: true,
+    isPopular: true,
+    isTopEssential: true,
+    badgeText: "Bestseller",
+    badgeIcon: "👑",
+    badgeColor: "bg-[#48BB78] text-white",
+    discount: "Save 13%",
+    displayOrder: 1,
+  },
+  {
+    name: "Vim Dishwash Liquid",
+    category: "cleaning",
+    price: 135,
+    originalPrice: 145,
+    weight: "750 ml",
+    image: "/api/storage/products/prod-vim-dishwash.png",
+    inStock: true,
+    isPopular: false,
+    isTopEssential: true,
+    discount: "Save 7%",
+    displayOrder: 2,
+  },
+  {
+    name: "Ambica Durbar Bathi (Agarbathi)",
+    category: "puja-items",
+    price: 89,
+    originalPrice: 99,
+    weight: "Pack of 5",
+    image: "/api/storage/products/prod-ambica-agarbatti.png",
+    inStock: true,
+    isPopular: false,
+    isTopEssential: true,
+    discount: "Save 10%",
+    displayOrder: 3,
+  },
+  {
+    name: "Rice",
+    category: "groceries",
+    price: 329,
+    originalPrice: 349,
+    weight: "5 kg",
+    image: "/api/storage/products/prod-rice-5kg.png",
+    inStock: true,
+    isPopular: true,
+    isTopEssential: true,
+    discount: "Save 6%",
+    displayOrder: 4,
+  },
+  {
+    name: "Toilet Tissue Roll (3 Ply)",
+    category: "paper",
+    price: 149,
+    originalPrice: 165,
+    weight: "Pack of 4",
+    image: "/api/storage/products/prod-toilet-tissue.png",
+    inStock: true,
+    isPopular: false,
+    isTopEssential: true,
+    discount: "Save 10%",
+    displayOrder: 5,
+  },
+  {
+    name: "Nandini Ghee",
+    category: "home-kitchen",
+    price: 289,
+    originalPrice: 320,
+    weight: "500 ml",
+    image: "/api/storage/products/prod-nandini-ghee.png",
+    inStock: true,
+    isPopular: true,
+    isTopEssential: true,
+    badgeText: "Trending",
+    badgeIcon: "🔥",
+    badgeColor: "bg-[#FED7AA] text-[#C2410C]",
+    discount: "Save 10%",
+    displayOrder: 6,
+  },
+  {
+    name: "Brooke Bond Red Label Tea",
+    category: "home-kitchen",
+    price: 299,
+    originalPrice: 335,
+    weight: "500 g",
+    image: "/api/storage/products/prod-red-label.png",
+    inStock: true,
+    isPopular: true,
+    isTopEssential: true,
+    badgeText: "Bestseller",
+    badgeIcon: "👑",
+    badgeColor: "bg-[#48BB78] text-white",
+    discount: "Save 11%",
+    displayOrder: 7,
+  },
+  {
+    name: "Maggi 2-Minute Noodles",
+    category: "home-kitchen",
+    price: 115,
+    originalPrice: 125,
+    weight: "420 g (Pack of 4)",
+    image: "/api/storage/products/prod-maggi.png",
+    inStock: true,
+    isPopular: false,
+    isTopEssential: true,
+    discount: "Save 8%",
+    displayOrder: 8,
+  },
+  {
+    name: "Horlicks Health Drink",
+    category: "home-kitchen",
+    price: 329,
+    originalPrice: 360,
+    weight: "500 g",
+    image: "/api/storage/products/prod-horlicks.png",
+    inStock: true,
+    isPopular: false,
+    isTopEssential: true,
+    discount: "Save 9%",
+    displayOrder: 9,
+  },
+  {
+    name: "Dove Beauty Bathing Bar",
+    category: "personal-care",
+    price: 165,
+    originalPrice: 195,
+    weight: "125 g (Pack of 3)",
+    image: "/api/storage/products/prod-dove-soap.png",
+    inStock: true,
+    isPopular: false,
+    isTopEssential: true,
+    discount: "Save 15%",
+    displayOrder: 10,
+  },
+  {
+    name: "Colgate Strong Teeth Toothpaste",
+    category: "personal-care",
+    price: 129,
+    originalPrice: 145,
+    weight: "150 g",
+    image: "/api/storage/products/prod-colgate.png",
+    inStock: true,
+    isPopular: false,
+    isTopEssential: true,
+    discount: "Save 11%",
+    displayOrder: 11,
+  },
+  {
+    name: "Harpic Power Plus Toilet Cleaner",
+    category: "cleaning",
+    price: 189,
+    originalPrice: 210,
+    weight: "1 L",
+    image: "/api/storage/products/prod-harpic.png",
+    inStock: true,
+    isPopular: true,
+    isTopEssential: true,
+    badgeText: "Trending",
+    badgeIcon: "🔥",
+    badgeColor: "bg-[#FED7AA] text-[#C2410C]",
+    discount: "Save 10%",
+    displayOrder: 12,
+  },
+];
+
 // List all products, optionally filtered by category
 export const list = query({
   args: {
@@ -8,23 +180,36 @@ export const list = query({
     inStockOnly: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    let q = ctx.db.query("products");
+    let products = await ctx.db.query("products").collect();
 
     if (args.category && args.category !== "all") {
-      const cat = args.category;
-      const products = await ctx.db
-        .query("products")
-        .withIndex("by_category", (idx) => idx.eq("category", cat))
-        .collect();
-      return args.inStockOnly ? products.filter((p) => p.inStock) : products;
+      products = products.filter((p) => p.category === args.category);
     }
 
-    const all = await q.order("desc").collect();
-    return args.inStockOnly ? all.filter((p) => p.inStock) : all;
+    if (args.inStockOnly) {
+      products = products.filter((p) => p.inStock);
+    }
+
+    products.sort((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999));
+    return products;
   },
 });
 
-// Add a new product (Admin)
+// List all Top Essentials ordered by displayOrder
+export const listTopEssentials = query({
+  args: {},
+  handler: async (ctx) => {
+    const products = await ctx.db
+      .query("products")
+      .withIndex("by_top_essential", (q) => q.eq("isTopEssential", true))
+      .collect();
+
+    products.sort((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999));
+    return products;
+  },
+});
+
+// Add a new product or Top Essential (Admin)
 export const create = mutation({
   args: {
     name: v.string(),
@@ -35,6 +220,13 @@ export const create = mutation({
     image: v.string(),
     inStock: v.boolean(),
     isPopular: v.optional(v.boolean()),
+    isTopEssential: v.optional(v.boolean()),
+    isOffer: v.optional(v.boolean()),
+    badgeText: v.optional(v.string()),
+    badgeIcon: v.optional(v.string()),
+    badgeColor: v.optional(v.string()),
+    discount: v.optional(v.string()),
+    displayOrder: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("products", {
@@ -45,7 +237,7 @@ export const create = mutation({
   },
 });
 
-// Update an existing product (Admin)
+// Update an existing product or Top Essential (Admin)
 export const update = mutation({
   args: {
     id: v.id("products"),
@@ -57,11 +249,41 @@ export const update = mutation({
     image: v.optional(v.string()),
     inStock: v.optional(v.boolean()),
     isPopular: v.optional(v.boolean()),
+    isTopEssential: v.optional(v.boolean()),
+    isOffer: v.optional(v.boolean()),
+    badgeText: v.optional(v.string()),
+    badgeIcon: v.optional(v.string()),
+    badgeColor: v.optional(v.string()),
+    discount: v.optional(v.string()),
+    displayOrder: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const { id, ...fields } = args;
     await ctx.db.patch(id, fields);
     return await ctx.db.get(id);
+  },
+});
+
+// Update product / top essential photo (Admin)
+export const updatePhoto = mutation({
+  args: {
+    id: v.id("products"),
+    image: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, { image: args.image });
+    return await ctx.db.get(args.id);
+  },
+});
+
+// Remove product / top essential photo (Admin)
+export const removePhoto = mutation({
+  args: {
+    id: v.id("products"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, { image: "" });
+    return await ctx.db.get(args.id);
   },
 });
 
@@ -77,11 +299,60 @@ export const toggleStock = mutation({
   },
 });
 
-// Delete a product (Admin)
+// Delete a product / Top Essential (Admin)
 export const remove = mutation({
   args: { id: v.id("products") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
+  },
+});
+
+// Sync / Seed Top Essentials into database
+export const syncTopEssentials = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const existing = await ctx.db.query("products").collect();
+    let updatedCount = 0;
+    let insertedCount = 0;
+
+    for (const def of DEFAULT_TOP_ESSENTIALS) {
+      // Find matching item by name or partial name
+      const found = existing.find(
+        (p) =>
+          p.name.toLowerCase().trim() === def.name.toLowerCase().trim() ||
+          p.image.includes(def.image.split("/").pop() || "")
+      );
+
+      if (found) {
+        await ctx.db.patch(found._id, {
+          category: def.category,
+          price: def.price,
+          originalPrice: def.originalPrice,
+          weight: def.weight,
+          image: def.image,
+          inStock: true,
+          isTopEssential: true,
+          badgeText: def.badgeText,
+          badgeIcon: def.badgeIcon,
+          badgeColor: def.badgeColor,
+          discount: def.discount,
+          displayOrder: def.displayOrder,
+        });
+        updatedCount++;
+      } else {
+        await ctx.db.insert("products", {
+          ...def,
+          rating: 4.8,
+          createdAt: Date.now(),
+        });
+        insertedCount++;
+      }
+    }
+
+    return {
+      message: `Synced ${DEFAULT_TOP_ESSENTIALS.length} Top Essentials (updated ${updatedCount}, inserted ${insertedCount})`,
+      count: DEFAULT_TOP_ESSENTIALS.length,
+    };
   },
 });
 
@@ -90,129 +361,16 @@ export const seedDefaultProducts = mutation({
   args: {},
   handler: async (ctx) => {
     const existing = await ctx.db.query("products").first();
-    if (existing) return { message: "Products already seeded", count: 0 };
+    if (existing) return { message: "Products already exist", count: 0 };
 
-    const initial = [
-      {
-        name: "Ambica Durbar Bathi Agarbatti",
-        category: "pooja-items",
-        price: 45,
-        originalPrice: 50,
-        weight: "1 pack",
-        image: "/images/prod-ambica-agarbatti.png",
-        inStock: true,
-        rating: 4.9,
-        isPopular: true,
-      },
-      {
-        name: "Pure Cow Ghee (Nandini / Local)",
-        category: "pooja-items",
-        price: 285,
-        originalPrice: 320,
-        weight: "500ml",
-        image: "/images/prod-nandini-ghee.png",
-        inStock: true,
-        rating: 4.9,
-        isPopular: true,
-      },
-      {
-        name: "Kurnool Sona Masoori Rice Bag",
-        category: "groceries",
-        price: 340,
-        originalPrice: 390,
-        weight: "5 kg",
-        image: "/images/prod-rice-5kg.png",
-        inStock: true,
-        rating: 4.8,
-        isPopular: true,
-      },
-      {
-        name: "Surf Excel Easy Wash Detergent",
-        category: "cleaning-essentials",
-        price: 135,
-        originalPrice: 155,
-        weight: "1 kg",
-        image: "/images/prod-surf-excel.png",
-        inStock: true,
-        rating: 4.8,
-        isPopular: true,
-      },
-      {
-        name: "Vim Dishwash Gel Bottle",
-        category: "cleaning-essentials",
-        price: 105,
-        originalPrice: 125,
-        weight: "750 ml",
-        image: "/images/prod-vim-dishwash.png",
-        inStock: true,
-        rating: 4.7,
-        isPopular: false,
-      },
-      {
-        name: "Dove Cream Beauty Bathing Bar",
-        category: "personal-care",
-        price: 58,
-        originalPrice: 65,
-        weight: "100g",
-        image: "/images/prod-dove-soap.png",
-        inStock: true,
-        rating: 4.8,
-        isPopular: false,
-      },
-      {
-        name: "Colgate Strong Teeth Toothpaste",
-        category: "personal-care",
-        price: 95,
-        originalPrice: 110,
-        weight: "200g",
-        image: "/images/prod-colgate.png",
-        inStock: true,
-        rating: 4.7,
-        isPopular: false,
-      },
-      {
-        name: "Maggi 2-Minute Masala Noodles",
-        category: "snacks-beverages",
-        price: 84,
-        originalPrice: 96,
-        weight: "4-pack",
-        image: "/images/prod-maggi.png",
-        inStock: true,
-        rating: 4.9,
-        isPopular: true,
-      },
-      {
-        name: "Brooke Bond Red Label Strong Tea",
-        category: "snacks-beverages",
-        price: 140,
-        originalPrice: 160,
-        weight: "250g",
-        image: "/images/prod-red-label.png",
-        inStock: true,
-        rating: 4.8,
-        isPopular: false,
-      },
-      {
-        name: "Harpic Power Plus Toilet Cleaner",
-        category: "cleaning-essentials",
-        price: 95,
-        originalPrice: 110,
-        weight: "500ml",
-        image: "/images/prod-harpic.png",
-        inStock: true,
-        rating: 4.8,
-        isPopular: false,
-      },
-    ];
-
-    for (const item of initial) {
+    for (const item of DEFAULT_TOP_ESSENTIALS) {
       await ctx.db.insert("products", {
         ...item,
+        rating: 4.8,
         createdAt: Date.now(),
       });
     }
 
-    return { message: "Seeded products successfully", count: initial.length };
+    return { message: "Seeded products successfully", count: DEFAULT_TOP_ESSENTIALS.length };
   },
 });
-

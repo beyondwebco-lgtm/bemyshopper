@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import { useShop } from '../../context/ShopContext';
 import {
   Sparkles,
@@ -24,7 +26,7 @@ import {
 interface OfferProduct {
   id: string;
   name: string;
-  category: 'pooja' | 'groceries' | 'cleaning' | 'all';
+  category: string;
   pack: string;
   price: string;
   rawPrice: number;
@@ -34,165 +36,6 @@ interface OfferProduct {
   tagColor: string;
   img: string;
 }
-
-const diwaliOffers: OfferProduct[] = [
-  {
-    id: 'diwali-ghee',
-    name: 'Nandini Pure Cow Ghee',
-    category: 'pooja',
-    pack: '500 ml',
-    price: '₹289',
-    rawPrice: 289,
-    originalPrice: '₹340',
-    savePercent: '15% OFF',
-    tag: '🪔 Deepam Special',
-    tagColor: 'bg-amber-100 text-amber-800 border-amber-200',
-    img: '/images/prod-nandini-ghee.png',
-  },
-  {
-    id: 'diwali-agarbatti',
-    name: 'Ambica Durbar Bathi Agarbathi',
-    category: 'pooja',
-    pack: 'Pack of 5',
-    price: '₹79',
-    rawPrice: 79,
-    originalPrice: '₹100',
-    savePercent: '21% OFF',
-    tag: '✨ Sacred Aroma',
-    tagColor: 'bg-orange-100 text-orange-800 border-orange-200',
-    img: '/images/prod-ambica-agarbatti.png',
-  },
-  {
-    id: 'diwali-rice',
-    name: 'Premium Sona Masoori Rice',
-    category: 'groceries',
-    pack: '5 kg',
-    price: '₹299',
-    rawPrice: 299,
-    originalPrice: '₹360',
-    savePercent: '17% OFF',
-    tag: '🌾 Festive Feast',
-    tagColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    img: '/images/prod-rice-5kg.png',
-  },
-  {
-    id: 'diwali-tea',
-    name: 'Brooke Bond Red Label Tea',
-    category: 'groceries',
-    pack: '500 g',
-    price: '₹269',
-    rawPrice: 269,
-    originalPrice: '₹335',
-    savePercent: '20% OFF',
-    tag: '☕ Family Gatherings',
-    tagColor: 'bg-rose-100 text-rose-800 border-rose-200',
-    img: '/images/prod-red-label.png',
-  },
-  {
-    id: 'diwali-surf',
-    name: 'Surf Excel Quick Wash Detergent',
-    category: 'cleaning',
-    pack: '1 kg',
-    price: '₹299',
-    rawPrice: 299,
-    originalPrice: '₹399',
-    savePercent: '25% OFF',
-    tag: '👑 Mega Saver',
-    tagColor: 'bg-blue-100 text-blue-800 border-blue-200',
-    img: '/images/prod-surf-excel.png',
-  },
-  {
-    id: 'diwali-horlicks',
-    name: 'Horlicks Classic Malt Health Drink',
-    category: 'groceries',
-    pack: '500 g',
-    price: '₹289',
-    rawPrice: 289,
-    originalPrice: '₹360',
-    savePercent: '20% OFF',
-    tag: '🥛 Nutrition Deal',
-    tagColor: 'bg-sky-100 text-sky-800 border-sky-200',
-    img: '/images/prod-horlicks.png',
-  },
-  {
-    id: 'diwali-maggi',
-    name: 'Maggi 2-Minute Masala Noodles',
-    category: 'groceries',
-    pack: '420 g (Pack of 4)',
-    price: '₹99',
-    rawPrice: 99,
-    originalPrice: '₹125',
-    savePercent: '21% OFF',
-    tag: '🍜 Festive Snacking',
-    tagColor: 'bg-amber-100 text-amber-800 border-amber-200',
-    img: '/images/prod-maggi.png',
-  },
-  {
-    id: 'diwali-dove',
-    name: 'Dove Beauty Moisture Bathing Bar',
-    category: 'cleaning',
-    pack: '125 g (Pack of 3)',
-    price: '₹149',
-    rawPrice: 149,
-    originalPrice: '₹195',
-    savePercent: '24% OFF',
-    tag: '🌸 Festive Glow',
-    tagColor: 'bg-pink-100 text-pink-800 border-pink-200',
-    img: '/images/prod-dove-soap.png',
-  },
-  {
-    id: 'diwali-vim',
-    name: 'Vim Dishwash Gel Liquid',
-    category: 'cleaning',
-    pack: '750 ml',
-    price: '₹119',
-    rawPrice: 119,
-    originalPrice: '₹145',
-    savePercent: '18% OFF',
-    tag: '🍋 Sparkle Clean',
-    tagColor: 'bg-lime-100 text-lime-800 border-lime-200',
-    img: '/images/prod-vim-dishwash.png',
-  },
-  {
-    id: 'diwali-colgate',
-    name: 'Colgate Strong Teeth Toothpaste',
-    category: 'cleaning',
-    pack: '150 g',
-    price: '₹109',
-    rawPrice: 109,
-    originalPrice: '₹145',
-    savePercent: '25% OFF',
-    tag: '✨ Smile Bright',
-    tagColor: 'bg-red-100 text-red-800 border-red-200',
-    img: '/images/prod-colgate.png',
-  },
-  {
-    id: 'diwali-harpic',
-    name: 'Harpic Power Plus Disinfectant',
-    category: 'cleaning',
-    pack: '1 L',
-    price: '₹165',
-    rawPrice: 165,
-    originalPrice: '₹210',
-    savePercent: '21% OFF',
-    tag: '🛡️ Deep Home Clean',
-    tagColor: 'bg-indigo-100 text-indigo-800 border-indigo-200',
-    img: '/images/prod-harpic.png',
-  },
-  {
-    id: 'diwali-tissue',
-    name: 'Soft Touch 3-Ply Toilet Tissue',
-    category: 'cleaning',
-    pack: 'Pack of 4',
-    price: '₹129',
-    rawPrice: 129,
-    originalPrice: '₹165',
-    savePercent: '22% OFF',
-    tag: '🧻 Daily Care',
-    tagColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    img: '/images/prod-toilet-tissue.png',
-  },
-];
 
 export default function DiwaliOffersPage() {
   const {
@@ -211,19 +54,101 @@ export default function DiwaliOffersPage() {
     getProduct,
   } = useShop();
 
+  // Live products from Convex
+  const liveProducts = useQuery(api.products.list, {});
+
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [addedItem, setAddedItem] = useState<string | null>(null);
 
+  // Dynamic Offer Banner State (Managed via Admin Panel)
+  const [offerBanner, setOfferBanner] = useState({
+    badge: 'Diwali Mahotsav Dhamaka Deals',
+    title: 'Shop Diwali Deals & Save Up to 30% OFF',
+    subtitle: 'Handpicked festive groceries, pure pooja ghee, fragrant agarbathi, and home cleaning essentials at guaranteed festival prices for Bapatla!',
+    image: '/images/diwali-offer-products.png',
+  });
+
   useEffect(() => {
-    registerProducts(diwaliOffers);
-  }, [registerProducts]);
+    const loadBanner = () => {
+      try {
+        const saved = localStorage.getItem('bemyshopper_offer_banner');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setOfferBanner((prev) => ({ ...prev, ...parsed }));
+        }
+      } catch {
+        // ignore
+      }
+    };
+    loadBanner();
+    window.addEventListener('storage', loadBanner);
+    window.addEventListener('bemyshopper_offer_banner_updated', loadBanner);
+    return () => {
+      window.removeEventListener('storage', loadBanner);
+      window.removeEventListener('bemyshopper_offer_banner_updated', loadBanner);
+    };
+  }, []);
+
+  // ONLY products added as offer! All other mock/demo products completely removed.
+  const allOffers = useMemo<OfferProduct[]>(() => {
+    if (!liveProducts || liveProducts.length === 0) return [];
+
+    return liveProducts
+      .filter((p) => {
+        // Match items added as offer in Admin
+        if ((p as any).isOffer === true) return true;
+        if (p.badgeText === 'Special Offer') return true;
+        if (p.isPopular === true && (p.displayOrder === undefined || p.displayOrder === null)) return true;
+        return false;
+      })
+      .map((p) => {
+        const cat = p.category || 'general';
+        const calculatedSavePercent =
+          p.originalPrice && p.originalPrice > p.price
+            ? `${Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)}% OFF`
+            : 'SPECIAL OFFER';
+
+        return {
+          id: p._id,
+          name: p.name,
+          category: cat,
+          pack: p.weight || '1 unit',
+          price: `₹${p.price}`,
+          rawPrice: p.price,
+          originalPrice: p.originalPrice ? `₹${p.originalPrice}` : '',
+          savePercent: p.discount || calculatedSavePercent,
+          tag: p.badgeText ? `${p.badgeIcon || '⚡'} ${p.badgeText}` : '🔥 Special Offer',
+          tagColor: p.badgeColor || 'bg-amber-100 text-amber-800 border-amber-200',
+          img: p.image || '/images/prod-rice-5kg.png',
+        };
+      });
+  }, [liveProducts]);
+
+  // Dynamic tabs based on categories of the offer products
+  const categoryTabs = useMemo(() => {
+    const uniqueCats = Array.from(new Set(allOffers.map((p) => p.category))).filter(Boolean);
+    if (uniqueCats.length <= 1) {
+      return [{ id: 'all', label: `All Deals (${allOffers.length})` }];
+    }
+    return [
+      { id: 'all', label: `All Deals (${allOffers.length})` },
+      ...uniqueCats.map((cat) => ({
+        id: cat,
+        label: cat.charAt(0).toUpperCase() + cat.slice(1).replace(/-/g, ' '),
+      })),
+    ];
+  }, [allOffers]);
+
+  useEffect(() => {
+    registerProducts(allOffers);
+  }, [registerProducts, allOffers]);
 
   const handleAddToCart = (id: string) => {
     setAddedItem(id);
     setTimeout(() => setAddedItem(null), 1500);
-    const item = diwaliOffers.find((p) => p.id === id);
+    const item = allOffers.find((p) => p.id === id);
     addToCart(id, item?.name);
   };
 
@@ -232,15 +157,15 @@ export default function DiwaliOffersPage() {
   };
 
   const cartSubtotal = Object.entries(cartItems).reduce((sum, [id, qty]) => {
-    const item = diwaliOffers.find((p) => p.id === id) || getProduct(id);
+    const item = allOffers.find((p) => p.id === id) || getProduct(id);
     const raw = item ? (item as any).rawPrice || parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0 : 0;
     return sum + raw * qty;
   }, 0);
 
   const filteredProducts =
     selectedFilter === 'all'
-      ? diwaliOffers
-      : diwaliOffers.filter((p) => p.category === selectedFilter);
+      ? allOffers
+      : allOffers.filter((p) => p.category === selectedFilter);
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-gray-900 flex flex-col font-sans">
@@ -348,41 +273,28 @@ export default function DiwaliOffersPage() {
             <div className="max-w-2xl text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/20 text-amber-300 text-xs font-black uppercase tracking-wider mb-4 border border-amber-300/30 backdrop-blur-xs">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Diwali Mahotsav Dhamaka Deals</span>
+                <span>{offerBanner.badge}</span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-                Shop Diwali Deals &amp; Save{' '}
-                <span className="text-amber-300 underline decoration-amber-400/50 decoration-wavy decoration-2">
-                  Up to 30% OFF
-                </span>
+                {offerBanner.title}
               </h1>
 
               <p className="text-sm sm:text-base text-purple-100/90 mt-3 max-w-xl leading-relaxed">
-                Handpicked festive groceries, pure pooja ghee, fragrant agarbathi, and home cleaning essentials at guaranteed festival prices for Bapatla!
+                {offerBanner.subtitle}
               </p>
-
-              {/* Highlights */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 mt-5">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 text-xs font-semibold backdrop-blur-xs border border-white/15">
-                  ⚡ 30-Min Fast Delivery
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 text-xs font-semibold backdrop-blur-xs border border-white/15">
-                  🪔 Free Diya on Orders ₹499+
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 text-xs font-semibold backdrop-blur-xs border border-white/15">
-                  ✨ Fresh Stock Guaranteed
-                </span>
-              </div>
             </div>
 
             {/* Packshot Image */}
             <div className="relative w-full max-w-md lg:max-w-lg flex items-center justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/diwali-offer-products.png"
-                alt="Diwali Offer Products"
+                src={offerBanner.image || '/images/diwali-offer-products.png'}
+                alt={offerBanner.title}
                 className="max-h-64 sm:max-h-72 object-contain drop-shadow-2xl"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/diwali-offer-products.png';
+                }}
               />
             </div>
           </div>
@@ -393,12 +305,7 @@ export default function DiwaliOffersPage() {
       <div className="bg-white border-b border-gray-100 sticky top-16 sm:top-20 z-30 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4 overflow-x-auto">
           <div className="flex items-center gap-2">
-            {[
-              { id: 'all', label: 'All Diwali Deals (12)' },
-              { id: 'pooja', label: '🪔 Pooja & Ghee' },
-              { id: 'groceries', label: '🌾 Festive Groceries' },
-              { id: 'cleaning', label: '✨ Home & Clean Care' },
-            ].map((tab) => (
+            {categoryTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setSelectedFilter(tab.id)}
@@ -416,125 +323,152 @@ export default function DiwaliOffersPage() {
           <div className="hidden sm:flex items-center gap-1 text-xs text-gray-500 shrink-0 font-medium">
             <span>Showing</span>
             <strong className="text-gray-900 font-bold">{filteredProducts.length}</strong>
-            <span>festival products</span>
+            <span>offer products</span>
           </div>
         </div>
       </div>
 
       {/* ================= PRODUCTS GRID ================= */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-          {filteredProducts.map((item) => {
-            const isWishlisted = !!wishlist[item.id];
-            const isAdded = addedItem === item.id;
-            const inCartQty = cartItems[item.id] || 0;
-
-            return (
-              <div
-                key={item.id}
-                className="group relative rounded-2xl bg-white border border-gray-100 hover:border-purple-200 p-2.5 sm:p-3 flex flex-col justify-between shadow-2xs hover:shadow-lg transition-all duration-300"
+        {filteredProducts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center max-w-md mx-auto">
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mb-3 border border-amber-200 shadow-xs">
+              🔥
+            </div>
+            <h3 className="text-base font-bold text-gray-900 mb-1">No Offers Found</h3>
+            <p className="text-xs text-gray-500 mb-4">
+              {selectedFilter === 'all'
+                ? 'Only products added as offer in Admin will appear here.'
+                : 'No products in this specific filter.'}
+            </p>
+            {selectedFilter !== 'all' && (
+              <button
+                onClick={() => setSelectedFilter('all')}
+                className="px-4 py-2 rounded-full bg-[#3C0764] text-white text-xs font-bold hover:bg-[#2F0550] transition-colors cursor-pointer"
               >
-                <div>
-                  {/* Top Badges Row */}
-                  <div className="flex items-center justify-between gap-1 mb-2">
-                    <span
-                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border ${item.tagColor} truncate`}
-                    >
-                      {item.tag}
-                    </span>
+                View All Deals ({allOffers.length})
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            {filteredProducts.map((item) => {
+              const isWishlisted = !!wishlist[item.id];
+              const isAdded = addedItem === item.id;
+              const inCartQty = cartItems[item.id] || 0;
 
-                    {/* Wishlist Button */}
-                    <button
-                      onClick={() => toggleWishlist(item.id)}
-                      aria-label="Save to favourites"
-                      className="w-7 h-7 rounded-full bg-white/90 hover:bg-rose-50 flex items-center justify-center transition-colors shadow-2xs cursor-pointer shrink-0"
-                    >
-                      <Heart
-                        className={`w-4 h-4 transition-colors ${
-                          isWishlisted
-                            ? 'fill-red-500 text-red-500'
-                            : 'text-gray-400 hover:text-red-500'
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Product Packshot */}
-                  <div className="w-full h-28 sm:h-32 flex items-center justify-center p-2 mb-2 bg-[#FAFAFA] rounded-xl group-hover:bg-[#FCF9FF] transition-colors">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.img}
-                      alt={item.name}
-                      className="max-h-[110px] sm:max-h-[120px] max-w-full object-contain group-hover:scale-108 transition-transform duration-300 drop-shadow-xs"
-                      style={{ maxHeight: '115px', maxWidth: '100%', objectFit: 'contain' }}
-                    />
-                  </div>
-
-                  {/* Product Meta */}
-                  <h3 className="text-xs sm:text-[13px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[34px]">
-                    {item.name}
-                  </h3>
-                  <p className="text-[11px] text-gray-500 mt-0.5">{item.pack}</p>
-
-                  {/* Price Row */}
-                  <div className="flex items-baseline gap-1.5 mt-2 flex-wrap">
-                    <span className="text-sm sm:text-base font-extrabold text-gray-900">
-                      {item.price}
-                    </span>
-                    <span className="text-xs text-gray-400 line-through">
-                      {item.originalPrice}
-                    </span>
-                    <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">
-                      {item.savePercent}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Add to Cart CTA */}
-                <div className="mt-3">
-                  {inCartQty > 0 ? (
-                    <div className="w-full py-1.5 px-2 rounded-xl bg-[#3C0764] text-white flex items-center justify-between shadow-2xs">
-                      <button
-                        onClick={() => updateCartQty(item.id, -1)}
-                        className="w-6 h-6 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center cursor-pointer"
+              return (
+                <div
+                  key={item.id}
+                  className="group relative rounded-2xl bg-white border border-gray-100 hover:border-purple-200 p-2.5 sm:p-3 flex flex-col justify-between shadow-2xs hover:shadow-lg transition-all duration-300"
+                >
+                  <div>
+                    {/* Top Badges Row */}
+                    <div className="flex items-center justify-between gap-1 mb-2">
+                      <span
+                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border ${item.tagColor} truncate`}
                       >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="text-xs font-extrabold">{inCartQty} in cart</span>
+                        {item.tag}
+                      </span>
+
+                      {/* Wishlist Button */}
                       <button
-                        onClick={() => updateCartQty(item.id, 1)}
-                        className="w-6 h-6 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center cursor-pointer"
+                        onClick={() => toggleWishlist(item.id)}
+                        aria-label="Save to favourites"
+                        className="w-7 h-7 rounded-full bg-white/90 hover:bg-rose-50 flex items-center justify-center transition-colors shadow-2xs cursor-pointer shrink-0"
                       >
-                        <Plus className="w-3.5 h-3.5" />
+                        <Heart
+                          className={`w-4 h-4 transition-colors ${
+                            isWishlisted
+                              ? 'fill-red-500 text-red-500'
+                              : 'text-gray-400 hover:text-red-500'
+                          }`}
+                        />
                       </button>
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => handleAddToCart(item.id)}
-                      className={`w-full py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${
-                        isAdded
-                          ? 'bg-[#2F0550] text-white'
-                          : 'bg-[#3C0764] hover:bg-[#2F0550] text-white'
-                      }`}
-                    >
-                      {isAdded ? (
-                        <>
-                          <Check className="w-4 h-4 stroke-[2.5]" />
-                          <span>Added!</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingCart className="w-4 h-4" />
-                          <span>Add to Cart</span>
-                        </>
+
+                    {/* Product Packshot */}
+                    <div className="w-full h-28 sm:h-32 flex items-center justify-center p-2 mb-2 bg-[#FAFAFA] rounded-xl group-hover:bg-[#FCF9FF] transition-colors">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.img}
+                        alt={item.name}
+                        className="max-h-[110px] sm:max-h-[120px] max-w-full object-contain group-hover:scale-108 transition-transform duration-300 drop-shadow-xs"
+                        style={{ maxHeight: '115px', maxWidth: '100%', objectFit: 'contain' }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/images/prod-rice-5kg.png';
+                        }}
+                      />
+                    </div>
+
+                    {/* Product Meta */}
+                    <h3 className="text-xs sm:text-[13px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[34px]">
+                      {item.name}
+                    </h3>
+                    <p className="text-[11px] text-gray-500 mt-0.5">{item.pack}</p>
+
+                    {/* Price Row */}
+                    <div className="flex items-baseline gap-1.5 mt-2 flex-wrap">
+                      <span className="text-sm sm:text-base font-extrabold text-gray-900">
+                        {item.price}
+                      </span>
+                      {item.originalPrice && (
+                        <span className="text-xs text-gray-400 line-through">
+                          {item.originalPrice}
+                        </span>
                       )}
-                    </button>
-                  )}
+                      <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">
+                        {item.savePercent}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Add to Cart CTA */}
+                  <div className="mt-3">
+                    {inCartQty > 0 ? (
+                      <div className="w-full py-1.5 px-2 rounded-xl bg-[#3C0764] text-white flex items-center justify-between shadow-2xs">
+                        <button
+                          onClick={() => updateCartQty(item.id, -1)}
+                          className="w-6 h-6 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center cursor-pointer"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="text-xs font-extrabold">{inCartQty} in cart</span>
+                        <button
+                          onClick={() => updateCartQty(item.id, 1)}
+                          className="w-6 h-6 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleAddToCart(item.id)}
+                        className={`w-full py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${
+                          isAdded
+                            ? 'bg-[#2F0550] text-white'
+                            : 'bg-[#3C0764] hover:bg-[#2F0550] text-white'
+                        }`}
+                      >
+                        {isAdded ? (
+                          <>
+                            <Check className="w-4 h-4 stroke-[2.5]" />
+                            <span>Added!</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="w-4 h-4" />
+                            <span>Add to Cart</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </main>
 
       {/* ================= DYNAMIC SHOPPING CART DRAWER ================= */}
@@ -574,7 +508,7 @@ export default function DiwaliOffersPage() {
                 </div>
               ) : (
                 Object.entries(cartItems).map(([id, qty]) => {
-                  const item = diwaliOffers.find((p) => p.id === id) || getProduct(id);
+                  const item = allOffers.find((p) => p.id === id) || getProduct(id);
                   if (!item) return null;
 
                   return (
@@ -690,7 +624,7 @@ export default function DiwaliOffersPage() {
                 Object.keys(wishlist)
                   .filter((id) => wishlist[id])
                   .map((id) => {
-                    const item = diwaliOffers.find((p) => p.id === id) || getProduct(id);
+                    const item = allOffers.find((p) => p.id === id) || getProduct(id);
                     if (!item) return null;
 
                     return (

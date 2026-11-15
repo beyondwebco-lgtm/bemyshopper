@@ -239,13 +239,15 @@ export const ShopProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Product registry
   const registerProducts = useCallback((items: CartProduct[]) => {
     setProductsMap((prev) => {
+      let changed = false;
       const updated = { ...prev };
       for (const item of items) {
-        if (!updated[item.id]) {
+        if (!updated[item.id] || updated[item.id].price !== item.price || updated[item.id].name !== item.name) {
           updated[item.id] = item;
+          changed = true;
         }
       }
-      return updated;
+      return changed ? updated : prev;
     });
   }, []);
 
