@@ -937,8 +937,10 @@ export default function Home() {
               }
             }}
             onOpenBookingModal={() => {
-              setRentalCarType('5-seater');
-              setIsRentalModalOpen(true);
+              const el = document.getElementById('rental-tariff-plans');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
             }}
           />
 
@@ -960,24 +962,14 @@ export default function Home() {
               </div>
 
               <div className="flex items-center gap-2.5">
-                <button
-                  onClick={() => {
-                    setRentalCarType('5-seater');
-                    setIsRentalModalOpen(true);
-                  }}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#137A2C] hover:bg-[#0E5C21] text-white text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
-                >
-                  <Calendar className="w-4 h-4" />
-                  <span>Book a Car Online</span>
-                </button>
                 <a
                   href="https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%20car%20in%20Bapatla"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white hover:bg-orange-50 text-[#9A3412] border border-orange-200 text-xs sm:text-sm font-bold transition-all shadow-xs"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#137A2C] hover:bg-[#0E5C21] text-white text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
                 >
-                  <MessageSquare className="w-4 h-4 text-emerald-600" />
-                  <span>WhatsApp</span>
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Book on WhatsApp</span>
                 </a>
               </div>
             </div>
@@ -1173,25 +1165,23 @@ export default function Home() {
                 </div>
 
                 {/* Card 1 Actions */}
-                <div className="p-6 pt-0 flex gap-3">
-                  <button
-                    onClick={() => {
-                      setRentalCarType('5-seater');
-                      setRentalDuration(selected5SeaterPlan);
-                      setIsRentalModalOpen(true);
-                    }}
-                    className="flex-1 py-3 px-4 rounded-xl bg-[#9A3412] hover:bg-[#7C2D12] text-white font-bold text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
-                  >
-                    Book 5-Seater ({selected5SeaterPlan === '6hr' ? '6 Hr • ₹900' : selected5SeaterPlan === '12hr' ? '12 Hr • ₹1,490' : '24 Hr • ₹2,490'})
-                  </button>
+                <div className="p-6 pt-0">
                   <a
-                    href={`https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%205-Seater%20car%20in%20Bapatla%20for%20${selected5SeaterPlan === '6hr' ? '6%20Hours%20(Rs.900)' : selected5SeaterPlan === '12hr' ? '12%20Hours%20(Rs.1490)' : '24%20Hours%20(Rs.2490)'}`}
+                    href={`https://wa.me/919999999999?text=${encodeURIComponent(
+                      `Hi BeMyShopper, I want to rent a 5-Seater car in Bapatla for ${
+                        selected5SeaterPlan === '6hr'
+                          ? '6 Hours (120 KM - Rs.900)'
+                          : selected5SeaterPlan === '12hr'
+                          ? '12 Hours (200 KM - Rs.1,490)'
+                          : '24 Hours (400 KM - Rs.2,490)'
+                      }`
+                    )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="py-3 px-4 rounded-xl bg-orange-100 hover:bg-orange-200 text-[#9A3412] font-bold text-xs sm:text-sm transition-all text-center flex items-center gap-1.5"
+                    className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#9A3412] via-[#C2410C] to-[#EA580C] hover:from-[#7C2D12] hover:to-[#C2410C] text-white font-black text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <MessageSquare className="w-4 h-4 text-emerald-600" />
-                    <span>WhatsApp</span>
+                    <MessageSquare className="w-4 h-4 text-emerald-300" />
+                    <span>Book 5-Seater on WhatsApp ({selected5SeaterPlan === '6hr' ? '6 Hr • ₹900' : selected5SeaterPlan === '12hr' ? '12 Hr • ₹1,490' : '24 Hr • ₹2,490'})</span>
                   </a>
                 </div>
               </div>
@@ -1385,25 +1375,23 @@ export default function Home() {
                 </div>
 
                 {/* Card 2 Actions */}
-                <div className="p-6 pt-0 flex gap-3">
-                  <button
-                    onClick={() => {
-                      setRentalCarType('7-seater');
-                      setRentalDuration(selected7SeaterPlan);
-                      setIsRentalModalOpen(true);
-                    }}
-                    className="flex-1 py-3 px-4 rounded-xl bg-[#451A03] hover:bg-[#2A1002] text-white font-bold text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
-                  >
-                    Book 7-Seater ({selected7SeaterPlan === '6hr' ? '6 Hr • ₹1,800' : selected7SeaterPlan === '12hr' ? '12 Hr • ₹2,490' : '24 Hr • ₹3,490'})
-                  </button>
+                <div className="p-6 pt-0">
                   <a
-                    href={`https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%207-Seater%20car%20in%20Bapatla%20for%20${selected7SeaterPlan === '6hr' ? '6%20Hours%20(Rs.1800)' : selected7SeaterPlan === '12hr' ? '12%20Hours%20(Rs.2490)' : '24%20Hours%20(Rs.3490)'}`}
+                    href={`https://wa.me/919999999999?text=${encodeURIComponent(
+                      `Hi BeMyShopper, I want to rent a 7-Seater car in Bapatla for ${
+                        selected7SeaterPlan === '6hr'
+                          ? '6 Hours (120 KM - Rs.1,800)'
+                          : selected7SeaterPlan === '12hr'
+                          ? '12 Hours (200 KM - Rs.2,490)'
+                          : '24 Hours (400 KM - Rs.3,490)'
+                      }`
+                    )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="py-3 px-4 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs sm:text-sm transition-all text-center flex items-center gap-1.5"
+                    className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#451A03] via-[#78350F] to-[#92400E] hover:from-[#2A1002] hover:to-[#78350F] text-white font-black text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <MessageSquare className="w-4 h-4 text-emerald-600" />
-                    <span>WhatsApp</span>
+                    <MessageSquare className="w-4 h-4 text-emerald-300" />
+                    <span>Book 7-Seater on WhatsApp ({selected7SeaterPlan === '6hr' ? '6 Hr • ₹1,800' : selected7SeaterPlan === '12hr' ? '12 Hr • ₹2,490' : '24 Hr • ₹3,490'})</span>
                   </a>
                 </div>
               </div>
