@@ -182,7 +182,7 @@ export default function AdminWhatsAppSection() {
           <h2 className="text-sm font-black text-gray-900">Add New WhatsApp Store Number</h2>
         </div>
         <p className="text-xs text-gray-600 mb-4">
-          Enter the WhatsApp phone number that will receive product lists when customers click &quot;Buy Now on WhatsApp&quot;.
+          Enter the WhatsApp phone number that will receive product lists when customers click &quot;Order via WhatsApp&quot; in the cart.
         </p>
 
         <form onSubmit={handleAddNumber} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
@@ -375,7 +375,7 @@ export default function AdminWhatsAppSection() {
           <span>How WhatsApp Order Forwarding Works:</span>
         </div>
         <p className="text-[11px] text-blue-800 leading-relaxed">
-          When customers add products to their cart and click <strong>&quot;Buy Now on WhatsApp&quot;</strong>, their entire cart list (items, quantities, prices, total bill, and delivery address) is automatically compiled into a formatted order text and dispatched directly to the <strong>Active Receiver Number</strong> configured above.
+          When customers add products to their cart and click <strong>&quot;Order via WhatsApp&quot;</strong>, their entire cart list (items, quantities, prices, total bill, and delivery address) is automatically compiled into a formatted order text and dispatched directly to the <strong>Active Receiver Number</strong> configured above.
         </p>
       </div>
     </div>

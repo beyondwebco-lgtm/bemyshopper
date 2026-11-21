@@ -677,7 +677,7 @@ Please confirm my order and share delivery timing. Thank you!`;
                   className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#1EBE5D] hover:to-[#0F7569] text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <MessageSquare className="w-5 h-5 fill-white" />
-                  <span>Buy Now on WhatsApp</span>
+                  <span>Order via WhatsApp</span>
                 </button>
               </div>
             )}

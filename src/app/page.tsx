@@ -869,7 +869,7 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Add to Cart & Buy Now Buttons */}
+                      {/* Full Width Add to Cart Button */}
                       {item.inStock === false ? (
                         <button
                           disabled
@@ -878,37 +878,25 @@ export default function Home() {
                           Out of Stock
                         </button>
                       ) : (
-                        <div className="w-full mt-3 flex flex-col gap-1.5">
-                          <button
-                            onClick={() => handleAddToCart(item.id)}
-                            className={`w-full py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${isAdded
-                              ? 'bg-[#0E5C21] text-white'
-                              : 'bg-[#137A2C] hover:bg-[#0F6323] text-white'
-                              }`}
-                          >
-                            {isAdded ? (
-                              <>
-                                <Check className="w-4 h-4 stroke-[2.5]" />
-                                <span>Added</span>
-                              </>
-                            ) : (
-                              <>
-                                <ShoppingCart className="w-4 h-4 stroke-[2]" />
-                                <span>Add to Cart</span>
-                              </>
-                            )}
-                          </button>
-                          <button
-                            onClick={() => {
-                              addToCart(item.id, item.name);
-                              setIsCartOpen(true);
-                            }}
-                            className="w-full py-1.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#0F6323] border border-[#25D366]/40 transition-all cursor-pointer"
-                          >
-                            <MessageSquare className="w-3.5 h-3.5" />
-                            <span>Buy Now on WhatsApp</span>
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleAddToCart(item.id)}
+                          className={`w-full mt-3 py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${isAdded
+                            ? 'bg-[#0E5C21] text-white'
+                            : 'bg-[#137A2C] hover:bg-[#0F6323] text-white'
+                            }`}
+                        >
+                          {isAdded ? (
+                            <>
+                              <Check className="w-4 h-4 stroke-[2.5]" />
+                              <span>Added</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingCart className="w-4 h-4 stroke-[2]" />
+                              <span>Add to Cart</span>
+                            </>
+                          )}
+                        </button>
                       )}
                     </div>
                   );
@@ -1868,7 +1856,7 @@ Please confirm my order and share delivery timing. Thank you!`;
                   className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#1EBE5D] hover:to-[#0F7569] text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <MessageSquare className="w-5 h-5 fill-white" />
-                  <span>Buy Now on WhatsApp</span>
+                  <span>Order via WhatsApp</span>
                 </button>
               </div>
             )}
