@@ -265,31 +265,28 @@ export default function AvailableCarsPage() {
             <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
               <button
                 onClick={() => setSelectedFilter('all')}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                  selectedFilter === 'all'
-                    ? 'bg-[#9A3412] text-white shadow-xs'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                }`}
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${selectedFilter === 'all'
+                  ? 'bg-[#9A3412] text-white shadow-xs'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}
               >
                 All Vehicles ({fleetCars.length})
               </button>
               <button
                 onClick={() => setSelectedFilter('5-seater')}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                  selectedFilter === '5-seater'
-                    ? 'bg-[#9A3412] text-white shadow-xs'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                }`}
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${selectedFilter === '5-seater'
+                  ? 'bg-[#9A3412] text-white shadow-xs'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}
               >
                 5-Seater SUVs
               </button>
               <button
                 onClick={() => setSelectedFilter('7-seater')}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                  selectedFilter === '7-seater'
-                    ? 'bg-[#9A3412] text-white shadow-xs'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                }`}
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${selectedFilter === '7-seater'
+                  ? 'bg-[#9A3412] text-white shadow-xs'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}
               >
                 7-Seater MPVs
               </button>
@@ -304,11 +301,10 @@ export default function AvailableCarsPage() {
                 <button
                   key={dur}
                   onClick={() => setSelectedDuration(dur)}
-                  className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    selectedDuration === dur
-                      ? 'bg-[#EA580C] text-white shadow-xs font-black'
-                      : 'text-gray-700 hover:text-gray-900 hover:bg-white/60'
-                  }`}
+                  className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${selectedDuration === dur
+                    ? 'bg-[#EA580C] text-white shadow-xs font-black'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-white/60'
+                    }`}
                 >
                   {durationLabels[dur].title}
                 </button>
@@ -327,8 +323,8 @@ export default function AvailableCarsPage() {
               {selectedFilter === 'all'
                 ? 'All Available Cars'
                 : selectedFilter === '5-seater'
-                ? '5-Seater SUV & Hatchback Cars'
-                : '7-Seater Luxury MPV Cars'}
+                  ? '5-Seater SUV & Hatchback Cars'
+                  : '7-Seater Luxury MPV Cars'}
             </h2>
             <p className="text-xs sm:text-sm text-gray-600 mt-1 font-medium">
               Showing pricing for{' '}
@@ -412,9 +408,8 @@ export default function AvailableCarsPage() {
                           {car.name}
                         </h3>
                       </div>
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-2xs shrink-0 ${
-                        car.tagColor ? car.tagColor : 'bg-orange-100 text-orange-800'
-                      }`}>
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-2xs shrink-0 ${car.tagColor ? car.tagColor : 'bg-orange-100 text-orange-800'
+                        }`}>
                         {car.tag || 'Available'}
                       </span>
                     </div>
@@ -482,9 +477,8 @@ export default function AvailableCarsPage() {
                             key={idx}
                             type="button"
                             onClick={() => setActivePhotoIndex((prev) => ({ ...prev, [car.id]: idx }))}
-                            className={`w-9 h-7 rounded-md overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
-                              idx === photoIndex ? 'border-orange-500 ring-1 ring-orange-400' : 'border-gray-200 opacity-60 hover:opacity-100'
-                            }`}
+                            className={`w-9 h-7 rounded-md overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${idx === photoIndex ? 'border-orange-500 ring-1 ring-orange-400' : 'border-gray-200 opacity-60 hover:opacity-100'
+                              }`}
                           >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
@@ -649,9 +643,8 @@ export default function AvailableCarsPage() {
                       {faq.q}
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${
-                        isOpen ? 'rotate-180 text-[#9A3412]' : ''
-                      }`}
+                      className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-[#9A3412]' : ''
+                        }`}
                     />
                   </button>
                   {isOpen && (

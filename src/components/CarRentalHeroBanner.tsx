@@ -41,6 +41,10 @@ export const CarRentalHeroBanner: React.FC<CarRentalHeroBannerProps> = ({
               <img
                 src="/images/bapatla-car-rental-map-cars.png"
                 alt="Bapatla's Trusted Car Rentals - Explore Bapatla & Beyond"
+                loading="lazy"
+                decoding="async"
+                width={500}
+                height={280}
                 className="relative z-10 w-auto h-[200px] sm:h-[240px] lg:h-[280px] max-h-[290px] max-w-full object-contain drop-shadow-2xl group-hover:scale-[1.02] transition-transform duration-300 select-none"
               />
             </div>

@@ -242,7 +242,7 @@ export const Hero: React.FC = () => {
           className="w-full h-full flex transition-transform duration-700 ease-in-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
-          {slides.map((slide) => {
+          {slides.map((slide, idx) => {
             const Icon1 = slide.floatingBadge1.icon;
             const Icon2 = slide.floatingBadge2.icon;
 
@@ -362,6 +362,10 @@ export const Hero: React.FC = () => {
                         <img
                           src={slide.imageSrc}
                           alt={slide.imageAlt}
+                          loading={idx === 0 ? undefined : 'lazy'}
+                          decoding="async"
+                          // @ts-ignore
+                          fetchPriority={idx === 0 ? 'high' : 'auto'}
                           className={`${slide.imageClass} object-contain object-bottom drop-shadow-[0_16px_36px_rgba(0,0,0,0.08)] select-none pointer-events-none transition-all duration-500`}
                         />
                       </div>

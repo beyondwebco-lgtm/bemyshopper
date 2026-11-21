@@ -420,6 +420,15 @@ export default function Home() {
     registerProducts(allProducts);
   }, [registerProducts, allProducts]);
 
+  const cartTotal = useMemo(() => {
+    return Object.entries(cartItems).reduce((sum, [id, qty]) => {
+      const item = allProducts.find((e) => e.id === id);
+      if (!item) return sum;
+      const num = parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0;
+      return sum + num * qty;
+    }, 0);
+  }, [cartItems, allProducts]);
+
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
       {/* Top Navigation Bar */}
@@ -2214,6 +2223,30 @@ Please confirm my order and share delivery timing. Thank you!`;
       {toastMessage && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900/95 text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* ================= FLOATING MOBILE CART BAR ================= */}
+      {totalCartCount > 0 && !isCartOpen && (
+        <div className="sm:hidden fixed bottom-4 left-4 right-4 z-40 animate-in slide-in-from-bottom-4 duration-200">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="w-full py-3 px-4 rounded-2xl bg-[#087D2C] hover:bg-[#066323] text-white font-bold text-sm shadow-xl flex items-center justify-between cursor-pointer active:scale-98 transition-all"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-xs font-black">
+                {totalCartCount}
+              </div>
+              <div className="text-left">
+                <div className="text-[11px] leading-none text-emerald-100 font-medium">View Cart</div>
+                <div className="text-sm font-bold">₹{cartTotal}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-white/15 px-3 py-1.5 rounded-xl">
+              <span>Checkout</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </button>
         </div>
       )}
 

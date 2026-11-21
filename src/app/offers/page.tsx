@@ -798,6 +798,30 @@ Please confirm my order and share delivery timing. Thank you!`;
         </div>
       </footer>
 
+      {/* ================= FLOATING MOBILE CART BAR ================= */}
+      {totalCartCount > 0 && !isCartOpen && (
+        <div className="sm:hidden fixed bottom-4 left-4 right-4 z-40 animate-in slide-in-from-bottom-4 duration-200">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="w-full py-3 px-4 rounded-2xl bg-[#087D2C] hover:bg-[#066323] text-white font-bold text-sm shadow-xl flex items-center justify-between cursor-pointer active:scale-98 transition-all"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-xs font-black">
+                {totalCartCount}
+              </div>
+              <div className="text-left">
+                <div className="text-[11px] leading-none text-emerald-100 font-medium">View Cart</div>
+                <div className="text-sm font-bold">₹{cartSubtotal}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-white/15 px-3 py-1.5 rounded-xl">
+              <span>Checkout</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </button>
+        </div>
+      )}
+
       {/* ================= AUTH MODAL (LOGIN / SIGNUP) ================= */}
       <AuthModal
         isOpen={isAuthModalOpen}
