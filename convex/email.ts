@@ -8,7 +8,10 @@ export const sendResetEmail = action({
     code: v.string(),
   },
   handler: async (ctx, args) => {
-    const resendApiKey = process.env.RESEND_API_KEY;
+    const resendApiKey =
+      process.env.RESEND_API_KEY ||
+      process.env.RESEND_SECRET_KEY ||
+      process.env.resend_secret_key;
 
     if (!resendApiKey) {
       console.warn(

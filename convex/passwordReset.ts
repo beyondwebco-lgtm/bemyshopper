@@ -259,7 +259,10 @@ export const requestPasswordReset = action({
     const resetUrl = `${siteUrl}/reset-password?token=${rawToken}`;
 
     // Dispatch email via Resend with verified domain
-    const resendApiKey = process.env.RESEND_API_KEY;
+    const resendApiKey =
+      process.env.RESEND_API_KEY ||
+      process.env.RESEND_SECRET_KEY ||
+      process.env.resend_secret_key;
     if (resendApiKey) {
       try {
         const emailHtml = buildResetEmailHtml(resetUrl, siteUrl);
