@@ -39,14 +39,19 @@ export function cleanAuthErrorMessage(err: unknown): string {
     return 'An account with this email already exists. Please sign in.';
   }
 
-  // Password too short
-  if (/least 6 characters/i.test(raw)) {
-    return 'Password must be at least 6 characters.';
+  // Password length
+  if (/least 6 characters|least 8 characters/i.test(raw)) {
+    return 'Password must be at least 8 characters.';
   }
 
   // Access denied
   if (/access denied/i.test(raw)) {
     return 'Access Denied: Only Store Administrator has access.';
+  }
+
+  // Schema validation or argument error
+  if (/argumentvalidationerror|validation failed|extra field/i.test(raw)) {
+    return 'Unable to process request. Please check your details and try again.';
   }
 
   // Extract inner message if clean
@@ -57,13 +62,23 @@ export function cleanAuthErrorMessage(err: unknown): string {
       .replace(/Called by client.*$/i, '')
       .replace(/\[.*?\]/g, '')
       .trim();
-    if (extracted && extracted.length > 3 && extracted.length < 120 && !extracted.includes('CONVEX')) {
+    if (
+      extracted &&
+      extracted.length > 3 &&
+      extracted.length < 120 &&
+      !extracted.includes('CONVEX') &&
+      !extracted.includes('ArgumentValidation')
+    ) {
       return extracted;
     }
   }
 
+  if (raw.includes('CONVEX') || raw.includes('Request ID:')) {
+    return 'Unable to complete request right now. Please try again.';
+  }
+
   // Minimal clean fallback
-  return 'Incorrect email or password. Please try again.';
+  return 'Invalid credentials or request failed. Please try again.';
 }
 
 interface AuthContextType {

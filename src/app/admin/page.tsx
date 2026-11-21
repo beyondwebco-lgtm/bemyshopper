@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery, useMutation, useAction } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
 import {
@@ -12,6 +12,7 @@ import {
   Car,
   Users,
   ArrowLeft,
+  ArrowRight,
   Plus,
   Trash2,
   CheckCircle2,
@@ -89,6 +90,13 @@ export default function AdminPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Admin Forgot Password State
+  const [isAdminForgotMode, setIsAdminForgotMode] = useState(false);
+  const [adminForgotEmail, setAdminForgotEmail] = useState('');
+  const [isAdminSendingReset, setIsAdminSendingReset] = useState(false);
+  const [adminForgotError, setAdminForgotError] = useState<string | null>(null);
+  const [adminForgotSuccess, setAdminForgotSuccess] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<'categories' | 'products' | 'orders' | 'rentals' | 'users' | 'settings' | 'essentials' | 'offers' | 'whatsapp'>('categories');
 
@@ -281,9 +289,10 @@ export default function AdminPage() {
     }
   }, [categoriesList, syncWithHomePageMutation]);
 
-  // Convex Mutations
+  // Convex Mutations & Actions
   const adminLoginMutation = useMutation(api.adminAuth.adminLogin);
   const changePasswordMutation = useMutation(api.adminAuth.changeAdminPassword);
+  const requestPasswordReset = useAction(api.passwordReset.requestPasswordReset);
   const createProduct = useMutation(api.products.create);
   const toggleProductStock = useMutation(api.products.toggleStock);
   const deleteProduct = useMutation(api.products.remove);
@@ -311,28 +320,67 @@ export default function AdminPage() {
   }, []);
 
   const cleanErrorMessage = (err: unknown): string => {
-    if (err instanceof Error) {
-      const raw = err.message;
-      if (/incorrect.*password|password.*incorrect/i.test(raw)) {
-        return 'Incorrect administrator password. Please try again.';
-      }
-      if (/access denied|privileges/i.test(raw)) {
-        return 'Access Denied: Only the Store Administrator has access.';
-      }
-      if (/no administrator account|account not found/i.test(raw)) {
-        return 'No administrator account found with this email.';
-      }
-      const uncaughtMatch = raw.match(/Uncaught Error:\s*([^\n]+)/);
-      if (uncaughtMatch) {
-        return uncaughtMatch[1].replace(/at\s+handler.*$/i, '').replace(/\[.*?\]/g, '').trim();
-      }
-      const serverMatch = raw.match(/Server Error\s*([^\n]+)/);
-      if (serverMatch) {
-        return serverMatch[1].replace(/at\s+handler.*$/i, '').replace(/\[.*?\]/g, '').trim();
-      }
-      return raw.replace(/\[CONVEX[^\]]*\]/g, '').replace(/\[Request ID:[^\]]*\]/g, '').trim();
+    if (!err) return 'Invalid administrator credentials.';
+    const raw = err instanceof Error ? err.message : String(err);
+    if (/incorrect.*password|password.*incorrect|wrong password/i.test(raw)) {
+      return 'Incorrect administrator password. Please try again.';
     }
-    return 'Invalid administrator credentials.';
+    if (/access denied|privileges/i.test(raw)) {
+      return 'Access Denied: Only the Store Administrator has access.';
+    }
+    if (/no administrator account|account not found|not registered/i.test(raw)) {
+      return 'No administrator account found with this email.';
+    }
+    if (/argumentvalidationerror|validation failed|extra field/i.test(raw)) {
+      return 'Unable to process request. Please check your details and try again.';
+    }
+    const uncaughtMatch = raw.match(/Uncaught Error:\s*([^\n]+)/);
+    if (uncaughtMatch) {
+      const msg = uncaughtMatch[1].replace(/at\s+handler.*$/i, '').replace(/\[.*?\]/g, '').trim();
+      if (!msg.includes('CONVEX') && msg.length < 100) return msg;
+    }
+    const serverMatch = raw.match(/Server Error\s*:?\s*([^\n]+)/);
+    if (serverMatch) {
+      const msg = serverMatch[1].replace(/at\s+handler.*$/i, '').replace(/\[.*?\]/g, '').trim();
+      if (!msg.includes('CONVEX') && msg.length < 100) return msg;
+    }
+    if (raw.includes('CONVEX') || raw.includes('Request ID:')) {
+      return 'Unable to process request right now. Please try again.';
+    }
+    return raw.replace(/\[CONVEX[^\]]*\]/g, '').replace(/\[Request ID:[^\]]*\]/g, '').trim() || 'Invalid administrator credentials.';
+  };
+
+  const handleAdminForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminForgotError(null);
+    setAdminForgotSuccess(null);
+
+    const targetEmail = (adminForgotEmail.trim() || adminEmail.trim()).toLowerCase();
+    if (!targetEmail) {
+      setAdminForgotError('Please enter your administrator email address.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(targetEmail)) {
+      setAdminForgotError('Please enter a valid email address (e.g. name@gmail.com).');
+      return;
+    }
+
+    setIsAdminSendingReset(true);
+    try {
+      const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
+      const res = await requestPasswordReset({ email: targetEmail, origin });
+      if (res.success) {
+        setAdminForgotSuccess(res.message);
+      } else {
+        setAdminForgotError(cleanErrorMessage(res.message));
+      }
+    } catch (err: unknown) {
+      setAdminForgotError(cleanErrorMessage(err));
+    } finally {
+      setIsAdminSendingReset(false);
+    }
   };
 
   const handleAdminLogin = async (e: React.FormEvent) => {
@@ -1472,91 +1520,200 @@ export default function AdminPage() {
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#087D2C] via-[#FF6500] to-[#087D2C]" />
 
           {/* Logo & Header */}
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-5">
+          <div className="text-center mb-6">
+            <div className="flex justify-center mb-4">
               <img
                 src="/logo.png"
                 alt="Be My Shopper"
                 className="h-12 w-auto object-contain"
               />
             </div>
-            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Admin Portal</h1>
-            <p className="text-xs text-gray-500 mt-1.5 max-w-xs mx-auto">
-              Sign in to manage orders, catalog &amp; car rentals
+            <h1 className="text-2xl font-black text-gray-900 tracking-tight">
+              {isAdminForgotMode ? 'Reset Admin Password' : 'Admin Portal'}
+            </h1>
+            <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto">
+              {isAdminForgotMode
+                ? 'Enter your store administrator email to receive a secure recovery link.'
+                : 'Sign in to manage orders, catalog & car rentals'}
             </p>
           </div>
 
-          {/* Error Alert */}
-          {loginError && (
-            <div className="mb-6 p-4 rounded-2xl bg-red-50/90 border border-red-200/80 text-red-700 text-xs flex items-center gap-3 animate-in fade-in">
-              <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
-              <div className="font-semibold text-[12px]">{loginError}</div>
-            </div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleAdminLogin} className="space-y-4">
-            <div>
-              <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                Email Address
-              </label>
-              <div className="relative group">
-                <Mail className="w-4 h-4 text-gray-400 group-focus-within:text-[#087D2C] absolute left-4 top-1/2 -translate-y-1/2 transition-colors" />
-                <input
-                  type="email"
-                  required
-                  autoFocus
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
-                  placeholder=""
-                  className="w-full pl-11 pr-4 py-3 rounded-2xl border border-gray-200/90 bg-gray-50/50 hover:bg-white focus:bg-white text-sm text-gray-900 focus:outline-none focus:border-[#087D2C] focus:ring-4 focus:ring-[#087D2C]/10 transition-all"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                Password
-              </label>
-              <div className="relative group">
-                <Lock className="w-4 h-4 text-gray-400 group-focus-within:text-[#087D2C] absolute left-4 top-1/2 -translate-y-1/2 transition-colors" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  placeholder=""
-                  className="w-full pl-11 pr-11 py-3 rounded-2xl border border-gray-200/90 bg-gray-50/50 hover:bg-white focus:bg-white text-sm text-gray-900 focus:outline-none focus:border-[#087D2C] focus:ring-4 focus:ring-[#087D2C]/10 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 cursor-pointer transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              className="w-full mt-2 py-3.5 rounded-2xl bg-gradient-to-r from-[#087D2C] to-[#0A9635] hover:from-[#066323] hover:to-[#087D2C] active:scale-[0.99] text-white font-bold text-sm shadow-[0_10px_25px_-5px_rgba(8,125,44,0.35)] hover:shadow-[0_15px_30px_-5px_rgba(8,125,44,0.45)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-            >
-              {isLoggingIn ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Signing In...</span>
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Sign In to Admin Portal</span>
-                </>
+          {isAdminForgotMode ? (
+            <div className="space-y-4 animate-in fade-in">
+              {/* Error Alert */}
+              {adminForgotError && (
+                <div className="p-3.5 rounded-2xl bg-red-50/90 border border-red-200/80 text-red-700 text-xs flex items-center gap-2.5 animate-in fade-in">
+                  <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+                  <span className="font-semibold text-[12px]">{adminForgotError}</span>
+                </div>
               )}
-            </button>
-          </form>
+
+              {/* Success Banner */}
+              {adminForgotSuccess ? (
+                <div className="space-y-4 animate-in fade-in">
+                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200/90 text-emerald-800 space-y-2">
+                    <div className="flex items-center gap-2 font-bold text-xs text-[#087D2C]">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-[#087D2C]" />
+                      <span>Password Reset Link Dispatched</span>
+                    </div>
+                    <p className="text-xs text-emerald-900/90 leading-relaxed">
+                      {adminForgotSuccess}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAdminForgotMode(false);
+                      setAdminForgotSuccess(null);
+                      setAdminForgotError(null);
+                    }}
+                    className="w-full py-3.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Return to Sign In</span>
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleAdminForgotSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                      Administrator Email
+                    </label>
+                    <div className="relative group">
+                      <Mail className="w-4 h-4 text-gray-400 group-focus-within:text-[#087D2C] absolute left-4 top-1/2 -translate-y-1/2 transition-colors" />
+                      <input
+                        type="email"
+                        required
+                        autoFocus
+                        value={adminForgotEmail}
+                        onChange={(e) => setAdminForgotEmail(e.target.value)}
+                        placeholder="bemyshopper2021@gmail.com"
+                        className="w-full pl-11 pr-4 py-3 rounded-2xl border border-gray-200/90 bg-gray-50/50 hover:bg-white focus:bg-white text-sm text-gray-900 focus:outline-none focus:border-[#087D2C] focus:ring-4 focus:ring-[#087D2C]/10 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isAdminSendingReset}
+                    className="w-full mt-2 py-3.5 rounded-2xl bg-gradient-to-r from-[#087D2C] to-[#0A9635] hover:from-[#066323] hover:to-[#087D2C] active:scale-[0.99] text-white font-bold text-sm shadow-[0_10px_25px_-5px_rgba(8,125,44,0.35)] hover:shadow-[0_15px_30px_-5px_rgba(8,125,44,0.45)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isAdminSendingReset ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Sending Link...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Send Reset Link</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAdminForgotMode(false);
+                      setAdminForgotError(null);
+                    }}
+                    className="w-full py-2 text-xs text-gray-500 hover:text-gray-900 font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Sign In</span>
+                  </button>
+                </form>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Error Alert */}
+              {loginError && (
+                <div className="mb-6 p-4 rounded-2xl bg-red-50/90 border border-red-200/80 text-red-700 text-xs flex items-center gap-3 animate-in fade-in">
+                  <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+                  <div className="font-semibold text-[12px]">{loginError}</div>
+                </div>
+              )}
+
+              {/* Form */}
+              <form onSubmit={handleAdminLogin} className="space-y-4">
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                    Email Address
+                  </label>
+                  <div className="relative group">
+                    <Mail className="w-4 h-4 text-gray-400 group-focus-within:text-[#087D2C] absolute left-4 top-1/2 -translate-y-1/2 transition-colors" />
+                    <input
+                      type="email"
+                      required
+                      autoFocus
+                      value={adminEmail}
+                      onChange={(e) => setAdminEmail(e.target.value)}
+                      placeholder=""
+                      className="w-full pl-11 pr-4 py-3 rounded-2xl border border-gray-200/90 bg-gray-50/50 hover:bg-white focus:bg-white text-sm text-gray-900 focus:outline-none focus:border-[#087D2C] focus:ring-4 focus:ring-[#087D2C]/10 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[11px] font-bold text-gray-700 uppercase tracking-wider">
+                      Password
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAdminForgotEmail(adminEmail.trim() || 'bemyshopper2021@gmail.com');
+                        setAdminForgotError(null);
+                        setAdminForgotSuccess(null);
+                        setIsAdminForgotMode(true);
+                      }}
+                      className="text-[11px] font-bold text-[#087D2C] hover:text-[#065A20] hover:underline cursor-pointer"
+                    >
+                      Forgot?
+                    </button>
+                  </div>
+                  <div className="relative group">
+                    <Lock className="w-4 h-4 text-gray-400 group-focus-within:text-[#087D2C] absolute left-4 top-1/2 -translate-y-1/2 transition-colors" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={adminPassword}
+                      onChange={(e) => setAdminPassword(e.target.value)}
+                      placeholder=""
+                      className="w-full pl-11 pr-11 py-3 rounded-2xl border border-gray-200/90 bg-gray-50/50 hover:bg-white focus:bg-white text-sm text-gray-900 focus:outline-none focus:border-[#087D2C] focus:ring-4 focus:ring-[#087D2C]/10 transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 cursor-pointer transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoggingIn}
+                  className="w-full mt-2 py-3.5 rounded-2xl bg-gradient-to-r from-[#087D2C] to-[#0A9635] hover:from-[#066323] hover:to-[#087D2C] active:scale-[0.99] text-white font-bold text-sm shadow-[0_10px_25px_-5px_rgba(8,125,44,0.35)] hover:shadow-[0_15px_30px_-5px_rgba(8,125,44,0.45)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  {isLoggingIn ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Signing In...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>Sign In to Admin Portal</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </>
+          )}
 
           {/* Module Pills Strip */}
           <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-center gap-3 text-[11px] text-gray-500 font-semibold">

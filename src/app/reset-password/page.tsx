@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { cleanAuthErrorMessage } from '../../context/AuthContext';
 
 function ResetPasswordContent() {
   const router = useRouter();
@@ -102,8 +103,7 @@ function ResetPasswordContent() {
         router.push('/login');
       }, 2500);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to reset password. Please try again.';
-      setFormError(msg);
+      setFormError(cleanAuthErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -189,13 +189,20 @@ function ResetPasswordContent() {
                 Your password has been securely updated. You can now sign in using your new credentials.
               </p>
             </div>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col gap-2">
               <Link
                 href="/login"
                 className="inline-flex items-center gap-2 w-full justify-center py-3 rounded-xl bg-[#087D2C] hover:bg-[#065A20] text-white text-xs font-bold transition-all shadow-md"
               >
-                <span>Proceed to Sign In</span>
+                <span>Sign In to Customer Account</span>
                 <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-2 w-full justify-center py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-all"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-[#087D2C]" />
+                <span>Sign In to Admin Portal</span>
               </Link>
             </div>
           </div>
