@@ -291,11 +291,24 @@ export default function AdminPage() {
   const cleanErrorMessage = (err: unknown): string => {
     if (err instanceof Error) {
       const raw = err.message;
+      if (/incorrect.*password|password.*incorrect/i.test(raw)) {
+        return 'Incorrect administrator password. Please try again.';
+      }
+      if (/access denied|privileges/i.test(raw)) {
+        return 'Access Denied: Only the Store Administrator has access.';
+      }
+      if (/no administrator account|account not found/i.test(raw)) {
+        return 'No administrator account found with this email.';
+      }
       const uncaughtMatch = raw.match(/Uncaught Error:\s*([^\n]+)/);
-      if (uncaughtMatch) return uncaughtMatch[1].trim();
+      if (uncaughtMatch) {
+        return uncaughtMatch[1].replace(/at\s+handler.*$/i, '').replace(/\[.*?\]/g, '').trim();
+      }
       const serverMatch = raw.match(/Server Error\s*([^\n]+)/);
-      if (serverMatch) return serverMatch[1].trim();
-      return raw.replace(/\[CONVEX[^\]]*\]/g, '').trim();
+      if (serverMatch) {
+        return serverMatch[1].replace(/at\s+handler.*$/i, '').replace(/\[.*?\]/g, '').trim();
+      }
+      return raw.replace(/\[CONVEX[^\]]*\]/g, '').replace(/\[Request ID:[^\]]*\]/g, '').trim();
     }
     return 'Invalid administrator credentials.';
   };

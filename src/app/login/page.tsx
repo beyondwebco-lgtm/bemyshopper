@@ -16,7 +16,7 @@ import {
   ArrowLeft,
   KeyRound,
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, cleanAuthErrorMessage } from '../../context/AuthContext';
 import { useMutation, useAction } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 
@@ -153,8 +153,7 @@ export default function LoginPage() {
         }, 1200);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'An error occurred. Please try again.';
-      setError(msg);
+      setError(cleanAuthErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }

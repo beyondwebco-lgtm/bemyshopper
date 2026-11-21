@@ -14,6 +14,58 @@ export interface UserProfile {
   address?: string;
 }
 
+// Clean and minimal auth error formatter
+export function cleanAuthErrorMessage(err: unknown): string {
+  if (!err) return 'Invalid email or password. Please try again.';
+  const raw = err instanceof Error ? err.message : String(err);
+
+  // Incorrect password
+  if (/incorrect password|password.*incorrect|wrong password/i.test(raw)) {
+    return 'Incorrect password. Please try again.';
+  }
+
+  // Account not found
+  if (/no account found|account not found|not registered|please sign up/i.test(raw)) {
+    return 'No account found with this email. Please check your spelling or create an account.';
+  }
+
+  // Blocked / suspended
+  if (/suspended|blocked/i.test(raw)) {
+    return 'Your account has been suspended. Please contact store support.';
+  }
+
+  // Account already exists
+  if (/already exists/i.test(raw)) {
+    return 'An account with this email already exists. Please sign in.';
+  }
+
+  // Password too short
+  if (/least 6 characters/i.test(raw)) {
+    return 'Password must be at least 6 characters.';
+  }
+
+  // Access denied
+  if (/access denied/i.test(raw)) {
+    return 'Access Denied: Only Store Administrator has access.';
+  }
+
+  // Extract inner message if clean
+  const match = raw.match(/(?:Uncaught Error|Server Error|Error):\s*([^\n\r]+)/i);
+  if (match && match[1]) {
+    const extracted = match[1]
+      .replace(/at\s+handler.*$/i, '')
+      .replace(/Called by client.*$/i, '')
+      .replace(/\[.*?\]/g, '')
+      .trim();
+    if (extracted && extracted.length > 3 && extracted.length < 120 && !extracted.includes('CONVEX')) {
+      return extracted;
+    }
+  }
+
+  // Minimal clean fallback
+  return 'Incorrect email or password. Please try again.';
+}
+
 interface AuthContextType {
   user: UserProfile | null;
   isLoading: boolean;
@@ -75,16 +127,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
       return { success: true };
     } catch (err: unknown) {
-      let rawMsg = err instanceof Error ? err.message : 'Invalid credentials';
-      // Clean up technical Convex server wrapper prefixes & stack details
-      const cleanMsg = rawMsg
-        .replace(/\[CONVEX[^\]]*\]\s*/g, '')
-        .replace(/Server Error Uncaught Error:\s*/gi, '')
-        .replace(/Uncaught Error:\s*/gi, '')
-        .replace(/at handler\s*\([^\)]*\)/gi, '')
-        .replace(/Called by client/gi, '')
-        .trim();
-      return { success: false, error: cleanMsg || 'Invalid email or password' };
+      return { success: false, error: cleanAuthErrorMessage(err) };
     }
   };
 
@@ -102,15 +145,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
       return { success: true };
     } catch (err: unknown) {
-      let rawMsg = err instanceof Error ? err.message : 'Registration failed';
-      const cleanMsg = rawMsg
-        .replace(/\[CONVEX[^\]]*\]\s*/g, '')
-        .replace(/Server Error Uncaught Error:\s*/gi, '')
-        .replace(/Uncaught Error:\s*/gi, '')
-        .replace(/at handler\s*\([^\)]*\)/gi, '')
-        .replace(/Called by client/gi, '')
-        .trim();
-      return { success: false, error: cleanMsg || 'Registration failed' };
+      return { success: false, error: cleanAuthErrorMessage(err) };
     }
   };
 
@@ -144,4 +179,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
