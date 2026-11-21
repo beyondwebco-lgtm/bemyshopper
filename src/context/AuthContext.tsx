@@ -75,8 +75,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
       return { success: true };
     } catch (err: unknown) {
-      const error = err instanceof Error ? err.message : 'Invalid credentials';
-      return { success: false, error };
+      let rawMsg = err instanceof Error ? err.message : 'Invalid credentials';
+      // Clean up technical Convex server wrapper prefixes & stack details
+      const cleanMsg = rawMsg
+        .replace(/\[CONVEX[^\]]*\]\s*/g, '')
+        .replace(/Server Error Uncaught Error:\s*/gi, '')
+        .replace(/Uncaught Error:\s*/gi, '')
+        .replace(/at handler\s*\([^\)]*\)/gi, '')
+        .replace(/Called by client/gi, '')
+        .trim();
+      return { success: false, error: cleanMsg || 'Invalid email or password' };
     }
   };
 
@@ -94,8 +102,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
       return { success: true };
     } catch (err: unknown) {
-      const error = err instanceof Error ? err.message : 'Registration failed';
-      return { success: false, error };
+      let rawMsg = err instanceof Error ? err.message : 'Registration failed';
+      const cleanMsg = rawMsg
+        .replace(/\[CONVEX[^\]]*\]\s*/g, '')
+        .replace(/Server Error Uncaught Error:\s*/gi, '')
+        .replace(/Uncaught Error:\s*/gi, '')
+        .replace(/at handler\s*\([^\)]*\)/gi, '')
+        .replace(/Called by client/gi, '')
+        .trim();
+      return { success: false, error: cleanMsg || 'Registration failed' };
     }
   };
 

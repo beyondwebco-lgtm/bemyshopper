@@ -172,10 +172,36 @@ export const login = mutation({
   handler: async (ctx, args) => {
     const cleanEmail = args.email.trim().toLowerCase();
 
-    const user = await ctx.db
+    let user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", cleanEmail))
       .first();
+
+    // Fallback: Check if user entered registered phone number or has minor typo in email username
+    if (!user) {
+      const cleanDigits = cleanEmail.replace(/[^0-9]/g, "");
+      const allUsers = await ctx.db.query("users").collect();
+
+      // Check phone match
+      if (cleanDigits.length >= 10) {
+        user = allUsers.find((u) => {
+          const uDigits = (u.phone || "").replace(/[^0-9]/g, "");
+          return (uDigits.length >= 10 && uDigits.endsWith(cleanDigits.slice(-10))) ||
+                 (cleanDigits.length >= 10 && cleanDigits.endsWith(uDigits.slice(-10)));
+        }) || null;
+      }
+
+      // Check common email typo variation (e.g. viswandh vs viswanadh)
+      if (!user && cleanEmail.includes("@")) {
+        const [typedUser, typedDomain] = cleanEmail.split("@");
+        const stripConsonants = (str: string) => str.replace(/[^a-z0-9]/g, "").replace(/[aeiou]/g, "");
+        user = allUsers.find((u) => {
+          if (!u.email.includes("@")) return false;
+          const [dbUser, dbDomain] = u.email.toLowerCase().split("@");
+          return dbDomain === typedDomain && stripConsonants(dbUser) === stripConsonants(typedUser);
+        }) || null;
+      }
+    }
 
     if (!user) {
       await ctx.db.insert("userLogins", {
@@ -185,7 +211,7 @@ export const login = mutation({
         failureReason: "Account not found",
         device: args.device || "Browser Session",
       });
-      throw new Error("No account found with this email. Please sign up.");
+      throw new Error("No account found with this email. Please check your spelling or click Create Account.");
     }
 
     if (user.isBlocked) {
