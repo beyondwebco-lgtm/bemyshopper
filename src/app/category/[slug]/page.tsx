@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation } from 'convex/react';
@@ -359,7 +359,26 @@ export default function CategoryPage() {
     }));
   }, [convexCategories]);
 
-  // Related products for this category
+  // Related products for this category with instant 0ms localStorage cache hydration
+  const [cachedCategoryProducts, setCachedCategoryProducts] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(`bms_cat_prods_${slug}`);
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    if (convexProducts && convexProducts.length > 0) {
+      setCachedCategoryProducts(convexProducts);
+      try {
+        localStorage.setItem(`bms_cat_prods_${slug}`, JSON.stringify(convexProducts));
+      } catch {}
+    }
+  }, [convexProducts, slug]);
+
   const categoryProducts = useMemo(() => {
     let list: Array<{
       id: string;
@@ -376,10 +395,15 @@ export default function CategoryPage() {
       inStock?: boolean;
     }> = [];
 
-    // 1. From Convex
-    if (convexProducts && convexProducts.length > 0) {
-      list = convexProducts.map((p) => ({
-        id: p._id,
+    const activeSource = (convexProducts && convexProducts.length > 0)
+      ? convexProducts
+      : (cachedCategoryProducts && cachedCategoryProducts.length > 0)
+        ? cachedCategoryProducts
+        : null;
+
+    if (activeSource) {
+      list = activeSource.map((p: any) => ({
+        id: p._id || p.id,
         name: p.name,
         category: p.category,
         price: p.price,
@@ -410,7 +434,7 @@ export default function CategoryPage() {
     }
 
     return list;
-  }, [convexProducts, slug, searchFilter]);
+  }, [convexProducts, cachedCategoryProducts, slug, searchFilter]);
 
   // Cart total calculations
   const cartProductList = useMemo(() => {
@@ -665,27 +689,35 @@ Please confirm my order and share delivery timing. Thank you!`;
           </div>
 
           {categoryProducts.length === 0 ? (
-            <div className="py-16 text-center bg-white rounded-3xl border border-gray-200 p-8 space-y-3">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
-                <Package className="w-8 h-8" />
+            convexProducts === undefined ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-white rounded-2xl border border-gray-100 p-3.5 h-64 animate-pulse" />
+                ))}
               </div>
-              <h3 className="text-base font-bold text-gray-900">
-                No products found in {currentCategory.name}
-              </h3>
-              <p className="text-xs text-gray-500 max-w-md mx-auto">
-                Products for this category haven&apos;t been added yet or match your search. Check back
-                soon or explore other categories.
-              </p>
-              <div className="pt-2">
-                <Link
-                  href="/#categories"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#087D2C] hover:bg-[#066323] text-white text-xs font-bold cursor-pointer"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Browse Other Categories</span>
-                </Link>
+            ) : (
+              <div className="py-16 text-center bg-white rounded-3xl border border-gray-200 p-8 space-y-3">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+                  <Package className="w-8 h-8" />
+                </div>
+                <h3 className="text-base font-bold text-gray-900">
+                  No products found in {currentCategory.name}
+                </h3>
+                <p className="text-xs text-gray-500 max-w-md mx-auto">
+                  Products for this category haven&apos;t been added yet or match your search. Check back
+                  soon or explore other categories.
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/#categories"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#087D2C] hover:bg-[#066323] text-white text-xs font-bold cursor-pointer"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Browse Other Categories</span>
+                  </Link>
+                </div>
               </div>
-            </div>
+            )
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
               {categoryProducts.map((prod) => {

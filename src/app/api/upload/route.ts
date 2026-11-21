@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { r2Client, R2_BUCKET, R2_PUBLIC_URL } from '@/lib/r2';
-import sharp from 'sharp';
 
 export async function POST(req: NextRequest) {
   try {
@@ -76,52 +75,6 @@ export async function POST(req: NextRequest) {
 
     if (!buffer) {
       return NextResponse.json({ error: 'No image provided or unsupported image format' }, { status: 400 });
-    }
-
-    // ================= AUTO-COMPRESSION PIPELINE =================
-    // Automatically compress, resize, and convert newly uploaded images to web-optimized WebP
-    if (contentType.startsWith('image/') && !contentType.includes('svg')) {
-      try {
-        const image = sharp(buffer);
-        const metadata = await image.metadata();
-
-        // Cap maximum dimensions to 1400px (retina-ready, fast loading on mobile)
-        const maxDim = 1400;
-        let resizeOptions: { width?: number; height?: number } | undefined = undefined;
-
-        if (metadata.width && metadata.height) {
-          if (metadata.width > maxDim || metadata.height > maxDim) {
-            if (metadata.width >= metadata.height) {
-              resizeOptions = { width: maxDim };
-            } else {
-              resizeOptions = { height: maxDim };
-            }
-          }
-        }
-
-        // Convert to WebP format for 70%-85% payload savings while keeping crisp quality
-        const pipeline = resizeOptions
-          ? image.resize({ ...resizeOptions, fit: 'inside', withoutEnlargement: true })
-          : image;
-
-        // WebP supports full alpha transparency (for product cutouts) and 80-82% quality
-        const compressedBuffer = await pipeline
-          .webp({
-            quality: metadata.hasAlpha ? 82 : 80,
-            effort: 4,
-          })
-          .toBuffer();
-
-        // Only use compressed buffer if it was successfully produced
-        if (compressedBuffer && compressedBuffer.length > 0) {
-          buffer = compressedBuffer;
-          contentType = 'image/webp';
-          ext = 'webp';
-          fileSize = compressedBuffer.length;
-        }
-      } catch (compressionErr) {
-        console.warn('Auto-compression skipped, uploading original image:', compressionErr);
-      }
     }
 
     const sanitizedBase = baseName

@@ -180,10 +180,14 @@ export const list = query({
     inStockOnly: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    let products = await ctx.db.query("products").collect();
-
+    let products;
     if (args.category && args.category !== "all") {
-      products = products.filter((p) => p.category === args.category);
+      products = await ctx.db
+        .query("products")
+        .withIndex("by_category", (q) => q.eq("category", args.category!))
+        .collect();
+    } else {
+      products = await ctx.db.query("products").collect();
     }
 
     if (args.inStockOnly) {

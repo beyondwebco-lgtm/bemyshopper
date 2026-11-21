@@ -5,12 +5,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
 
-  // Modern image optimization
+  // Image configuration (unoptimized to serve original full quality without compression)
   images: {
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [360, 480, 640, 750, 828, 1080, 1200],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
-    minimumCacheTTL: 31536000, // 1 year cache for optimized images
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',

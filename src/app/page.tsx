@@ -50,6 +50,147 @@ import { AuthModal } from '../components/AuthModal';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 
+const DEFAULT_CATEGORIES = [
+  { slug: 'groceries', name: 'Groceries', image: '/images/cat-prod-groceries.png', bgGradient: 'from-[#FFF8E7] via-[#FFF3D6] to-[#FFEEC4]', borderColor: 'border-amber-200/60' },
+  { slug: 'fruits-veg', name: 'Fruits &\nVegetables', image: '/images/cat-prod-fruits-veg.png', bgGradient: 'from-[#EBF7EE] via-[#DCF6E2] to-[#CEF2D6]', borderColor: 'border-emerald-200/60' },
+  { slug: 'puja-items', name: 'Puja\nItems', image: '/images/cat-prod-puja-items.png', bgGradient: 'from-[#FFF4EA] via-[#FFEAD9] to-[#FFDEC4]', borderColor: 'border-orange-200/60' },
+  { slug: 'cleaning', name: 'Cleaning\nEssentials', image: '/images/cat-prod-cleaning.png', bgGradient: 'from-[#EDF6FF] via-[#DBEEFF] to-[#C9E4FF]', borderColor: 'border-blue-200/60' },
+  { slug: 'personal-care', name: 'Personal\nCare', image: '/images/cat-prod-personal-care.png', bgGradient: 'from-[#F7EFFF] via-[#EFE2FF] to-[#E5D2FF]', borderColor: 'border-purple-200/60' },
+  { slug: 'snacks', name: 'Snacks &\nBeverages', image: '/images/cat-prod-snacks.png', bgGradient: 'from-[#FFF8ED] via-[#FFEECF] to-[#FFE3AF]', borderColor: 'border-amber-200/60' },
+  { slug: 'home-kitchen', name: 'Home &\nKitchen', image: '/images/cat-prod-home-kitchen.png', bgGradient: 'from-[#F0F5FF] via-[#E4EDFF] to-[#D5E4FF]', borderColor: 'border-blue-200/60' },
+  { slug: 'paper', name: 'Paper &\nDisposables', image: '/images/cat-prod-paper.png', bgGradient: 'from-[#F0FDF8] via-[#E1FBF0] to-[#CFF6E5]', borderColor: 'border-teal-200/60' },
+  { slug: 'baby-care', name: 'Baby\nCare', image: '/images/cat-prod-baby-care.png', bgGradient: 'from-[#FFF0F3] via-[#FFE3E8] to-[#FFD6DF]', borderColor: 'border-rose-200/60' },
+  { slug: 'more', name: 'View All\nProducts', image: '/images/cat-prod-more.png', bgGradient: 'from-[#F9FAFB] via-[#F3F4F6] to-[#E5E7EB]', borderColor: 'border-gray-200/80' },
+];
+
+const DEFAULT_TOP_ESSENTIALS = [
+  {
+    _id: 'top-surf-excel',
+    name: 'Surf Excel Detergent Powder',
+    weight: '1 kg',
+    image: '/images/prod-surf-excel.png',
+    price: 349,
+    originalPrice: 399,
+    discount: 'Save 13%',
+    inStock: true,
+    badgeText: 'Bestseller',
+    badgeIcon: '👑',
+    badgeColor: 'bg-[#48BB78] text-white',
+  },
+  {
+    _id: 'top-vim-dishwash',
+    name: 'Vim Dishwash Liquid',
+    weight: '750 ml',
+    image: '/images/prod-vim-dishwash.png',
+    price: 135,
+    originalPrice: 145,
+    discount: 'Save 7%',
+    inStock: true,
+  },
+  {
+    _id: 'top-ambica-agarbatti',
+    name: 'Ambica Durbar Bathi (Agarbathi)',
+    weight: 'Pack of 5',
+    image: '/images/prod-ambica-agarbatti.png',
+    price: 89,
+    originalPrice: 99,
+    discount: 'Save 10%',
+    inStock: true,
+  },
+  {
+    _id: 'top-rice-5kg',
+    name: 'Rice',
+    weight: '5 kg',
+    image: '/images/prod-rice-5kg.png',
+    price: 329,
+    originalPrice: 349,
+    discount: 'Save 6%',
+    inStock: true,
+    badgeText: 'Daily Staple',
+    badgeIcon: '🍚',
+    badgeColor: 'bg-emerald-600 text-white',
+  },
+  {
+    _id: 'top-maggi',
+    name: 'Maggi 2-Minute Noodles',
+    weight: '420 g (Pack of 4)',
+    image: '/images/prod-maggi.png',
+    price: 115,
+    originalPrice: 125,
+    discount: 'Save 8%',
+    inStock: true,
+  },
+  {
+    _id: 'top-red-label',
+    name: 'Brooke Bond Red Label Tea',
+    weight: '500 g',
+    image: '/images/prod-red-label.png',
+    price: 299,
+    originalPrice: 335,
+    discount: 'Save 11%',
+    inStock: true,
+    badgeText: 'Bestseller',
+    badgeIcon: '👑',
+    badgeColor: 'bg-[#48BB78] text-white',
+  },
+  {
+    _id: 'top-nandini-ghee',
+    name: 'Nandini Pure Cow Ghee',
+    weight: '500 ml',
+    image: '/images/prod-nandini-ghee.png',
+    price: 289,
+    originalPrice: 320,
+    discount: 'Save 10%',
+    inStock: true,
+    badgeText: 'Trending',
+    badgeIcon: '🔥',
+    badgeColor: 'bg-[#FED7AA] text-[#C2410C]',
+  },
+  {
+    _id: 'top-horlicks',
+    name: 'Horlicks Classic Malt Health Drink',
+    weight: '500 g Refill',
+    image: '/images/prod-horlicks.png',
+    price: 245,
+    originalPrice: 275,
+    discount: 'Save 11%',
+    inStock: true,
+  },
+  {
+    _id: 'top-dove-soap',
+    name: 'Dove Beauty Bathing Bar',
+    weight: '125 g (Pack of 3)',
+    image: '/images/prod-dove-soap.png',
+    price: 165,
+    originalPrice: 195,
+    discount: 'Save 15%',
+    inStock: true,
+  },
+  {
+    _id: 'top-colgate',
+    name: 'Colgate Strong Teeth Toothpaste',
+    weight: '150 g',
+    image: '/images/prod-colgate.png',
+    price: 129,
+    originalPrice: 145,
+    discount: 'Save 11%',
+    inStock: true,
+  },
+  {
+    _id: 'top-harpic',
+    name: 'Harpic Power Plus Toilet Cleaner',
+    weight: '1 L',
+    image: '/images/prod-harpic.png',
+    price: 189,
+    originalPrice: 210,
+    discount: 'Save 10%',
+    inStock: true,
+    badgeText: 'Trending',
+    badgeIcon: '🔥',
+    badgeColor: 'bg-[#FED7AA] text-[#C2410C]',
+  },
+];
+
 export default function Home() {
   const { user, logout } = useAuth();
   const {
@@ -237,9 +378,56 @@ export default function Home() {
     }
   };
 
-  // Dynamic categories strictly from Convex (reflects updates from Admin Panel in real time)
-  const isCategoriesLoading = liveCategories === undefined;
-  const categories = (liveCategories || []).map((c) => ({
+  // Dynamic categories and Top Essentials with instant localStorage hydration (0ms refresh)
+  const [cachedCategories, setCachedCategories] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('bms_cached_categories');
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return DEFAULT_CATEGORIES;
+  });
+
+  const [cachedEssentials, setCachedEssentials] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('bms_cached_top_essentials');
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return DEFAULT_TOP_ESSENTIALS;
+  });
+
+  // Sync latest categories to localStorage when Convex returns
+  useEffect(() => {
+    if (liveCategories && liveCategories.length > 0) {
+      setCachedCategories(liveCategories);
+      try {
+        localStorage.setItem('bms_cached_categories', JSON.stringify(liveCategories));
+      } catch {}
+    }
+  }, [liveCategories]);
+
+  // Sync latest top essentials to localStorage when Convex returns
+  useEffect(() => {
+    if (liveTopEssentials && liveTopEssentials.length > 0) {
+      setCachedEssentials(liveTopEssentials);
+      try {
+        localStorage.setItem('bms_cached_top_essentials', JSON.stringify(liveTopEssentials));
+      } catch {}
+    }
+  }, [liveTopEssentials]);
+
+  const activeCategoriesRaw = (liveCategories && liveCategories.length > 0)
+    ? liveCategories
+    : (cachedCategories && cachedCategories.length > 0 ? cachedCategories : DEFAULT_CATEGORIES);
+
+  const activeEssentialsRaw = (liveTopEssentials && liveTopEssentials.length > 0)
+    ? liveTopEssentials
+    : (cachedEssentials && cachedEssentials.length > 0 ? cachedEssentials : DEFAULT_TOP_ESSENTIALS);
+
+  const categories = activeCategoriesRaw.map((c: any) => ({
     id: c.slug,
     name: c.name,
     prodImg: c.image || '',
@@ -249,15 +437,13 @@ export default function Home() {
     borderColor: c.borderColor || 'border-amber-200/60',
   }));
 
-  // Dynamic Top Essentials strictly from Convex (live updates with Cloudflare R2 photos)
-  const isTopEssentialsLoading = liveTopEssentials === undefined;
-  const essentials = (liveTopEssentials || []).map((p) => ({
-    id: p._id,
+  const essentials = activeEssentialsRaw.map((p: any) => ({
+    id: p._id || p.id,
     name: p.name,
     pack: p.weight,
     img: p.image || '/images/prod-surf-excel.png',
-    price: `₹${p.price}`,
-    originalPrice: p.originalPrice ? `₹${p.originalPrice}` : '',
+    price: typeof p.price === 'number' ? `₹${p.price}` : p.price,
+    originalPrice: p.originalPrice ? (typeof p.originalPrice === 'number' ? `₹${p.originalPrice}` : p.originalPrice) : '',
     discount: p.discount || '',
     inStock: p.inStock !== false,
     badge: p.badgeText
@@ -724,15 +910,7 @@ export default function Home() {
 
             {/* Category Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5 sm:gap-3">
-              {isCategoriesLoading ? (
-                [...Array(10)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="rounded-2xl bg-gray-100/80 animate-pulse h-[155px] sm:h-[165px]"
-                  />
-                ))
-              ) : (
-                categories.map((cat) => (
+              {categories.map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/category/${cat.id}`}
@@ -760,8 +938,7 @@ export default function Home() {
                       </span>
                     </div>
                   </Link>
-                ))
-              )}
+                ))}
             </div>
           </section>
 
@@ -790,24 +967,8 @@ export default function Home() {
             </div>
 
             {/* Responsive Grid Cards */}
-            {isTopEssentialsLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-3.5 flex flex-col justify-between animate-pulse h-64"
-                  >
-                    <div className="h-4 bg-gray-100 rounded w-16 mb-2" />
-                    <div className="w-full h-24 bg-gray-100 rounded-xl my-2" />
-                    <div className="h-3.5 bg-gray-100 rounded w-3/4 mb-1" />
-                    <div className="h-3 bg-gray-100 rounded w-1/2 mb-3" />
-                    <div className="h-8 bg-gray-100 rounded-xl w-full" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-                {essentials.map((item) => {
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+              {essentials.map((item) => {
                   const isLiked = !!wishlist[item.id];
                   const isAdded = addedItem === item.id;
 
@@ -911,7 +1072,6 @@ export default function Home() {
                   );
                 })}
               </div>
-            )}
           </section>
         </div>
 

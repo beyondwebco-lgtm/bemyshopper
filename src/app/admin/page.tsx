@@ -214,13 +214,35 @@ export default function AdminPage() {
   });
   const allProductsList = useQuery(api.products.list, {});
 
+  // Instant cache hydration for admin products to eliminate refresh wait
+  const [cachedAdminProducts, setCachedAdminProducts] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = sessionStorage.getItem(`bms_admin_prods_${selectedCategorySlug}`);
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    if (products && products.length > 0) {
+      setCachedAdminProducts(products);
+      try {
+        sessionStorage.setItem(`bms_admin_prods_${selectedCategorySlug}`, JSON.stringify(products));
+      } catch {}
+    }
+  }, [products, selectedCategorySlug]);
+
+  const activeAdminProducts = products || (cachedAdminProducts.length > 0 ? cachedAdminProducts : undefined);
+
   const offerProducts = (allProductsList || []).filter(
     (p) =>
       p.badgeText === 'Special Offer' ||
       (p.isPopular === true && (p.displayOrder === undefined || p.displayOrder === null))
   );
 
-  const filteredProducts = products?.filter((prod) => {
+  const filteredProducts = activeAdminProducts?.filter((prod: any) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();
     return (
@@ -2397,17 +2419,17 @@ export default function AdminPage() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-black uppercase tracking-wider text-gray-500">
-                        Products in this Category ({products?.length ?? 0})
+                        Products in this Category ({activeAdminProducts?.length ?? 0})
                       </h4>
                     </div>
 
-                    {products === undefined ? (
+                    {activeAdminProducts === undefined ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {[1, 2, 3].map((i) => (
                           <div key={i} className="h-32 rounded-3xl bg-white border border-gray-100 shadow-2xs animate-pulse" />
                         ))}
                       </div>
-                    ) : products.length === 0 ? (
+                    ) : activeAdminProducts.length === 0 ? (
                       <div className="p-12 text-center bg-white rounded-3xl border border-gray-200 text-xs text-gray-400 space-y-2">
                         <Package className="w-8 h-8 mx-auto text-gray-300" />
                         <div>No products found in this category.</div>
@@ -2427,7 +2449,7 @@ export default function AdminPage() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {products.map((prod) => (
+                        {activeAdminProducts.map((prod: any) => (
                           <div
                             key={prod._id}
                             className="p-4 rounded-3xl bg-white border border-gray-200 shadow-2xs flex flex-col justify-between"
