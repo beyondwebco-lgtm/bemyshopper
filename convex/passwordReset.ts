@@ -131,10 +131,20 @@ function buildResetEmailHtml(resetUrl: string, siteUrl: string): string {
 export const internalGetUserByEmail = internalQuery({
   args: { email: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const clean = args.email.trim().toLowerCase();
+    const customer = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .withIndex("by_email", (q) => q.eq("email", clean))
       .first();
+    if (customer) return { id: customer._id, email: customer.email, type: "user" };
+
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_email", (q) => q.eq("email", clean))
+      .first();
+    if (admin) return { id: admin._id, email: admin.email, type: "admin" };
+
+    return null;
   },
 });
 
@@ -203,31 +213,31 @@ export const storeTestResetToken = mutation({
 });
 
 // Public Action: Request a password reset email
-// Implements account enumeration prevention by always returning a generic success message
 export const requestPasswordReset = action({
-  args: { email: v.string() },
+  args: {
+    email: v.string(),
+    origin: v.optional(v.string()),
+  },
   handler: async (ctx, args): Promise<{ success: boolean; message: string }> => {
     const cleanEmail = args.email.trim().toLowerCase();
 
-    // Generic confirmation message to prevent account enumeration
-    const genericResponse = {
-      success: true,
-      message:
-        "If an account with that email exists, we've sent a link to reset your password. Please check your inbox and spam folder.",
-    };
-
     if (!cleanEmail) {
-      return genericResponse;
+      return {
+        success: false,
+        message: "Please enter your registered email address.",
+      };
     }
 
-    // Check if user exists in database
+    // Check if user exists in database (customers or admin)
     const user = await ctx.runQuery(internal.passwordReset.internalGetUserByEmail, {
       email: cleanEmail,
     });
 
-    // If user does not exist, do not send email, but return generic success (anti-enumeration)
     if (!user) {
-      return genericResponse;
+      return {
+        success: false,
+        message: "No account found with this email. Please check your spelling or sign up.",
+      };
     }
 
     // Generate cryptographically secure random token (64 hex characters)
@@ -244,11 +254,11 @@ export const requestPasswordReset = action({
       expiresAt,
     });
 
-    // Determine site base URL (prefer SITE_URL or fallback)
-    const siteUrl = process.env.SITE_URL || "http://localhost:3000";
+    // Determine site base URL (prefer origin from client, then SITE_URL, then fallback)
+    const siteUrl = (args.origin || process.env.SITE_URL || "https://bemyshopper.vercel.app").replace(/\/$/, "");
     const resetUrl = `${siteUrl}/reset-password?token=${rawToken}`;
 
-    // Dispatch email via Resend
+    // Dispatch email via Resend with verified domain
     const resendApiKey = process.env.RESEND_API_KEY;
     if (resendApiKey) {
       try {
@@ -260,9 +270,10 @@ export const requestPasswordReset = action({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "Be My Shopper <onboarding@resend.dev>",
+            from: "BeMyShopper <support@bemyshopper.co>",
+            reply_to: "bemyshopper2021@gmail.com",
             to: [cleanEmail],
-            subject: "Reset Your Be My Shopper Password",
+            subject: "Reset Your BeMyShopper Password 🔐",
             html: emailHtml,
           }),
         });
@@ -270,15 +281,30 @@ export const requestPasswordReset = action({
         if (!resendRes.ok) {
           const errText = await resendRes.text();
           console.error("Resend API delivery error for email dispatch:", errText);
+          return {
+            success: false,
+            message: "Unable to dispatch reset email right now. Please try again in a few moments.",
+          };
         }
       } catch (err: unknown) {
         console.error("Failed to connect to Resend service:", err instanceof Error ? err.message : err);
+        return {
+          success: false,
+          message: "Network issue connecting to email delivery service. Please try again shortly.",
+        };
       }
     } else {
       console.warn("RESEND_API_KEY is not configured in Convex environment variables.");
+      return {
+        success: false,
+        message: "Email service is temporarily unavailable. Please try again shortly.",
+      };
     }
 
-    return genericResponse;
+    return {
+      success: true,
+      message: `Password reset link sent to ${cleanEmail}! Please check your inbox and spam folder.`,
+    };
   },
 });
 
@@ -378,15 +404,25 @@ export const resetPasswordWithToken = mutation({
       .withIndex("by_email", (q) => q.eq("email", record.email))
       .first();
 
-    if (!user) {
-      throw new Error("Associated account not found.");
+    if (user) {
+      await ctx.db.patch(user._id, { password: args.newPassword, updatedAt: Date.now() });
+      await ctx.db.patch(record._id, { used: true });
+      return { success: true };
     }
 
-    // Update the password
-    await ctx.db.patch(user._id, { password: args.newPassword });
+    // Check if it's an admin account
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_email", (q) => q.eq("email", record.email))
+      .first();
 
-    // Mark reset token as used (single use)
-    await ctx.db.patch(record._id, { used: true });
+    if (admin) {
+      await ctx.db.patch(admin._id, { password: args.newPassword, updatedAt: Date.now() });
+      await ctx.db.patch(record._id, { used: true });
+      return { success: true };
+    }
+
+    throw new Error("Associated account not found.");
 
     return { success: true };
   },

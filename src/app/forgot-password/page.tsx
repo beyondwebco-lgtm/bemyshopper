@@ -43,8 +43,13 @@ export default function ForgotPasswordPage() {
 
     setIsSubmitting(true);
     try {
-      const res = await requestPasswordReset({ email: cleanEmail });
-      setSuccessMessage(res.message);
+      const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
+      const res = await requestPasswordReset({ email: cleanEmail, origin });
+      if (res.success) {
+        setSuccessMessage(res.message);
+      } else {
+        setError(res.message);
+      }
     } catch (err: unknown) {
       // In case of unexpected network failure
       const msg = err instanceof Error ? err.message : 'Failed to process request. Please try again.';

@@ -32,9 +32,10 @@ export const sendResetEmail = action({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "BeMyShopper <onboarding@resend.dev>",
+          from: "BeMyShopper <support@bemyshopper.co>",
+          reply_to: "bemyshopper2021@gmail.com",
           to: [args.email],
-          subject: "Your BeMyShopper Password Reset Code",
+          subject: "Your BeMyShopper Password Reset Code 🔐",
           html: `
             <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 16px;">
               <h2 style="color: #137A2C; margin: 0 0 8px 0; font-size: 22px;">BeMyShopper</h2>
