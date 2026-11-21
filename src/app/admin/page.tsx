@@ -1582,12 +1582,6 @@ export default function AdminPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Live Convex Status Pill */}
-            <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Convex Cloud Live</span>
-            </div>
-
             {/* Authenticated Admin Account Info & Sign Out */}
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
@@ -2007,27 +2001,6 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Cloudflare R2 Connection Card */}
-          <div className="p-4 rounded-3xl bg-white border border-gray-200/80 shadow-2xs space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">
-                Cloudflare R2 Storage
-              </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Active
-              </span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-200/70 text-orange-600 flex items-center justify-center shrink-0 font-black text-xs">
-                R2
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs font-black text-gray-900 truncate">bemyshopper-dev</div>
-                <div className="text-[10px] text-gray-500 truncate">Direct Category Uploads</div>
-              </div>
-            </div>
-          </div>
 
           {/* Admin Security Settings Shortcut */}
           <div className="p-3 bg-white rounded-2xl border border-gray-200/80 flex items-center justify-between">
