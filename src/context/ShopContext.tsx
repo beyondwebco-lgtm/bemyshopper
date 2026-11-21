@@ -77,7 +77,7 @@ const defaultCarPreferences: CarPreferences = {
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 export const ShopProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
 
   const [cartItems, setCartItems] = useState<Record<string, number>>({});
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
@@ -86,8 +86,29 @@ export const ShopProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [productsMap, setProductsMap] = useState<Record<string, CartProduct>>({});
 
-  // Track previous user to detect login vs logout transitions
+  // Keep references to avoid stale closures during login transitions
+  const cartItemsRef = useRef<Record<string, number>>({});
+  const wishlistRef = useRef<Record<string, boolean>>({});
+  const carPreferencesRef = useRef<CarPreferences>(defaultCarPreferences);
+  const userRef = useRef(user);
+  const isInitializedRef = useRef(false);
   const prevUserEmailRef = useRef<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    cartItemsRef.current = cartItems;
+  }, [cartItems]);
+
+  useEffect(() => {
+    wishlistRef.current = wishlist;
+  }, [wishlist]);
+
+  useEffect(() => {
+    carPreferencesRef.current = carPreferences;
+  }, [carPreferences]);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   // Helper key generators scoped per user account
   const getStorageKeys = (userEmail: string | null | undefined) => {
@@ -110,6 +131,9 @@ export const ShopProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Sync state whenever active user changes (Login, Logout, Initial load)
   useEffect(() => {
+    // Wait until auth initialization is settled
+    if (isAuthLoading) return;
+
     // Clean up any legacy unscoped storage from previous sessions
     try {
       localStorage.removeItem('bemyshopper_cart');
@@ -126,10 +150,12 @@ export const ShopProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // SCENARIO 1: USER LOGGED OUT -> RESET TO FRESH CLEAN "NEW SITE"
     if (prevUserEmail !== undefined && prevUserEmail !== null && currentUserEmail === null) {
-      // Clear in-memory state completely
       setCartItems({});
+      cartItemsRef.current = {};
       setWishlist({});
+      wishlistRef.current = {};
       setCarPreferences(defaultCarPreferences);
+      carPreferencesRef.current = defaultCarPreferences;
       setSavedInquiries([]);
 
       // Wipe guest storage so logged-out visitor sees a brand-new empty site
@@ -141,24 +167,125 @@ export const ShopProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } catch {
         // Ignore
       }
+      isInitializedRef.current = true;
       return;
     }
 
-    // SCENARIO 2: USER LOGGED IN OR INITIAL LOAD -> LOAD THIS USER'S OWN DATA
+    // SCENARIO 2: USER LOGGED IN (TRANSITION FROM GUEST TO USER) -> MERGE GUEST CART INTO USER ACCOUNT!
+    if (prevUserEmail === null && currentUserEmail !== null) {
+      const userKeys = getStorageKeys(currentUserEmail);
+
+      // Collect any guest cart items (from localStorage and from memory)
+      let guestCart: Record<string, number> = {};
+      try {
+        const rawGuest = localStorage.getItem('bemyshopper_cart_guest');
+        if (rawGuest) guestCart = JSON.parse(rawGuest);
+      } catch {}
+      for (const [id, qty] of Object.entries(cartItemsRef.current || {})) {
+        if (qty > 0) {
+          guestCart[id] = Math.max(guestCart[id] || 0, qty);
+        }
+      }
+
+      // Read user's existing saved cart
+      let userCart: Record<string, number> = {};
+      try {
+        const rawUser = localStorage.getItem(userKeys.cart);
+        if (rawUser) userCart = JSON.parse(rawUser);
+      } catch {}
+
+      // Seamlessly merge guest items into user cart so nothing is lost!
+      const mergedCart: Record<string, number> = { ...userCart };
+      for (const [id, qty] of Object.entries(guestCart)) {
+        if (qty > 0) {
+          mergedCart[id] = (mergedCart[id] || 0) + qty;
+        }
+      }
+
+      setCartItems(mergedCart);
+      cartItemsRef.current = mergedCart;
+      try {
+        localStorage.setItem(userKeys.cart, JSON.stringify(mergedCart));
+        localStorage.removeItem('bemyshopper_cart_guest');
+      } catch {}
+
+      // Merge Wishlist
+      let guestWish: Record<string, boolean> = {};
+      try {
+        const rawGuestWish = localStorage.getItem('bemyshopper_wishlist_guest');
+        if (rawGuestWish) guestWish = JSON.parse(rawGuestWish);
+      } catch {}
+      for (const [id, val] of Object.entries(wishlistRef.current || {})) {
+        if (val) guestWish[id] = true;
+      }
+      let userWish: Record<string, boolean> = {};
+      try {
+        const rawUserWish = localStorage.getItem(userKeys.wishlist);
+        if (rawUserWish) userWish = JSON.parse(rawUserWish);
+      } catch {}
+      const mergedWish = { ...userWish, ...guestWish };
+      setWishlist(mergedWish);
+      wishlistRef.current = mergedWish;
+      try {
+        localStorage.setItem(userKeys.wishlist, JSON.stringify(mergedWish));
+        localStorage.removeItem('bemyshopper_wishlist_guest');
+      } catch {}
+
+      // Car preferences
+      let userCar = {};
+      try {
+        const rawUserCar = localStorage.getItem(userKeys.car);
+        if (rawUserCar) userCar = JSON.parse(rawUserCar);
+      } catch {}
+      const mergedCar = {
+        ...defaultCarPreferences,
+        ...carPreferencesRef.current,
+        rentalName: user?.name || '',
+        rentalPhone: user?.phone || '',
+        rentalLocation: user?.address || '',
+        ...userCar,
+      };
+      setCarPreferences(mergedCar);
+      carPreferencesRef.current = mergedCar;
+
+      isInitializedRef.current = true;
+      return;
+    }
+
+    // SCENARIO 3: INITIAL PAGE LOAD
     const keys = getStorageKeys(currentUserEmail);
     try {
       if (currentUserEmail) {
-        // Logged-in user: Load their own private saved items
-        const savedCart = localStorage.getItem(keys.cart);
-        const savedWishlist = localStorage.getItem(keys.wishlist);
-        const savedCar = localStorage.getItem(keys.car);
-        const savedInquiries = localStorage.getItem(keys.inquiries);
+        // User already logged in on initial load
+        // Also check if any guest cart lingered before session restore and merge it
+        let guestCart: Record<string, number> = {};
+        try {
+          const rawGuest = localStorage.getItem('bemyshopper_cart_guest');
+          if (rawGuest) guestCart = JSON.parse(rawGuest);
+        } catch {}
 
-        // If user has saved cart, restore it; otherwise start clean for this user
-        setCartItems(savedCart ? JSON.parse(savedCart) : {});
+        let userCart: Record<string, number> = {};
+        const savedCart = localStorage.getItem(keys.cart);
+        if (savedCart) userCart = JSON.parse(savedCart);
+
+        const mergedCart = { ...userCart };
+        for (const [id, qty] of Object.entries(guestCart)) {
+          if (qty > 0) mergedCart[id] = (mergedCart[id] || 0) + qty;
+        }
+
+        setCartItems(mergedCart);
+        cartItemsRef.current = mergedCart;
+        if (Object.keys(guestCart).length > 0) {
+          try {
+            localStorage.setItem(keys.cart, JSON.stringify(mergedCart));
+            localStorage.removeItem('bemyshopper_cart_guest');
+          } catch {}
+        }
+
+        const savedWishlist = localStorage.getItem(keys.wishlist);
         setWishlist(savedWishlist ? JSON.parse(savedWishlist) : {});
 
-        // Restore user car preferences, prefilling name/phone/address from user profile if not set
+        const savedCar = localStorage.getItem(keys.car);
         const parsedCar = savedCar ? JSON.parse(savedCar) : {};
         setCarPreferences({
           ...defaultCarPreferences,
@@ -168,54 +295,59 @@ export const ShopProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           ...parsedCar,
         });
 
+        const savedInquiries = localStorage.getItem(keys.inquiries);
         setSavedInquiries(savedInquiries ? JSON.parse(savedInquiries) : []);
       } else {
-        // Guest user: Start with completely fresh empty cart and clean site
-        setCartItems({});
-        setWishlist({});
-        setCarPreferences(defaultCarPreferences);
-        setSavedInquiries([]);
+        // Guest user on initial load: Load saved guest cart so items persist across reloads
+        const savedGuestCart = localStorage.getItem('bemyshopper_cart_guest');
+        const parsedGuestCart = savedGuestCart ? JSON.parse(savedGuestCart) : {};
+        setCartItems(parsedGuestCart);
+        cartItemsRef.current = parsedGuestCart;
+
+        const savedGuestWish = localStorage.getItem('bemyshopper_wishlist_guest');
+        setWishlist(savedGuestWish ? JSON.parse(savedGuestWish) : {});
+
+        const savedGuestCar = localStorage.getItem('bemyshopper_car_guest');
+        setCarPreferences(savedGuestCar ? JSON.parse(savedGuestCar) : defaultCarPreferences);
       }
     } catch (e) {
       console.warn('Error loading scoped shop data', e);
-      setCartItems({});
-      setWishlist({});
-      setCarPreferences(defaultCarPreferences);
     }
-  }, [user]);
+    isInitializedRef.current = true;
+  }, [user, isAuthLoading]);
 
   // Persist Cart to user-specific or guest key whenever cartItems changes
   useEffect(() => {
-    if (prevUserEmailRef.current === undefined) return;
-    const keys = getStorageKeys(user?.email);
+    if (!isInitializedRef.current) return;
+    const keys = getStorageKeys(userRef.current?.email);
     try {
       localStorage.setItem(keys.cart, JSON.stringify(cartItems));
     } catch {
       // Ignore
     }
-  }, [cartItems, user?.email]);
+  }, [cartItems]);
 
   // Persist Wishlist to user-specific or guest key whenever wishlist changes
   useEffect(() => {
-    if (prevUserEmailRef.current === undefined) return;
-    const keys = getStorageKeys(user?.email);
+    if (!isInitializedRef.current) return;
+    const keys = getStorageKeys(userRef.current?.email);
     try {
       localStorage.setItem(keys.wishlist, JSON.stringify(wishlist));
     } catch {
       // Ignore
     }
-  }, [wishlist, user?.email]);
+  }, [wishlist]);
 
   // Persist Car preferences
   useEffect(() => {
-    if (prevUserEmailRef.current === undefined) return;
-    const keys = getStorageKeys(user?.email);
+    if (!isInitializedRef.current) return;
+    const keys = getStorageKeys(userRef.current?.email);
     try {
       localStorage.setItem(keys.car, JSON.stringify(carPreferences));
     } catch {
       // Ignore
     }
-  }, [carPreferences, user?.email]);
+  }, [carPreferences]);
 
   // Persist Inquiries
   useEffect(() => {
