@@ -9,7 +9,14 @@ export const metadata: Metadata = {
   description:
     'Order Groceries, Pooja Essentials, Fresh Fruits & Vegetables, Daily Needs, and Rent 5-Seater & 7-Seater Self-Drive Cars in Bapatla, Andhra Pradesh.',
   icons: {
-    icon: '/images/logo.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
 };
 
