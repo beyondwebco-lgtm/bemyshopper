@@ -1718,9 +1718,6 @@ export default function Home() {
                       <Truck className="w-3.5 h-3.5 text-[#137A2C]" />
                       <span>Delivery Details (Bapatla)</span>
                     </span>
-                    <span className="text-[10px] text-[#137A2C] bg-emerald-50 px-2 py-0.5 rounded-full font-bold">
-                      FREE DELIVERY
-                    </span>
                   </div>
 
                   <div className="space-y-1.5 pt-0.5">
@@ -1760,10 +1757,6 @@ export default function Home() {
                       }, 0)}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Delivery Fee (Bapatla Town)</span>
-                    <span className="text-[#137A2C] font-semibold">FREE</span>
-                  </div>
                   <div className="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
                     <span>Total Amount</span>
                     <span className="text-base text-[#137A2C]">
@@ -1780,6 +1773,13 @@ export default function Home() {
                 {/* Primary WhatsApp Order Action */}
                 <button
                   onClick={async () => {
+                    // Check if customer is logged in before placing order
+                    if (!user) {
+                      setIsAuthModalOpen(true);
+                      showToast('Please log in or register to place your order! 🔐');
+                      return;
+                    }
+
                     const items = Object.entries(cartItems)
                       .map(([id, qty]) => {
                         const item = allProducts.find((e) => e.id === id);
@@ -1820,9 +1820,7 @@ export default function Home() {
 ${itemsText}
 
 ━━━━━━━━━━━━━━━━━━━━━━
-💰 *Items Subtotal:* ₹${totalAmount}
-🚚 *Delivery Charges:* FREE (Bapatla Town)
-💵 *TOTAL PAYABLE (COD):* *₹${totalAmount}*
+💰 *Total Amount (COD):* *₹${totalAmount}*
 ━━━━━━━━━━━━━━━━━━━━━━
 Please confirm my order and share delivery timing. Thank you!`;
 

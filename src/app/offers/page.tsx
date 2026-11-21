@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { useShop } from '../../context/ShopContext';
+import { useAuth } from '../../context/AuthContext';
+import { AuthModal } from '../../components/AuthModal';
 import {
   Sparkles,
   ArrowLeft,
@@ -54,6 +56,9 @@ export default function DiwaliOffersPage() {
     registerProducts,
     getProduct,
   } = useShop();
+
+  const { user } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Live products from Convex
   const liveProducts = useQuery(api.products.list, {});
@@ -578,9 +583,6 @@ export default function DiwaliOffersPage() {
                       <Truck className="w-3.5 h-3.5 text-[#137A2C]" />
                       <span>Delivery Details (Bapatla)</span>
                     </span>
-                    <span className="text-[10px] text-[#137A2C] bg-emerald-50 px-2 py-0.5 rounded-full font-bold">
-                      FREE DELIVERY
-                    </span>
                   </div>
                   <div className="space-y-1.5 pt-0.5">
                     <input
@@ -607,17 +609,20 @@ export default function DiwaliOffersPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-gray-600">
-                  <span>Subtotal</span>
-                  <span className="text-sm font-extrabold text-gray-900">₹{cartSubtotal}</span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-gray-600">
-                  <span>Festival Delivery</span>
-                  <span className="text-xs font-bold text-[#137A2C]">FREE Delivery</span>
+                <div className="flex items-center justify-between text-sm font-bold text-gray-900 pt-1">
+                  <span>Total Amount</span>
+                  <span className="text-base font-extrabold text-[#3C0764]">₹{cartSubtotal}</span>
                 </div>
 
                 <button
                   onClick={() => {
+                    // Check if user is logged in
+                    if (!user) {
+                      setIsAuthModalOpen(true);
+                      showToast('Please log in or register to place your order! 🔐');
+                      return;
+                    }
+
                     const items = Object.entries(cartItems)
                       .map(([id, qty]) => {
                         const item = allOffers.find((p) => p.id === id) || getProduct(id);
@@ -634,9 +639,9 @@ export default function DiwaliOffersPage() {
 
                     if (items.length === 0) return;
 
-                    const finalName = checkoutName.trim() || 'Customer';
-                    const finalPhone = checkoutPhone.trim() || 'Not specified';
-                    const finalAddress = checkoutAddress.trim() || 'Bapatla, AP';
+                    const finalName = checkoutName.trim() || user?.name || 'Customer';
+                    const finalPhone = checkoutPhone.trim() || user?.phone || 'Not specified';
+                    const finalAddress = checkoutAddress.trim() || user?.address || 'Bapatla, AP';
 
                     const itemsText = items
                       .map(
@@ -656,9 +661,7 @@ export default function DiwaliOffersPage() {
 ${itemsText}
 
 ━━━━━━━━━━━━━━━━━━━━━━
-💰 *Items Subtotal:* ₹${cartSubtotal}
-🚚 *Festival Delivery:* FREE (Bapatla Town)
-💵 *TOTAL PAYABLE (COD):* *₹${cartSubtotal}*
+💰 *Total Amount (COD):* *₹${cartSubtotal}*
 ━━━━━━━━━━━━━━━━━━━━━━
 Please confirm my order and share delivery timing. Thank you!`;
 
@@ -794,6 +797,12 @@ Please confirm my order and share delivery timing. Thank you!`;
           </div>
         </div>
       </footer>
+
+      {/* ================= AUTH MODAL (LOGIN / SIGNUP) ================= */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </div>
   );
 }

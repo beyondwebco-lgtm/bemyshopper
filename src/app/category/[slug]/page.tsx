@@ -7,6 +7,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { useShop } from '../../../context/ShopContext';
 import { useAuth } from '../../../context/AuthContext';
+import { AuthModal } from '../../../components/AuthModal';
 import {
   ArrowLeft,
   ShoppingBag,
@@ -282,6 +283,7 @@ export default function CategoryPage() {
   } = useShop();
 
   const { user } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Drawers
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -440,8 +442,7 @@ export default function CategoryPage() {
   }, [cartItems, categoryProducts]);
 
   const cartSubtotal = cartProductList.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const deliveryFee = cartSubtotal >= 299 || cartSubtotal === 0 ? 0 : 30;
-  const cartTotal = cartSubtotal + deliveryFee;
+  const cartTotal = cartSubtotal;
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -484,9 +485,7 @@ export default function CategoryPage() {
 ${itemsText}
 
 ━━━━━━━━━━━━━━━━━━━━━━
-💰 *Subtotal:* ₹${cartSubtotal}
-🚚 *Delivery:* ${deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`} (Bapatla Town)
-💵 *TOTAL PAYABLE (COD):* *₹${cartTotal}*
+💰 *Total Amount (COD):* *₹${cartTotal}*
 ━━━━━━━━━━━━━━━━━━━━━━
 Please confirm my order and share delivery timing. Thank you!`;
 
@@ -911,24 +910,7 @@ Please confirm my order and share delivery timing. Thank you!`;
             {cartProductList.length > 0 && (
               <div className="p-4 sm:p-5 border-t border-gray-100 bg-white space-y-3">
                 <div className="space-y-1.5 text-xs text-gray-600">
-                  <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span className="font-bold text-gray-900">₹{cartSubtotal}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Delivery in Bapatla</span>
-                    {deliveryFee === 0 ? (
-                      <span className="font-bold text-emerald-700">FREE</span>
-                    ) : (
-                      <span className="font-bold text-gray-900">₹{deliveryFee}</span>
-                    )}
-                  </div>
-                  {cartSubtotal < 299 && (
-                    <p className="text-[10px] text-emerald-700 font-medium">
-                      Add ₹{299 - cartSubtotal} more for FREE Delivery!
-                    </p>
-                  )}
-                  <div className="flex justify-between text-sm font-black text-gray-900 pt-2 border-t border-gray-100">
+                  <div className="flex justify-between text-sm font-black text-gray-900 pt-1">
                     <span>Total Amount</span>
                     <span className="text-[#087D2C]">₹{cartTotal}</span>
                   </div>
@@ -937,6 +919,10 @@ Please confirm my order and share delivery timing. Thank you!`;
                 <div className="flex flex-col gap-2 pt-1">
                   <button
                     onClick={() => {
+                      if (!user) {
+                        setIsAuthModalOpen(true);
+                        return;
+                      }
                       if (cartProductList.length === 0) return;
                       const itemsText = cartProductList
                         .map(
@@ -956,9 +942,7 @@ Please confirm my order and share delivery timing. Thank you!`;
 ${itemsText}
 
 ━━━━━━━━━━━━━━━━━━━━━━
-💰 *Subtotal:* ₹${cartSubtotal}
-🚚 *Delivery:* ${deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`} (Bapatla Town)
-💵 *TOTAL PAYABLE (COD):* *₹${cartTotal}*
+💰 *Total Amount (COD):* *₹${cartTotal}*
 ━━━━━━━━━━━━━━━━━━━━━━
 Please confirm my order and share delivery timing. Thank you!`;
 
@@ -977,7 +961,13 @@ Please confirm my order and share delivery timing. Thank you!`;
                   </button>
 
                   <button
-                    onClick={() => setIsCheckoutOpen(true)}
+                    onClick={() => {
+                      if (!user) {
+                        setIsAuthModalOpen(true);
+                        return;
+                      }
+                      setIsCheckoutOpen(true);
+                    }}
                     className="w-full py-2.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <span>Delivery Details Checkout</span>
@@ -1210,6 +1200,12 @@ Please confirm my order and share delivery timing. Thank you!`;
           </div>
         </div>
       </footer>
+
+      {/* ================= AUTH MODAL (LOGIN / SIGNUP) ================= */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </div>
   );
 }
