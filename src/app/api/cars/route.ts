@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { r2Client, R2_BUCKET } from '@/lib/r2';
+import { r2Client, R2_BUCKET, extractR2Key } from '@/lib/r2';
 
 const CARS_FILE = path.join(process.cwd(), 'src/data/cars.json');
 
@@ -150,16 +150,9 @@ export async function DELETE(req: NextRequest) {
     // Delete associated photos from Cloudflare R2 bucket
     if (carToDelete && Array.isArray(carToDelete.images)) {
       for (const img of carToDelete.images) {
-        if (img && !img.startsWith('data:') && !img.startsWith('/images/')) {
+        const targetKey = extractR2Key(img);
+        if (targetKey) {
           try {
-            let targetKey = img;
-            if (targetKey.startsWith('/api/storage/')) {
-              targetKey = targetKey.replace('/api/storage/', '');
-            } else {
-              const match = targetKey.match(/(?:api\/storage\/|bemyshopper-dev\/|r2\.dev\/)(.+)$/);
-              if (match) targetKey = match[1];
-            }
-            targetKey = targetKey.split('?')[0];
             await r2Client.send(
               new DeleteObjectCommand({
                 Bucket: R2_BUCKET,

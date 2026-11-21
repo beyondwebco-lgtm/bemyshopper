@@ -310,13 +310,21 @@ export default function AdminRentalsSection({
 
   // Helper: Delete image from Cloudflare R2 bucket (bemyshopper-dev)
   const deleteImageFromR2 = async (imageUrl?: string) => {
-    if (!imageUrl || imageUrl.startsWith('data:') || imageUrl.startsWith('/images/')) return;
+    if (!imageUrl) return;
+    const clean = imageUrl.trim();
+    if (clean.startsWith('data:') || clean.startsWith('/images/')) return;
     try {
-      await fetch('/api/upload', {
+      const res = await fetch('/api/upload', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: imageUrl }),
+        body: JSON.stringify({ url: clean }),
       });
+      if (!res.ok) {
+        const fallbackPath = clean.startsWith('http')
+          ? clean
+          : `/api/storage/${clean.replace(/^\/?api\/storage\//, '')}`;
+        await fetch(fallbackPath, { method: 'DELETE' }).catch(() => {});
+      }
     } catch (e) {
       console.warn('Could not delete image from Cloudflare R2:', e);
     }

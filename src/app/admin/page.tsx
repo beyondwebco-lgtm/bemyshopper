@@ -609,16 +609,50 @@ export default function AdminPage() {
   };
 
   // Helper: Delete image from Cloudflare R2 bucket (bemyshopper-dev)
-  const deleteImageFromR2 = async (imageUrl?: string) => {
+  const deleteImageFromR2 = async (imageUrl?: string | null) => {
     if (!imageUrl) return;
+    const clean = imageUrl.trim();
+    if (
+      clean.startsWith('data:') ||
+      clean.startsWith('/_next') ||
+      clean.startsWith('/images/') ||
+      clean === '/logo.png' ||
+      clean === '/favicon.ico' ||
+      clean === '/apple-icon.png' ||
+      clean === '/icon.png'
+    ) {
+      return;
+    }
     try {
-      await fetch('/api/upload', {
+      const res = await fetch('/api/upload', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: imageUrl }),
+        body: JSON.stringify({ url: clean }),
       });
+      if (!res.ok) {
+        const fallbackPath = clean.startsWith('http')
+          ? clean
+          : `/api/storage/${clean.replace(/^\/?api\/storage\//, '')}`;
+        await fetch(fallbackPath, { method: 'DELETE' }).catch(() => {});
+      }
     } catch (e) {
       console.warn('Could not delete image from Cloudflare R2:', e);
+    }
+  };
+
+  // Helper: Delete product and remove its image from Cloudflare R2
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleDeleteProduct = async (prod: any) => {
+    if (!prod) return;
+    if (!confirm(`Permanently delete "${prod.name}"?`)) return;
+    try {
+      const oldImage = prod.image;
+      await deleteProduct({ id: prod._id });
+      if (oldImage) {
+        await deleteImageFromR2(oldImage);
+      }
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to delete product');
     }
   };
 
@@ -710,6 +744,9 @@ export default function AdminPage() {
     setCatPhotoUploadStatus('Uploading to Cloudflare R2 (bemyshopper-dev)...');
 
     try {
+      const existingCat = categoriesList?.find((c) => c._id === targetPhotoCatId);
+      const oldImage = existingCat?.image;
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'categories');
@@ -728,6 +765,10 @@ export default function AdminPage() {
         id: targetPhotoCatId,
         image: data.url,
       });
+
+      if (oldImage && oldImage !== data.url) {
+        await deleteImageFromR2(oldImage);
+      }
 
       setCatPhotoUploadStatus('✓ Photo uploaded to Cloudflare R2!');
       setTimeout(() => setCatPhotoUploadStatus(null), 3000);
@@ -1064,6 +1105,7 @@ export default function AdminPage() {
     setIsUploadingOfferBanner(true);
     setOfferBannerProgress('Uploading banner to Cloudflare R2...');
     try {
+      const oldBanner = offerBannerImg;
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'offers');
@@ -1074,6 +1116,9 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || 'Failed to upload banner');
       setOfferBannerImg(data.url);
+      if (oldBanner && oldBanner !== data.url) {
+        await deleteImageFromR2(oldBanner);
+      }
       setOfferBannerProgress('✓ Banner uploaded to Cloudflare R2!');
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Upload failed');
@@ -1087,6 +1132,7 @@ export default function AdminPage() {
     setIsUploadingOfferBanner(true);
     setOfferBannerProgress('Uploading banner to Cloudflare R2...');
     try {
+      const oldBanner = offerBannerImg;
       const res = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1099,6 +1145,9 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || 'Failed to upload banner');
       setOfferBannerImg(data.url);
+      if (oldBanner && oldBanner !== data.url) {
+        await deleteImageFromR2(oldBanner);
+      }
       setOfferBannerProgress('✓ Banner uploaded to Cloudflare R2!');
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Upload failed');
@@ -1256,6 +1305,9 @@ export default function AdminPage() {
     setEssentialPhotoStatus('Uploading to Cloudflare R2...');
 
     try {
+      const existingEssential = (topEssentials || allProductsList)?.find((p: any) => p._id === targetPhotoEssentialId);
+      const oldImage = existingEssential?.image;
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'products');
@@ -1274,6 +1326,10 @@ export default function AdminPage() {
         id: targetPhotoEssentialId,
         image: data.url,
       });
+
+      if (oldImage && oldImage !== data.url) {
+        await deleteImageFromR2(oldImage);
+      }
 
       setEssentialPhotoStatus('✓ Photo updated in Cloudflare R2!');
       setTimeout(() => setEssentialPhotoStatus(null), 3000);
@@ -1387,6 +1443,9 @@ export default function AdminPage() {
     if (!editingEssential) return;
 
     try {
+      const oldImage = editingEssential.image;
+      const newImage = essImage.trim() || editingEssential.image;
+
       await updateProductMutation({
         id: editingEssential._id,
         name: essName.trim(),
@@ -1394,12 +1453,16 @@ export default function AdminPage() {
         price: Number(essPrice),
         originalPrice: essOriginalPrice ? Number(essOriginalPrice) : undefined,
         weight: essWeight.trim(),
-        image: essImage.trim() || editingEssential.image,
+        image: newImage,
         badgeText: essBadgeText.trim() || undefined,
         badgeIcon: essBadgeText.trim() ? essBadgeIcon : undefined,
         badgeColor: essBadgeText.trim() ? essBadgeColor : undefined,
         discount: essDiscount.trim() || undefined,
       });
+
+      if (oldImage && oldImage !== newImage) {
+        await deleteImageFromR2(oldImage);
+      }
 
       setEditingEssential(null);
       resetEssentialForm();
@@ -2660,11 +2723,7 @@ export default function AdminPage() {
 
                                 <button
                                   type="button"
-                                  onClick={() => {
-                                    if (confirm(`Delete ${prod.name}?`)) {
-                                      deleteProduct({ id: prod._id });
-                                    }
-                                  }}
+                                  onClick={() => handleDeleteProduct(prod)}
                                   className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                                   title="Delete product"
                                 >
@@ -3122,9 +3181,13 @@ export default function AdminPage() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => {
+                              onClick={async () => {
+                                const toDelete = offerBannerImg;
                                 setOfferBannerImg('');
                                 setOfferBannerProgress(null);
+                                if (toDelete) {
+                                  await deleteImageFromR2(toDelete);
+                                }
                               }}
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold border border-rose-200 transition-all cursor-pointer"
                             >
@@ -3314,11 +3377,7 @@ export default function AdminPage() {
 
                             <button
                               type="button"
-                              onClick={() => {
-                                if (confirm(`Permanently delete "${prod.name}"?`)) {
-                                  deleteProduct({ id: prod._id });
-                                }
-                              }}
+                              onClick={() => handleDeleteProduct(prod)}
                               className="p-1 text-gray-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer"
                               title="Delete Product Permanently"
                             >
@@ -3573,9 +3632,13 @@ export default function AdminPage() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={async () => {
+                          const toDelete = newCatImage;
                           setNewCatImage('');
                           setUploadProgress(null);
+                          if (toDelete) {
+                            await deleteImageFromR2(toDelete);
+                          }
                         }}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl cursor-pointer transition-colors"
                         title="Remove image"
@@ -3775,9 +3838,13 @@ export default function AdminPage() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={async () => {
+                          const toDelete = newProdImage;
                           setNewProdImage('');
                           setProdUploadProgress(null);
+                          if (toDelete) {
+                            await deleteImageFromR2(toDelete);
+                          }
                         }}
                         className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer transition-colors"
                         title="Remove image"
@@ -3905,11 +3972,15 @@ export default function AdminPage() {
               <div className="pt-2 flex gap-3">
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
+                    const toDelete = newProdImage;
                     setIsAddProductOpen(false);
                     setNewProdImage('');
                     setNewProdIsOffer(false);
                     setProdUploadProgress(null);
+                    if (toDelete) {
+                      await deleteImageFromR2(toDelete);
+                    }
                   }}
                   className="flex-1 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold cursor-pointer"
                 >

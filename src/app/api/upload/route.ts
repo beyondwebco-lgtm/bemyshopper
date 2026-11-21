@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { r2Client, R2_BUCKET, R2_PUBLIC_URL } from '@/lib/r2';
+import { r2Client, R2_BUCKET, R2_PUBLIC_URL, extractR2Key } from '@/lib/r2';
 
 export async function POST(req: NextRequest) {
   try {
@@ -112,21 +112,24 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { key, url } = body;
+    const body = await req.json().catch(() => ({}));
+    const { searchParams } = new URL(req.url);
 
-    let targetKey = key;
-    if (!targetKey && url) {
-      if (url.startsWith('/api/storage/')) {
-        targetKey = url.replace('/api/storage/', '');
-      } else {
-        const match = url.match(/(?:api\/storage\/|bemyshopper-dev\/|r2\.dev\/)(.+)$/);
-        if (match) targetKey = match[1];
-      }
-    }
+    const rawTarget =
+      body.key ||
+      body.url ||
+      body.imageUrl ||
+      searchParams.get('url') ||
+      searchParams.get('key');
+
+    const targetKey = extractR2Key(rawTarget);
 
     if (!targetKey) {
-      return NextResponse.json({ error: 'No key or url specified' }, { status: 400 });
+      // If it's a local static asset (e.g. /images/...) or empty, treat as benign no-op
+      return NextResponse.json({
+        success: true,
+        message: 'Static asset or empty path; no cloud deletion needed.',
+      });
     }
 
     await r2Client.send(
@@ -138,6 +141,7 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      deletedKey: targetKey,
       message: `Deleted ${targetKey} from Cloudflare R2`,
     });
   } catch (err: unknown) {

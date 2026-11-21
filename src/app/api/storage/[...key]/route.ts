@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { r2Client, R2_BUCKET } from '@/lib/r2';
+import { GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { r2Client, R2_BUCKET, extractR2Key } from '@/lib/r2';
 
 export async function GET(
   req: NextRequest,
@@ -36,5 +36,37 @@ export async function GET(
   } catch (err: unknown) {
     console.error('R2 object fetch error:', err);
     return new NextResponse('Image not found', { status: 404 });
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ key: string[] }> }
+) {
+  try {
+    const { key: keyParts } = await params;
+    const rawKey = keyParts.join('/');
+    const targetKey = extractR2Key(rawKey);
+
+    if (!targetKey) {
+      return NextResponse.json({ success: true, message: 'Invalid or static path skipped' });
+    }
+
+    await r2Client.send(
+      new DeleteObjectCommand({
+        Bucket: R2_BUCKET,
+        Key: targetKey,
+      })
+    );
+
+    return NextResponse.json({
+      success: true,
+      deletedKey: targetKey,
+      message: `Deleted ${targetKey} from Cloudflare R2`,
+    });
+  } catch (err: unknown) {
+    console.error('R2 storage delete error:', err);
+    const msg = err instanceof Error ? err.message : 'Delete from Cloudflare R2 failed';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
