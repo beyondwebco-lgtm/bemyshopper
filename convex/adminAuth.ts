@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// The ONLY administrator account in the entire store
 export const PRIMARY_ADMIN_EMAIL = "bemyshopper2021@gmail.com";
 
 // Dedicated Admin Login (operates exclusively on the `admins` table)
@@ -13,14 +14,11 @@ export const adminLogin = mutation({
     const cleanEmail = args.email.trim().toLowerCase();
     const cleanPassword = args.password.trim();
 
-    // Only authorized administrator emails can access the admin table
-    const isAuthorized =
-      cleanEmail === PRIMARY_ADMIN_EMAIL ||
-      cleanEmail === "neelamvishwa071@gmail.com" ||
-      cleanEmail === "neelamviswanadh0001@gmail.com";
+    // STRICT: Only the official store administrator can access the admin portal
+    const isAuthorized = cleanEmail === PRIMARY_ADMIN_EMAIL;
 
     if (!isAuthorized) {
-      throw new Error("Access Denied: Only the official store administrator can access this portal.");
+      throw new Error("Access Denied: Only the official Store Administrator (bemyshopper2021@gmail.com) can access this portal.");
     }
 
     let admin = await ctx.db
@@ -30,7 +28,7 @@ export const adminLogin = mutation({
 
     // If no admin record exists in `admins` table yet, initialize the primary admin
     if (!admin) {
-      const defaultPassword = cleanEmail === PRIMARY_ADMIN_EMAIL ? (cleanPassword || "Admin@2026!") : cleanPassword;
+      const defaultPassword = cleanPassword || "Admin@2026!";
       const adminId = await ctx.db.insert("admins", {
         name: "Store Administrator",
         email: cleanEmail,
@@ -45,7 +43,7 @@ export const adminLogin = mutation({
       };
     }
 
-    // Verify admin password (trimmed, tolerant of Admin@2026! or admin@2026!)
+    // Verify admin password (trimmed, case-tolerant check)
     const isPasswordMatch =
       admin.password.trim() === cleanPassword ||
       (admin.password.toLowerCase() === cleanPassword.toLowerCase());
@@ -56,7 +54,7 @@ export const adminLogin = mutation({
 
     return {
       id: admin._id,
-      name: admin.name,
+      name: admin.name || "Store Administrator",
       email: admin.email,
       role: "admin" as const,
     };
@@ -72,6 +70,10 @@ export const changeAdminPassword = mutation({
   },
   handler: async (ctx, args) => {
     const cleanEmail = args.email.trim().toLowerCase();
+
+    if (cleanEmail !== PRIMARY_ADMIN_EMAIL) {
+      throw new Error("Access Denied: Only the Store Administrator can change this password.");
+    }
 
     const admin = await ctx.db
       .query("admins")
@@ -109,6 +111,10 @@ export const setAdminCredentials = mutation({
   handler: async (ctx, args) => {
     const cleanEmail = args.email.trim().toLowerCase();
 
+    if (cleanEmail !== PRIMARY_ADMIN_EMAIL) {
+      throw new Error("Access Denied: Only bemyshopper2021@gmail.com can be configured as Store Administrator.");
+    }
+
     const existing = await ctx.db
       .query("admins")
       .withIndex("by_email", (q) => q.eq("email", cleanEmail))
@@ -117,19 +123,18 @@ export const setAdminCredentials = mutation({
     if (existing) {
       await ctx.db.patch(existing._id, {
         password: args.password,
-        ...(args.name ? { name: args.name.trim() } : {}),
+        name: "Store Administrator",
         updatedAt: Date.now(),
       });
-      return { success: true, message: `Admin ${cleanEmail} password updated.` };
+      return { success: true, message: `Store Administrator (${cleanEmail}) password updated.` };
     } else {
       await ctx.db.insert("admins", {
-        name: args.name?.trim() || "Store Administrator",
+        name: "Store Administrator",
         email: cleanEmail,
         password: args.password,
         createdAt: Date.now(),
       });
-      return { success: true, message: `Admin ${cleanEmail} initialized.` };
+      return { success: true, message: `Store Administrator (${cleanEmail}) initialized.` };
     }
   },
 });
-

@@ -1,7 +1,10 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-// Register a new customer or admin
+// The ONLY authorized administrator email in the entire system
+export const PRIMARY_ADMIN_EMAIL = "bemyshopper2021@gmail.com";
+
+// Register a new customer
 export const register = mutation({
   args: {
     name: v.string(),
@@ -24,12 +27,9 @@ export const register = mutation({
       throw new Error("An account with this email already exists. Please log in.");
     }
 
-    // Designate first user or admin email as admin
-    const isFirstUser = (await ctx.db.query("users").first()) === null;
-    const isAdminEmail =
-      cleanEmail.includes("admin") ||
-      cleanEmail === "neelamviswanadh0001@gmail.com";
-    const userRole = args.role ?? (isFirstUser || isAdminEmail ? "admin" : "user");
+    // STRICT: Only bemyshopper2021@gmail.com is ever an admin.
+    // Every other user is strictly a customer.
+    const userRole = cleanEmail === PRIMARY_ADMIN_EMAIL ? "admin" : "user";
 
     const userId = await ctx.db.insert("users", {
       name: args.name.trim(),
@@ -55,7 +55,7 @@ export const register = mutation({
   },
 });
 
-// Dedicated Admin Login mutation (enforces strict admin-only access)
+// Dedicated Admin Login mutation (enforces strict single Store Administrator access)
 export const adminLogin = mutation({
   args: {
     email: v.string(),
@@ -64,11 +64,9 @@ export const adminLogin = mutation({
   handler: async (ctx, args) => {
     const cleanEmail = args.email.trim().toLowerCase();
 
-    const isDesignatedAdminEmail =
-      cleanEmail === "bemyshopper2021@gmail.com" ||
-      cleanEmail === "neelamviswanadh0001@gmail.com" ||
-      cleanEmail === "neelamvishwa071@gmail.com" ||
-      cleanEmail.startsWith("admin@");
+    if (cleanEmail !== PRIMARY_ADMIN_EMAIL) {
+      throw new Error("Access Denied: Only the official Store Administrator (bemyshopper2021@gmail.com) has admin privileges.");
+    }
 
     let user = await ctx.db
       .query("users")
@@ -76,7 +74,7 @@ export const adminLogin = mutation({
       .first();
 
     // If designated admin account doesn't exist yet, automatically initialize it
-    if (!user && isDesignatedAdminEmail) {
+    if (!user) {
       const userId = await ctx.db.insert("users", {
         name: "Store Administrator",
         email: cleanEmail,
@@ -92,29 +90,17 @@ export const adminLogin = mutation({
       };
     }
 
-    if (!user) {
-      throw new Error("No administrator account found with this email.");
-    }
-
     if (user.password !== args.password) {
       throw new Error("Incorrect administrator password.");
     }
 
-    const isAuthorizedAdmin =
-      user.role === "admin" ||
-      isDesignatedAdminEmail;
-
-    if (!isAuthorizedAdmin) {
-      throw new Error("Access Denied: This account does not have administrator privileges.");
-    }
-
-    if (user.role !== "admin") {
-      await ctx.db.patch(user._id, { role: "admin" });
+    if (user.role !== "admin" || user.name !== "Store Administrator") {
+      await ctx.db.patch(user._id, { role: "admin", name: "Store Administrator" });
     }
 
     return {
       id: user._id,
-      name: user.name,
+      name: "Store Administrator",
       email: user.email,
       phone: user.phone,
       role: "admin" as const,
@@ -131,6 +117,11 @@ export const setAdminAccount = mutation({
   },
   handler: async (ctx, args) => {
     const cleanEmail = args.email.trim().toLowerCase();
+
+    if (cleanEmail !== PRIMARY_ADMIN_EMAIL) {
+      throw new Error("Access Denied: Only bemyshopper2021@gmail.com can be configured as Store Administrator.");
+    }
+
     const existing = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", cleanEmail))
@@ -140,15 +131,16 @@ export const setAdminAccount = mutation({
       await ctx.db.patch(existing._id, {
         password: args.password,
         role: "admin",
-        ...(args.name ? { name: args.name.trim() } : {}),
+        name: "Store Administrator",
+        updatedAt: Date.now(),
       });
       return {
         success: true,
-        message: `Admin account for ${cleanEmail} updated successfully with role: admin.`,
+        message: `Store Administrator (${cleanEmail}) updated successfully.`,
       };
     } else {
       await ctx.db.insert("users", {
-        name: args.name?.trim() || "Store Administrator",
+        name: "Store Administrator",
         email: cleanEmail,
         password: args.password,
         role: "admin",
@@ -156,13 +148,13 @@ export const setAdminAccount = mutation({
       });
       return {
         success: true,
-        message: `New admin account for ${cleanEmail} created successfully with role: admin.`,
+        message: `Store Administrator (${cleanEmail}) created successfully.`,
       };
     }
   },
 });
 
-// Login with email and password
+// Login with email and password (customers or admin)
 export const login = mutation({
   args: {
     email: v.string(),
@@ -300,19 +292,17 @@ export const updateProfile = mutation({
     const user = await ctx.db.get(args.userId);
     if (!user) throw new Error("User not found");
 
-    const updates: Partial<{ name: string; phone: string; address: string; updatedAt: number }> = {
-      updatedAt: Date.now(),
-    };
+    const updates: Record<string, any> = { updatedAt: Date.now() };
     if (args.name !== undefined) updates.name = args.name.trim();
     if (args.phone !== undefined) updates.phone = args.phone.trim();
     if (args.address !== undefined) updates.address = args.address.trim();
 
     await ctx.db.patch(args.userId, updates);
-    return await ctx.db.get(args.userId);
+    return { success: true };
   },
 });
 
-// List all registered users (for admin panel) with full login data
+// List all customers for Admin Management
 export const listUsers = query({
   args: {},
   handler: async (ctx) => {
@@ -335,15 +325,16 @@ export const listUsers = query({
   },
 });
 
-// List customer login history & session audits
+// List login history records for audit
 export const listLoginHistory = query({
   args: {
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const limit = args.limit ?? 50;
+    const limit = args.limit || 100;
     const logs = await ctx.db
       .query("userLogins")
+      .withIndex("by_timestamp")
       .order("desc")
       .take(limit);
     return logs;
@@ -371,7 +362,14 @@ export const adminUpdateUser = mutation({
     if (args.email !== undefined) updates.email = args.email.trim().toLowerCase();
     if (args.phone !== undefined) updates.phone = args.phone.trim();
     if (args.address !== undefined) updates.address = args.address.trim();
-    if (args.role !== undefined) updates.role = args.role;
+
+    // STRICT: Only Store Administrator has role "admin". All other accounts are strictly "user"
+    if (user.email === PRIMARY_ADMIN_EMAIL) {
+      updates.role = "admin";
+    } else {
+      updates.role = "user";
+    }
+
     if (args.isBlocked !== undefined) updates.isBlocked = args.isBlocked;
     if (args.notes !== undefined) updates.notes = args.notes.trim();
 
@@ -410,6 +408,10 @@ export const adminToggleBlock = mutation({
     const user = await ctx.db.get(args.userId);
     if (!user) throw new Error("Customer not found");
 
+    if (user.email === PRIMARY_ADMIN_EMAIL) {
+      throw new Error("Cannot block the official Store Administrator account.");
+    }
+
     const nextState = !user.isBlocked;
     await ctx.db.patch(args.userId, {
       isBlocked: nextState,
@@ -427,6 +429,10 @@ export const adminDeleteUser = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db.get(args.userId);
     if (!user) throw new Error("Customer not found");
+
+    if (user.email === PRIMARY_ADMIN_EMAIL) {
+      throw new Error("Cannot delete the official Store Administrator account.");
+    }
 
     await ctx.db.delete(args.userId);
     return { success: true };
@@ -455,13 +461,17 @@ export const adminCreateUser = mutation({
       throw new Error("An account with this email already exists.");
     }
 
+    // STRICT: Only bemyshopper2021@gmail.com is ever an admin.
+    // All manually created accounts are strictly customers.
+    const userRole = cleanEmail === PRIMARY_ADMIN_EMAIL ? "admin" : "user";
+
     const userId = await ctx.db.insert("users", {
       name: args.name.trim(),
       email: cleanEmail,
       password: args.password,
       phone: args.phone?.trim(),
       address: args.address?.trim(),
-      role: args.role ?? "user",
+      role: userRole,
       isBlocked: false,
       loginCount: 0,
       notes: args.notes?.trim(),
@@ -469,6 +479,63 @@ export const adminCreateUser = mutation({
     });
 
     return userId;
+  },
+});
+
+// Single Store Administrator Enforcer Mutation
+// Sets bemyshopper2021@gmail.com as the ONLY admin in users and admins tables.
+// Converts all other users to role: "user" (customer).
+export const syncSingleStoreAdmin = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // 1. In `users` table:
+    const allUsers = await ctx.db.query("users").collect();
+    let updatedUsers = 0;
+    for (const u of allUsers) {
+      if (u.email === PRIMARY_ADMIN_EMAIL) {
+        if (u.role !== "admin" || u.name !== "Store Administrator") {
+          await ctx.db.patch(u._id, { role: "admin", name: "Store Administrator" });
+          updatedUsers++;
+        }
+      } else {
+        if (u.role !== "user") {
+          await ctx.db.patch(u._id, { role: "user" });
+          updatedUsers++;
+        }
+      }
+    }
+
+    // 2. In `admins` table:
+    const allAdmins = await ctx.db.query("admins").collect();
+    let deletedAdmins = 0;
+    for (const a of allAdmins) {
+      if (a.email !== PRIMARY_ADMIN_EMAIL) {
+        await ctx.db.delete(a._id);
+        deletedAdmins++;
+      }
+    }
+
+    // Ensure Store Administrator is present in `admins` table
+    const storeAdmin = await ctx.db
+      .query("admins")
+      .withIndex("by_email", (q) => q.eq("email", PRIMARY_ADMIN_EMAIL))
+      .first();
+
+    if (!storeAdmin) {
+      await ctx.db.insert("admins", {
+        name: "Store Administrator",
+        email: PRIMARY_ADMIN_EMAIL,
+        password: "Admin@2026!",
+        createdAt: Date.now(),
+      });
+    }
+
+    return {
+      success: true,
+      updatedUsers,
+      deletedAdmins,
+      primaryAdminEmail: PRIMARY_ADMIN_EMAIL,
+    };
   },
 });
 
@@ -555,4 +622,3 @@ export const resetPassword = mutation({
     return { success: true };
   },
 });
-

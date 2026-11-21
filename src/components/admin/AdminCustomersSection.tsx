@@ -27,11 +27,13 @@ import {
   ShoppingBag,
   Laptop,
   CheckCircle2,
-  UserPlus,
+  Shield,
 } from 'lucide-react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
+
+const STORE_ADMIN_EMAIL = 'bemyshopper2021@gmail.com';
 
 interface CustomerItem {
   id: Id<'users'>;
@@ -70,7 +72,6 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
   // Filters & Sorting State
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'blocked'>('all');
-  const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'admin'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'logins' | 'last_active' | 'name'>('newest');
 
   // Password visibility & copy feedback
@@ -86,7 +87,6 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
     password: '',
     phone: '',
     address: '',
-    role: 'user' as 'user' | 'admin',
     notes: '',
   });
   const [isSubmittingAdd, setIsSubmittingAdd] = useState(false);
@@ -97,7 +97,6 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
     email: '',
     phone: '',
     address: '',
-    role: 'user' as 'user' | 'admin',
     isBlocked: false,
     notes: '',
   });
@@ -186,9 +185,9 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
   };
 
   // KPI Calculations
-  const totalCustomersCount = rawUsers?.length ?? 0;
-  const activeCustomersCount = rawUsers?.filter((u) => !u.isBlocked).length ?? 0;
-  const blockedCustomersCount = rawUsers?.filter((u) => u.isBlocked).length ?? 0;
+  const totalCustomersCount = rawUsers?.filter((u) => u.email !== STORE_ADMIN_EMAIL).length ?? 0;
+  const activeCustomersCount = rawUsers?.filter((u) => !u.isBlocked && u.email !== STORE_ADMIN_EMAIL).length ?? 0;
+  const blockedCustomersCount = rawUsers?.filter((u) => u.isBlocked && u.email !== STORE_ADMIN_EMAIL).length ?? 0;
   const recentLoginsCount = rawUsers?.filter((u) => u.lastLoginAt && Date.now() - u.lastLoginAt < 24 * 60 * 60 * 1000).length ?? 0;
 
   // Filtered and Sorted Customers
@@ -210,14 +209,14 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
       if (statusFilter === 'active' && user.isBlocked) return false;
       if (statusFilter === 'blocked' && !user.isBlocked) return false;
 
-      // Role filter
-      if (roleFilter !== 'all' && user.role !== roleFilter) return false;
-
       return true;
     });
 
-    // Sorting
+    // Sorting (Store Administrator always shown at top, followed by sorted customers)
     result.sort((a, b) => {
+      if (a.email === STORE_ADMIN_EMAIL) return -1;
+      if (b.email === STORE_ADMIN_EMAIL) return 1;
+
       if (sortBy === 'newest') return (b.createdAt || 0) - (a.createdAt || 0);
       if (sortBy === 'oldest') return (a.createdAt || 0) - (b.createdAt || 0);
       if (sortBy === 'logins') return (b.loginCount || 0) - (a.loginCount || 0);
@@ -227,7 +226,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
     });
 
     return result;
-  }, [rawUsers, searchQuery, statusFilter, roleFilter, sortBy]);
+  }, [rawUsers, searchQuery, statusFilter, sortBy]);
 
   // Handle Export CSV
   const handleExportCSV = () => {
@@ -242,7 +241,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
       `"${u.email}"`,
       `"${u.phone || ''}"`,
       `"${(u.address || '').replace(/"/g, '""')}"`,
-      u.role,
+      u.email === STORE_ADMIN_EMAIL ? 'Store Administrator' : 'Customer',
       u.isBlocked ? 'Blocked' : 'Active',
       u.loginCount || 0,
       u.lastLoginAt ? new Date(u.lastLoginAt).toISOString() : '',
@@ -263,6 +262,11 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
 
   // Toggle Block Status
   const handleToggleBlock = async (user: CustomerItem) => {
+    if (user.email === STORE_ADMIN_EMAIL) {
+      alert('The Store Administrator account cannot be blocked.');
+      return;
+    }
+
     const nextAction = user.isBlocked ? 'unblock' : 'block';
     if (!confirm(`Are you sure you want to ${nextAction} account for "${user.name}"?`)) return;
 
@@ -274,8 +278,13 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
     }
   };
 
-  // Delete User Immediately (Single action)
+  // Delete User Immediately (Store Administrator cannot be deleted)
   const handleDeleteUser = async (user: CustomerItem) => {
+    if (user.email === STORE_ADMIN_EMAIL) {
+      alert('The Store Administrator account cannot be deleted.');
+      return;
+    }
+
     if (!confirm(`Permanently delete customer "${user.name}" (${user.email})?`)) return;
 
     try {
@@ -303,7 +312,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
         password: addForm.password.trim(),
         phone: addForm.phone.trim() || undefined,
         address: addForm.address.trim() || undefined,
-        role: addForm.role,
+        role: 'user',
         notes: addForm.notes.trim() || undefined,
       });
 
@@ -315,7 +324,6 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
         password: '',
         phone: '',
         address: '',
-        role: 'user',
         notes: '',
       });
     } catch (err: any) {
@@ -338,7 +346,6 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
         email: editForm.email.trim().toLowerCase(),
         phone: editForm.phone.trim(),
         address: editForm.address.trim(),
-        role: editForm.role,
         isBlocked: editForm.isBlocked,
         notes: editForm.notes.trim(),
       });
@@ -382,11 +389,11 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
           <div className="flex items-center gap-2.5">
             <h1 className="text-xl font-bold text-gray-900 tracking-tight">Customer Logins</h1>
             <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-[#137A2C] border border-emerald-100">
-              {totalCustomersCount} Accounts
+              {totalCustomersCount} Shoppers
             </span>
           </div>
           <p className="text-xs text-gray-500 mt-0.5">
-            View registered customers, login credentials, passwords, and access status.
+            View registered customer logins, passwords, and access status.
           </p>
         </div>
 
@@ -426,7 +433,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
       {/* ================= 2. MINIMAL STATS STRIP ================= */}
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <span className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-600 font-medium">
-          Total: <strong className="text-gray-900 font-bold">{totalCustomersCount}</strong>
+          Shoppers: <strong className="text-gray-900 font-bold">{totalCustomersCount}</strong>
         </span>
         <span className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-emerald-700 font-medium">
           Active: <strong className="font-bold">{activeCustomersCount}</strong>
@@ -452,7 +459,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
           }`}
         >
           <Users className="w-3.5 h-3.5" />
-          <span>Customer Accounts ({filteredCustomers.length})</span>
+          <span>Accounts ({filteredCustomers.length})</span>
         </button>
 
         <button
@@ -479,7 +486,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name, email, or phone..."
+                placeholder="Search customers by name, email, or phone..."
                 className="w-full pl-8 pr-7 py-2 text-xs rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-[#137A2C] transition-colors"
               />
               {searchQuery && (
@@ -520,7 +527,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
           {/* Minimal Clean Table */}
           {filteredCustomers.length === 0 ? (
             <div className="p-8 text-center rounded-2xl bg-white border border-gray-200 text-xs text-gray-500">
-              No customers found matching your criteria.
+              No accounts found matching your criteria.
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
@@ -528,7 +535,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                 <table className="w-full text-left text-xs">
                   <thead className="bg-gray-50/75 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
                     <tr>
-                      <th className="py-2.5 px-3.5">Customer</th>
+                      <th className="py-2.5 px-3.5">Account</th>
                       <th className="py-2.5 px-3.5">Phone</th>
                       <th className="py-2.5 px-3.5">Password</th>
                       <th className="py-2.5 px-3.5">Activity</th>
@@ -540,21 +547,22 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                     {filteredCustomers.map((user) => {
                       const isRevealed = revealedPasswords[user.id] || false;
                       const orderStats = customerOrdersMap[user.email.toLowerCase()] || { count: 0, totalSpend: 0 };
+                      const isStoreAdmin = user.email === STORE_ADMIN_EMAIL;
 
                       return (
-                        <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
-                          {/* 1. Customer Name & Email (CLEAN, NO DUPLICATE DELETE BUTTON) */}
+                        <tr key={user.id} className={`hover:bg-gray-50/50 transition-colors ${isStoreAdmin ? 'bg-amber-50/20' : ''}`}>
+                          {/* 1. Account Name & Email */}
                           <td className="py-3 px-3.5">
                             <div className="flex items-center gap-2.5">
                               <div
                                 onClick={() => setDetailCustomer(user)}
                                 className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-white shrink-0 cursor-pointer ${
-                                  user.role === 'admin'
-                                    ? 'bg-purple-600'
+                                  isStoreAdmin
+                                    ? 'bg-amber-600'
                                     : 'bg-[#137A2C]'
                                 }`}
                               >
-                                {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                                {isStoreAdmin ? '★' : (user.name ? user.name.charAt(0).toUpperCase() : 'U')}
                               </div>
                               <div className="min-w-0">
                                 <div className="flex items-center gap-1.5">
@@ -562,11 +570,11 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                                     onClick={() => setDetailCustomer(user)}
                                     className="font-bold text-gray-900 truncate hover:text-[#137A2C] cursor-pointer"
                                   >
-                                    {user.name}
+                                    {isStoreAdmin ? 'Store Administrator' : user.name}
                                   </span>
-                                  {user.role === 'admin' && (
-                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-100 text-purple-700">
-                                      Admin
+                                  {isStoreAdmin && (
+                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                      Store Admin
                                     </span>
                                   )}
                                 </div>
@@ -672,7 +680,6 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                                     email: user.email,
                                     phone: user.phone || '',
                                     address: user.address || '',
-                                    role: user.role,
                                     isBlocked: !!user.isBlocked,
                                     notes: user.notes || '',
                                   });
@@ -683,28 +690,40 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                                 <Edit3 className="w-3.5 h-3.5" />
                               </button>
 
-                              {/* Block/Unblock */}
-                              <button
-                                onClick={() => handleToggleBlock(user)}
-                                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                                  user.isBlocked
-                                    ? 'text-emerald-600 hover:bg-emerald-50'
-                                    : 'text-gray-400 hover:text-amber-600 hover:bg-amber-50'
-                                }`}
-                                title={user.isBlocked ? 'Unblock' : 'Block'}
-                              >
-                                {user.isBlocked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
-                              </button>
+                              {/* Block/Unblock (disabled for Store Admin) */}
+                              {!isStoreAdmin && (
+                                <button
+                                  onClick={() => handleToggleBlock(user)}
+                                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                                    user.isBlocked
+                                      ? 'text-emerald-600 hover:bg-emerald-50'
+                                      : 'text-gray-400 hover:text-amber-600 hover:bg-amber-50'
+                                  }`}
+                                  title={user.isBlocked ? 'Unblock' : 'Block'}
+                                >
+                                  {user.isBlocked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                                </button>
+                              )}
 
-                              {/* Single Delete Button */}
-                              <button
-                                onClick={() => handleDeleteUser(user)}
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white transition-all text-xs font-semibold cursor-pointer border border-rose-200 ml-1"
-                                title="Delete User"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                <span>Delete</span>
-                              </button>
+                              {/* Delete Button (Store Administrator is protected) */}
+                              {isStoreAdmin ? (
+                                <span
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-50 text-gray-400 text-xs font-medium border border-gray-200 ml-1"
+                                  title="Store Administrator is protected"
+                                >
+                                  <Shield className="w-3.5 h-3.5 text-amber-600" />
+                                  <span>Protected</span>
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => handleDeleteUser(user)}
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white transition-all text-xs font-semibold cursor-pointer border border-rose-200 ml-1"
+                                  title="Delete Customer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <span>Delete</span>
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -862,7 +881,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                   disabled={isSubmittingAdd}
                   className="px-4 py-2 rounded-xl font-bold bg-[#137A2C] hover:bg-[#0E5C21] text-white transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  {isSubmittingAdd ? 'Creating...' : 'Create Account'}
+                  {isSubmittingAdd ? 'Creating...' : 'Create Customer'}
                 </button>
               </div>
             </form>
@@ -875,7 +894,14 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-xl border border-gray-100 space-y-4">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-              <h3 className="text-base font-bold text-gray-900">Edit Customer</h3>
+              <div>
+                <h3 className="text-base font-bold text-gray-900">
+                  {editingCustomer.email === STORE_ADMIN_EMAIL ? 'Edit Store Administrator' : 'Edit Customer'}
+                </h3>
+                <p className="text-xs text-gray-500">
+                  {editingCustomer.email === STORE_ADMIN_EMAIL ? 'Official Store Admin Account' : 'Customer Account'}
+                </p>
+              </div>
               <button
                 onClick={() => setEditingCustomer(null)}
                 className="w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center cursor-pointer"
@@ -901,49 +927,40 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                 <input
                   type="email"
                   required
+                  disabled={editingCustomer.email === STORE_ADMIN_EMAIL}
                   value={editForm.email}
                   onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C] disabled:bg-gray-100 disabled:text-gray-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 mb-1">Phone</label>
+                <input
+                  type="tel"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  placeholder="e.g. 9876543210"
                   className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Phone</label>
-                  <input
-                    type="tel"
-                    value={editForm.phone}
-                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Role</label>
-                  <select
-                    value={editForm.role}
-                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value as any })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
+              {editingCustomer.email !== STORE_ADMIN_EMAIL && (
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 border border-gray-200">
+                  <span className="font-semibold text-gray-700">Account Status</span>
+                  <button
+                    type="button"
+                    onClick={() => setEditForm({ ...editForm, isBlocked: !editForm.isBlocked })}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
+                      editForm.isBlocked
+                        ? 'bg-rose-100 text-rose-800'
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}
                   >
-                    <option value="user">Customer</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                    {editForm.isBlocked ? 'Blocked' : 'Active'}
+                  </button>
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 border border-gray-200">
-                <span className="font-semibold text-gray-700">Account Status</span>
-                <button
-                  type="button"
-                  onClick={() => setEditForm({ ...editForm, isBlocked: !editForm.isBlocked })}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
-                    editForm.isBlocked
-                      ? 'bg-rose-100 text-rose-800'
-                      : 'bg-emerald-100 text-emerald-800'
-                  }`}
-                >
-                  {editForm.isBlocked ? 'Blocked' : 'Active'}
-                </button>
-              </div>
+              )}
 
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button
@@ -1022,7 +1039,9 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
         <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/50 backdrop-blur-xs animate-in fade-in">
           <div className="w-full max-w-sm h-full bg-white shadow-2xl p-6 overflow-y-auto space-y-5 animate-in slide-in-from-right duration-200">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-              <h3 className="text-base font-bold text-gray-900">Customer Details</h3>
+              <h3 className="text-base font-bold text-gray-900">
+                {detailCustomer.email === STORE_ADMIN_EMAIL ? 'Administrator Profile' : 'Customer Details'}
+              </h3>
               <button
                 onClick={() => setDetailCustomer(null)}
                 className="w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center cursor-pointer"
@@ -1033,11 +1052,24 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
 
             {/* Profile Info */}
             <div className="text-center space-y-1.5">
-              <div className="w-14 h-14 rounded-full bg-[#137A2C] text-white font-bold text-xl flex items-center justify-center mx-auto shadow-sm">
-                {detailCustomer.name ? detailCustomer.name.charAt(0).toUpperCase() : 'U'}
+              <div className={`w-14 h-14 rounded-full text-white font-bold text-xl flex items-center justify-center mx-auto shadow-sm ${
+                detailCustomer.email === STORE_ADMIN_EMAIL ? 'bg-amber-600' : 'bg-[#137A2C]'
+              }`}>
+                {detailCustomer.email === STORE_ADMIN_EMAIL ? '★' : (detailCustomer.name ? detailCustomer.name.charAt(0).toUpperCase() : 'U')}
               </div>
-              <h4 className="text-base font-bold text-gray-900">{detailCustomer.name}</h4>
+              <h4 className="text-base font-bold text-gray-900">
+                {detailCustomer.email === STORE_ADMIN_EMAIL ? 'Store Administrator' : detailCustomer.name}
+              </h4>
               <p className="text-xs text-gray-500">{detailCustomer.email}</p>
+              <div className="pt-1">
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                  detailCustomer.email === STORE_ADMIN_EMAIL
+                    ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                }`}>
+                  {detailCustomer.email === STORE_ADMIN_EMAIL ? 'Store Administrator' : 'Customer Account'}
+                </span>
+              </div>
             </div>
 
             {/* Details list */}
@@ -1083,13 +1115,15 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                 <span>Reset Password</span>
               </button>
 
-              <button
-                onClick={() => handleDeleteUser(detailCustomer)}
-                className="w-full py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Delete Customer Account</span>
-              </button>
+              {detailCustomer.email !== STORE_ADMIN_EMAIL && (
+                <button
+                  onClick={() => handleDeleteUser(detailCustomer)}
+                  className="w-full py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Customer Account</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
