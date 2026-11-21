@@ -33,6 +33,23 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: '/api/storage/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=86400, immutable',
+          },
+          {
+            key: 'CDN-Cache-Control',
+            value: 'public, s-maxage=31536000',
+          },
+          {
+            key: 'Vercel-CDN-Cache-Control',
+            value: 'public, s-maxage=31536000',
+          },
+        ],
+      },
+      {
         source: '/images/:all*(svg|jpg|jpeg|png|webp|avif|ico)',
         headers: [
           {

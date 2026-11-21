@@ -105,10 +105,31 @@ const DEFAULT_CATEGORIES = [
     bgGradient: 'from-[#FFF1F2] via-[#FFE4E6] to-[#FED2D6]',
     borderColor: 'border-rose-200/60',
   },
+  {
+    slug: 'toys',
+    name: 'Toys',
+    description: 'Teddy bears, educational toys, soft plushies, and kids entertainment',
+    image: '/images/cat-prod-toys.png',
+    bgGradient: 'from-[#F7F9F5] via-[#EFF5EE] to-[#E2EFE1]',
+    borderColor: 'border-emerald-200/60',
+  },
 ];
 
 // Fallback catalog products for when database is empty
 const DEFAULT_PRODUCTS = [
+  {
+    id: 'prod-teddy-bear',
+    name: 'Teddy Bear',
+    category: 'toys',
+    price: 150,
+    originalPrice: 100,
+    weight: '1 unit',
+    image: '/images/prod-teddy-bear.png',
+    badgeText: 'Special Offer',
+    badgeIcon: '⚡',
+    badgeColor: 'bg-amber-500 text-white',
+    discount: '',
+  },
   {
     id: 'prod-surf-excel',
     name: 'Surf Excel Detergent Powder',

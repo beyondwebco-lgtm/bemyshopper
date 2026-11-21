@@ -60,6 +60,7 @@ const DEFAULT_CATEGORIES = [
   { slug: 'home-kitchen', name: 'Home &\nKitchen', image: '/images/cat-prod-home-kitchen.png', bgGradient: 'from-[#F0F5FF] via-[#E4EDFF] to-[#D5E4FF]', borderColor: 'border-blue-200/60' },
   { slug: 'paper', name: 'Paper &\nDisposables', image: '/images/cat-prod-paper.png', bgGradient: 'from-[#F0FDF8] via-[#E1FBF0] to-[#CFF6E5]', borderColor: 'border-teal-200/60' },
   { slug: 'baby-care', name: 'Baby\nCare', image: '/images/cat-prod-baby-care.png', bgGradient: 'from-[#FFF0F3] via-[#FFE3E8] to-[#FFD6DF]', borderColor: 'border-rose-200/60' },
+  { slug: 'toys', name: 'Toys', image: '/images/cat-prod-toys.png', bgGradient: 'from-[#F7F9F5] via-[#EFF5EE] to-[#E2EFE1]', borderColor: 'border-emerald-200/60' },
   { slug: 'more', name: 'View All\nProducts', image: '/images/cat-prod-more.png', bgGradient: 'from-[#F9FAFB] via-[#F3F4F6] to-[#E5E7EB]', borderColor: 'border-gray-200/80' },
 ];
 
@@ -359,6 +360,7 @@ export default function Home() {
       case 'home-kitchen': return Utensils;
       case 'paper': return Package;
       case 'baby-care': return Smile;
+      case 'toys': return Smile;
       default: return LayoutGrid;
     }
   };
@@ -374,6 +376,7 @@ export default function Home() {
       case 'home-kitchen': return 'text-indigo-600';
       case 'paper': return 'text-teal-600';
       case 'baby-care': return 'text-rose-500';
+      case 'toys': return 'text-pink-600';
       default: return 'text-purple-600';
     }
   };
@@ -430,7 +433,10 @@ export default function Home() {
   const categories = activeCategoriesRaw.map((c: any) => ({
     id: c.slug,
     name: c.name,
-    prodImg: c.image || '',
+    prodImg:
+      c.slug === 'toys' && (!c.image || c.image.includes('1794757727918'))
+        ? '/images/cat-prod-toys.png'
+        : (c.image || ''),
     icon: getCategoryIcon(c.slug),
     iconColor: getCategoryIconColor(c.slug),
     bgGradient: c.bgGradient || 'from-[#FFF8E7] via-[#FFF3D6] to-[#FFEEC4]',
@@ -441,7 +447,10 @@ export default function Home() {
     id: p._id || p.id,
     name: p.name,
     pack: p.weight,
-    img: p.image || '/images/prod-surf-excel.png',
+    img:
+      p.category === 'toys' || p.name?.toLowerCase().includes('teddy')
+        ? (p.image?.includes('1794759424245') ? '/images/prod-teddy-bear.png' : p.image || '/images/prod-teddy-bear.png')
+        : (p.image || '/images/prod-surf-excel.png'),
     price: typeof p.price === 'number' ? `₹${p.price}` : p.price,
     originalPrice: p.originalPrice ? (typeof p.originalPrice === 'number' ? `₹${p.originalPrice}` : p.originalPrice) : '',
     discount: p.discount || '',
