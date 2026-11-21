@@ -593,11 +593,10 @@ Please confirm my order and share delivery timing. Thank you!`;
               <Link
                 key={cat.slug}
                 href={`/category/${cat.slug}`}
-                className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  isActive
-                    ? 'bg-[#087D2C] text-white shadow-xs'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                }`}
+                className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${isActive
+                  ? 'bg-[#087D2C] text-white shadow-xs'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}
               >
                 <span>{cat.name.replace('\n', ' ')}</span>
               </Link>
@@ -702,9 +701,8 @@ Please confirm my order and share delivery timing. Thank you!`;
                     <div className="flex items-center justify-between h-5 mb-1">
                       {prod.badgeText ? (
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1 leading-none shadow-2xs ${
-                            prod.badgeColor || 'bg-emerald-600 text-white'
-                          }`}
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1 leading-none shadow-2xs ${prod.badgeColor || 'bg-emerald-600 text-white'
+                            }`}
                         >
                           {prod.badgeIcon && <span>{prod.badgeIcon}</span>}
                           <span>{prod.badgeText}</span>
@@ -719,9 +717,8 @@ Please confirm my order and share delivery timing. Thank you!`;
                         className="p-1 text-gray-300 hover:text-red-500 transition-colors cursor-pointer"
                       >
                         <Heart
-                          className={`w-4 h-4 transition-transform duration-200 hover:scale-110 ${
-                            isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'
-                          }`}
+                          className={`w-4 h-4 transition-transform duration-200 hover:scale-110 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'
+                            }`}
                           strokeWidth={2}
                         />
                       </button>
@@ -733,9 +730,8 @@ Please confirm my order and share delivery timing. Thank you!`;
                       <img
                         src={prod.image}
                         alt={prod.name}
-                        className={`max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 select-none drop-shadow-2xs ${
-                          prod.inStock === false ? 'opacity-40 grayscale' : ''
-                        }`}
+                        className={`max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 select-none drop-shadow-2xs ${prod.inStock === false ? 'opacity-40 grayscale' : ''
+                          }`}
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/images/prod-rice-5kg.png';
                         }}

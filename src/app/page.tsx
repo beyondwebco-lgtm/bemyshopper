@@ -179,7 +179,7 @@ export default function Home() {
           setRentalTariffs(data);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const dailyScrollRef = useRef<HTMLDivElement>(null);

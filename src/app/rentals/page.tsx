@@ -249,6 +249,8 @@ export default function AvailableCarsPage() {
                 <img
                   src="/images/bapatla-car-rental-map-cars.png"
                   alt="Available Rental Cars in Bapatla"
+                  loading="lazy"
+                  decoding="async"
                   className="relative z-10 w-full h-auto max-h-[260px] sm:max-h-[300px] object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300 select-none"
                 />
               </div>
@@ -420,6 +422,8 @@ export default function AvailableCarsPage() {
                       <img
                         src={currentImage}
                         alt={car.name}
+                        loading="lazy"
+                        decoding="async"
                         className="max-h-[160px] max-w-[90%] object-contain group-hover/image:scale-105 transition-transform duration-300 drop-shadow-md select-none"
                       />
 
