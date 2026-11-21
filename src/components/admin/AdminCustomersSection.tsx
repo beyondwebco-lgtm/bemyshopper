@@ -5,7 +5,6 @@ import {
   Users,
   Search,
   Plus,
-  Filter,
   ShieldCheck,
   ShieldAlert,
   KeyRound,
@@ -22,17 +21,13 @@ import {
   MapPin,
   Calendar,
   Clock,
-  LogIn,
-  ArrowUpDown,
   Download,
-  RefreshCw,
   X,
   AlertCircle,
   ShoppingBag,
   Laptop,
   CheckCircle2,
   UserPlus,
-  Sparkles,
 } from 'lucide-react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -96,13 +91,6 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
   });
   const [isSubmittingAdd, setIsSubmittingAdd] = useState(false);
 
-  // Quick Add State (Fast & Immediate inline adding)
-  const [quickName, setQuickName] = useState('');
-  const [quickEmail, setQuickEmail] = useState('');
-  const [quickPassword, setQuickPassword] = useState('');
-  const [quickPhone, setQuickPhone] = useState('');
-  const [isSubmittingQuickAdd, setIsSubmittingQuickAdd] = useState(false);
-
   const [editingCustomer, setEditingCustomer] = useState<CustomerItem | null>(null);
   const [editForm, setEditForm] = useState({
     name: '',
@@ -146,7 +134,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
   // Flash feedback toast
   const triggerFeedback = (msg: string) => {
     setActionFeedback(msg);
-    setTimeout(() => setActionFeedback(null), 4000);
+    setTimeout(() => setActionFeedback(null), 3500);
   };
 
   const copyToClipboard = (text: string, key: string) => {
@@ -176,7 +164,6 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
     return new Date(timestamp).toLocaleString('en-IN', {
       day: 'numeric',
       month: 'short',
-      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -267,7 +254,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `bemyshopper_customers_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `customers_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -277,56 +264,26 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
   // Toggle Block Status
   const handleToggleBlock = async (user: CustomerItem) => {
     const nextAction = user.isBlocked ? 'unblock' : 'block';
-    if (!confirm(`Are you sure you want to ${nextAction} account for "${user.name}" (${user.email})?`)) return;
+    if (!confirm(`Are you sure you want to ${nextAction} account for "${user.name}"?`)) return;
 
     try {
       await adminToggleBlock({ userId: user.id });
-      triggerFeedback(`✓ Account ${user.isBlocked ? 'reactivated' : 'blocked'} successfully`);
+      triggerFeedback(`✓ Account ${user.isBlocked ? 'reactivated' : 'blocked'}`);
     } catch (err: any) {
       alert(err.message || 'Failed to update account status');
     }
   };
 
-  // Delete User Immediately
+  // Delete User Immediately (Single action)
   const handleDeleteUser = async (user: CustomerItem) => {
-    if (!confirm(`Delete user "${user.name}" (${user.email})?`)) return;
+    if (!confirm(`Permanently delete customer "${user.name}" (${user.email})?`)) return;
 
     try {
       await adminDeleteUser({ userId: user.id });
-      triggerFeedback(`✓ User "${user.name}" deleted immediately.`);
+      triggerFeedback(`✓ Customer "${user.name}" deleted.`);
       if (detailCustomer?.id === user.id) setDetailCustomer(null);
     } catch (err: any) {
       alert(err.message || 'Failed to delete user');
-    }
-  };
-
-  // Fast Quick Add User
-  const handleQuickAddSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!quickName.trim() || !quickEmail.trim() || !quickPassword.trim()) {
-      alert('Please fill Name, Email, and Password');
-      return;
-    }
-
-    setIsSubmittingQuickAdd(true);
-    try {
-      await adminCreateUser({
-        name: quickName.trim(),
-        email: quickEmail.trim().toLowerCase(),
-        password: quickPassword.trim(),
-        phone: quickPhone.trim() || undefined,
-        role: 'user',
-      });
-
-      triggerFeedback(`✓ User "${quickName.trim()}" added immediately!`);
-      setQuickName('');
-      setQuickEmail('');
-      setQuickPassword('');
-      setQuickPhone('');
-    } catch (err: any) {
-      alert(err.message || 'Failed to add user');
-    } finally {
-      setIsSubmittingQuickAdd(false);
     }
   };
 
@@ -334,7 +291,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
   const handleCreateCustomerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!addForm.name.trim() || !addForm.email.trim() || !addForm.password.trim()) {
-      alert('Please fill in Name, Email and Password');
+      alert('Please fill Name, Email and Password');
       return;
     }
 
@@ -350,7 +307,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
         notes: addForm.notes.trim() || undefined,
       });
 
-      triggerFeedback(`✓ Created new customer "${addForm.name}" successfully!`);
+      triggerFeedback(`✓ Customer "${addForm.name}" created`);
       setIsAddModalOpen(false);
       setAddForm({
         name: '',
@@ -386,7 +343,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
         notes: editForm.notes.trim(),
       });
 
-      triggerFeedback(`✓ Updated details for "${editForm.name}"`);
+      triggerFeedback(`✓ Updated "${editForm.name}"`);
       setEditingCustomer(null);
     } catch (err: any) {
       alert(err.message || 'Failed to update customer');
@@ -407,7 +364,7 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
         newPassword: newPasswordInput.trim(),
       });
 
-      triggerFeedback(`✓ Password updated for "${passwordModalCustomer.name}"!`);
+      triggerFeedback(`✓ Password updated for "${passwordModalCustomer.name}"`);
       setPasswordModalCustomer(null);
       setNewPasswordInput('');
     } catch (err: any) {
@@ -418,271 +375,141 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
   };
 
   return (
-    <div className="space-y-6">
-      {/* ================= 1. SECTION HEADER ================= */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-white border border-gray-200/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#087D2C] to-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-            <Users className="w-6 h-6 text-white" />
+    <div className="space-y-4">
+      {/* ================= 1. MINIMAL HEADER ================= */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-gray-200">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight">Customer Logins</h1>
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-[#137A2C] border border-emerald-100">
+              {totalCustomersCount} Accounts
+            </span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-                Customer &amp; Logins Management
-              </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">
-                {totalCustomersCount} Accounts
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-gray-500 font-medium mt-0.5">
-              Manage registered shopper profiles, login credentials, authentication audit logs, and account statuses.
-            </p>
-          </div>
+          <p className="text-xs text-gray-500 mt-0.5">
+            View registered customers, login credentials, passwords, and access status.
+          </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-all shadow-2xs cursor-pointer"
-            title="Download CSV spreadsheet of all registered customers"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-colors cursor-pointer"
+            title="Export CSV"
           >
-            <Download className="w-4 h-4 text-gray-500" />
-            <span>Export CSV</span>
+            <Download className="w-3.5 h-3.5 text-gray-500" />
+            <span>Export</span>
           </button>
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#087D2C] hover:bg-[#066323] text-white text-xs font-bold transition-all shadow-sm hover:shadow cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#137A2C] hover:bg-[#0E5C21] text-white text-xs font-semibold transition-colors shadow-xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Add New Customer</span>
+            <span>Add Customer</span>
           </button>
         </div>
       </div>
 
       {/* Global Feedback Banner */}
       {actionFeedback && (
-        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center justify-between shadow-2xs animate-in fade-in">
+        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[#137A2C] text-xs font-semibold flex items-center justify-between animate-in fade-in">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{actionFeedback}</span>
           </div>
           <button onClick={() => setActionFeedback(null)} className="text-emerald-700 hover:text-emerald-900">
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* ================= 2. KPI METRIC CARDS ================= */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Customers */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 text-[#087D2C] flex items-center justify-center shrink-0">
-            <Users className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-gray-900 tracking-tight">{totalCustomersCount}</div>
-            <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Customers</div>
-          </div>
-        </div>
-
-        {/* Active Accounts */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-teal-50 border border-teal-100 text-teal-600 flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-teal-700 tracking-tight">{activeCustomersCount}</div>
-            <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Active Status</div>
-          </div>
-        </div>
-
-        {/* Recent Logins Today */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-            <LogIn className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-blue-700 tracking-tight">{recentLoginsCount}</div>
-            <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Active in Last 24h</div>
-          </div>
-        </div>
-
-        {/* Suspended / Blocked */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center shrink-0">
-            <ShieldAlert className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-rose-700 tracking-tight">{blockedCustomersCount}</div>
-            <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Suspended Accounts</div>
-          </div>
-        </div>
+      {/* ================= 2. MINIMAL STATS STRIP ================= */}
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        <span className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-600 font-medium">
+          Total: <strong className="text-gray-900 font-bold">{totalCustomersCount}</strong>
+        </span>
+        <span className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-emerald-700 font-medium">
+          Active: <strong className="font-bold">{activeCustomersCount}</strong>
+        </span>
+        <span className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-blue-700 font-medium">
+          Active 24h: <strong className="font-bold">{recentLoginsCount}</strong>
+        </span>
+        {blockedCustomersCount > 0 && (
+          <span className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-rose-700 font-medium">
+            Blocked: <strong className="font-bold">{blockedCustomersCount}</strong>
+          </span>
+        )}
       </div>
 
       {/* ================= 3. SUB-NAV TABS ================= */}
-      <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-gray-200 pb-1.5 text-xs font-semibold">
         <button
           onClick={() => setActiveSubTab('customers')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
             activeSubTab === 'customers'
-              ? 'bg-[#087D2C] text-white shadow-xs'
-              : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+              ? 'bg-gray-900 text-white font-bold'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
           }`}
         >
-          <Users className="w-4 h-4" />
-          <span>Customer Accounts &amp; Logins</span>
-          <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-            activeSubTab === 'customers' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
-          }`}>
-            {filteredCustomers.length}
-          </span>
+          <Users className="w-3.5 h-3.5" />
+          <span>Customer Accounts ({filteredCustomers.length})</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('logins')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
             activeSubTab === 'logins'
-              ? 'bg-blue-600 text-white shadow-xs'
-              : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+              ? 'bg-gray-900 text-white font-bold'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
           }`}
         >
-          <Clock className="w-4 h-4" />
-          <span>Login History &amp; Session Logs</span>
-          <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-            activeSubTab === 'logins' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
-          }`}>
-            {loginLogs?.length ?? 0}
-          </span>
+          <Clock className="w-3.5 h-3.5" />
+          <span>Login History ({loginLogs?.length ?? 0})</span>
         </button>
       </div>
 
       {/* ================= 4. TAB 1: CUSTOMERS DIRECTORY ================= */}
       {activeSubTab === 'customers' && (
-        <div className="space-y-4">
-          {/* Quick Fast Add User Bar */}
-          <div className="p-4 rounded-3xl bg-gradient-to-r from-emerald-50 via-teal-50/60 to-white border border-emerald-200/90 shadow-2xs">
-            <div className="flex items-center justify-between mb-2.5">
-              <div className="flex items-center gap-2 text-xs font-black text-emerald-950">
-                <UserPlus className="w-4 h-4 text-emerald-600" />
-                <span>Fast Add New User (Instant)</span>
-              </div>
-              <span className="text-[11px] text-gray-500 font-medium">Quickly create a login immediately</span>
-            </div>
-            <form onSubmit={handleQuickAddSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
-              <input
-                type="text"
-                placeholder="Full Name *"
-                required
-                value={quickName}
-                onChange={(e) => setQuickName(e.target.value)}
-                className="px-3.5 py-2 text-xs rounded-xl border border-emerald-200 bg-white focus:outline-none focus:border-[#087D2C]"
-              />
-              <input
-                type="email"
-                placeholder="Email Address *"
-                required
-                value={quickEmail}
-                onChange={(e) => setQuickEmail(e.target.value)}
-                className="px-3.5 py-2 text-xs rounded-xl border border-emerald-200 bg-white focus:outline-none focus:border-[#087D2C]"
-              />
-              <input
-                type="text"
-                placeholder="Password *"
-                required
-                value={quickPassword}
-                onChange={(e) => setQuickPassword(e.target.value)}
-                className="px-3.5 py-2 text-xs rounded-xl border border-emerald-200 bg-white focus:outline-none focus:border-[#087D2C]"
-              />
-              <input
-                type="tel"
-                placeholder="Phone (Optional)"
-                value={quickPhone}
-                onChange={(e) => setQuickPhone(e.target.value)}
-                className="px-3.5 py-2 text-xs rounded-xl border border-emerald-200 bg-white focus:outline-none focus:border-[#087D2C]"
-              />
-              <button
-                type="submit"
-                disabled={isSubmittingQuickAdd}
-                className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#087D2C] hover:bg-[#066323] text-white text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
-              >
-                <Plus className="w-4 h-4" />
-                <span>{isSubmittingQuickAdd ? 'Adding...' : 'Add User Now'}</span>
-              </button>
-            </form>
-          </div>
-
-          {/* Search & Filter Bar */}
-          <div className="p-4 rounded-3xl bg-white border border-gray-200/80 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-            {/* Search Input */}
+        <div className="space-y-3">
+          {/* Minimal Search & Filter Bar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search customers by name, email, phone number, or city address..."
-                className="w-full pl-9 pr-8 py-2.5 text-xs font-medium rounded-2xl border border-gray-200 bg-gray-50/60 focus:bg-white focus:border-[#087D2C] focus:outline-none transition-all"
+                placeholder="Search by name, email, or phone..."
+                className="w-full pl-8 pr-7 py-2 text-xs rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-[#137A2C] transition-colors"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
 
-            {/* Quick Filters */}
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Status Filter */}
-              <div className="flex items-center gap-1 bg-gray-100/80 p-1 rounded-2xl text-[11px] font-bold">
-                <button
-                  onClick={() => setStatusFilter('all')}
-                  className={`px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
-                    statusFilter === 'all' ? 'bg-white text-gray-900 shadow-2xs font-black' : 'text-gray-500 hover:text-gray-800'
-                  }`}
-                >
-                  All Status
-                </button>
-                <button
-                  onClick={() => setStatusFilter('active')}
-                  className={`px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
-                    statusFilter === 'active' ? 'bg-white text-emerald-700 shadow-2xs font-black' : 'text-gray-500 hover:text-gray-800'
-                  }`}
-                >
-                  Active
-                </button>
-                <button
-                  onClick={() => setStatusFilter('blocked')}
-                  className={`px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
-                    statusFilter === 'blocked' ? 'bg-white text-rose-700 shadow-2xs font-black' : 'text-gray-500 hover:text-gray-800'
-                  }`}
-                >
-                  Blocked
-                </button>
-              </div>
-
-              {/* Role Filter */}
+            <div className="flex items-center gap-2">
               <select
-                value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value as any)}
-                className="px-3 py-2 text-xs font-bold rounded-2xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:border-[#087D2C] cursor-pointer"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as any)}
+                className="px-2.5 py-2 text-xs font-medium rounded-xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:border-[#137A2C] cursor-pointer"
               >
-                <option value="all">All Roles</option>
-                <option value="user">Customers Only</option>
-                <option value="admin">Administrators</option>
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="blocked">Blocked</option>
               </select>
 
-              {/* Sort Order */}
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-3 py-2 text-xs font-bold rounded-2xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:border-[#087D2C] cursor-pointer"
+                className="px-2.5 py-2 text-xs font-medium rounded-xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:border-[#137A2C] cursor-pointer"
               >
-                <option value="newest">Newest Registered</option>
-                <option value="oldest">Oldest Registered</option>
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
                 <option value="last_active">Recently Active</option>
                 <option value="logins">Most Logins</option>
                 <option value="name">Name (A-Z)</option>
@@ -690,97 +517,64 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
             </div>
           </div>
 
-          {/* Customer Cards & Table */}
+          {/* Minimal Clean Table */}
           {filteredCustomers.length === 0 ? (
-            <div className="p-12 text-center rounded-3xl bg-white border border-gray-200/80 shadow-2xs space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center mx-auto">
-                <Users className="w-7 h-7" />
-              </div>
-              <h3 className="text-base font-black text-gray-800">No Customers Found</h3>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto">
-                {searchQuery
-                  ? `No customers match your search query "${searchQuery}". Try adjusting your keywords or clearing filters.`
-                  : 'No customer accounts registered yet. Click "Add New Customer" above to manually onboard a shopper.'}
-              </p>
-              {searchQuery && (
-                <button
-                  onClick={() => {
-                    setSearchQuery('');
-                    setStatusFilter('all');
-                    setRoleFilter('all');
-                  }}
-                  className="px-3.5 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-bold text-gray-700 transition-all cursor-pointer"
-                >
-                  Clear All Filters
-                </button>
-              )}
+            <div className="p-8 text-center rounded-2xl bg-white border border-gray-200 text-xs text-gray-500">
+              No customers found matching your criteria.
             </div>
           ) : (
-            <div className="bg-white rounded-3xl border border-gray-200/80 shadow-2xs overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-gray-50/80 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-black tracking-wider">
+                  <thead className="bg-gray-50/75 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
                     <tr>
-                      <th className="py-3.5 px-4">Customer Details</th>
-                      <th className="py-3.5 px-4">Login Credentials</th>
-                      <th className="py-3.5 px-4">Login Activity</th>
-                      <th className="py-3.5 px-4">Orders &amp; Address</th>
-                      <th className="py-3.5 px-4">Account Status</th>
-                      <th className="py-3.5 px-4 text-right sticky right-0 bg-gray-50/95 backdrop-blur-xs z-10 border-l border-gray-200">Actions</th>
+                      <th className="py-2.5 px-3.5">Customer</th>
+                      <th className="py-2.5 px-3.5">Phone</th>
+                      <th className="py-2.5 px-3.5">Password</th>
+                      <th className="py-2.5 px-3.5">Activity</th>
+                      <th className="py-2.5 px-3.5">Status</th>
+                      <th className="py-2.5 px-3.5 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 font-medium">
+                  <tbody className="divide-y divide-gray-100">
                     {filteredCustomers.map((user) => {
                       const isRevealed = revealedPasswords[user.id] || false;
                       const orderStats = customerOrdersMap[user.email.toLowerCase()] || { count: 0, totalSpend: 0 };
 
                       return (
-                        <tr key={user.id} className="hover:bg-gray-50/60 transition-colors group">
-                          {/* 1. Customer Details */}
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-3">
+                        <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
+                          {/* 1. Customer Name & Email (CLEAN, NO DUPLICATE DELETE BUTTON) */}
+                          <td className="py-3 px-3.5">
+                            <div className="flex items-center gap-2.5">
                               <div
                                 onClick={() => setDetailCustomer(user)}
-                                className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm text-white shrink-0 cursor-pointer shadow-2xs transition-transform group-hover:scale-105 ${
+                                className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-white shrink-0 cursor-pointer ${
                                   user.role === 'admin'
-                                    ? 'bg-gradient-to-tr from-purple-600 to-indigo-600'
-                                    : 'bg-gradient-to-tr from-[#087D2C] to-emerald-500'
+                                    ? 'bg-purple-600'
+                                    : 'bg-[#137A2C]'
                                 }`}
                               >
                                 {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                               </div>
                               <div className="min-w-0">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5">
                                   <span
                                     onClick={() => setDetailCustomer(user)}
-                                    className="font-black text-gray-900 truncate hover:text-[#087D2C] cursor-pointer text-sm"
+                                    className="font-bold text-gray-900 truncate hover:text-[#137A2C] cursor-pointer"
                                   >
                                     {user.name}
                                   </span>
                                   {user.role === 'admin' && (
-                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-purple-100 text-purple-800">
+                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-100 text-purple-700">
                                       Admin
                                     </span>
                                   )}
-                                  {/* Immediate Quick Delete Button right next to user name */}
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteUser(user);
-                                    }}
-                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white transition-all text-xs font-bold border border-rose-200 cursor-pointer shadow-2xs ml-auto shrink-0"
-                                    title={`Delete user "${user.name}" immediately`}
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                    <span>Delete</span>
-                                  </button>
                                 </div>
-                                <div className="flex items-center gap-1.5 text-gray-500 mt-0.5">
-                                  <Mail className="w-3 h-3 text-gray-400 shrink-0" />
+                                <div className="flex items-center gap-1 text-gray-400 text-[11px]">
                                   <span className="truncate">{user.email}</span>
                                   <button
                                     onClick={() => copyToClipboard(user.email, `email_${user.id}`)}
-                                    className="text-gray-400 hover:text-gray-700 ml-0.5 cursor-pointer"
+                                    className="text-gray-400 hover:text-gray-700 cursor-pointer"
                                     title="Copy email"
                                   >
                                     {copiedKey === `email_${user.id}` ? (
@@ -790,145 +584,86 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                                     )}
                                   </button>
                                 </div>
-                                {user.phone && (
-                                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px] mt-0.5">
-                                    <Phone className="w-3 h-3 text-gray-400 shrink-0" />
-                                    <span>{user.phone}</span>
-                                    <a
-                                      href={`https://wa.me/91${user.phone.replace(/[^0-9]/g, '')}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-emerald-600 hover:text-emerald-700 text-[10px] font-bold"
-                                      title="Chat on WhatsApp"
-                                    >
-                                      WhatsApp
-                                    </a>
-                                  </div>
-                                )}
                               </div>
                             </div>
                           </td>
 
-                          {/* 2. Login Credentials */}
-                          <td className="py-4 px-4">
-                            <div className="space-y-1.5">
+                          {/* 2. Phone */}
+                          <td className="py-3 px-3.5 text-gray-600 whitespace-nowrap">
+                            {user.phone ? (
                               <div className="flex items-center gap-1.5">
-                                <KeyRound className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded-md text-gray-800 select-all">
-                                  {isRevealed ? user.password || '••••••••' : '••••••••'}
-                                </span>
-                                <button
-                                  onClick={() => togglePasswordReveal(user.id)}
-                                  className="text-gray-400 hover:text-gray-700 p-1 cursor-pointer"
-                                  title={isRevealed ? 'Hide Password' : 'Show Password'}
+                                <span>{user.phone}</span>
+                                <a
+                                  href={`https://wa.me/91${user.phone.replace(/[^0-9]/g, '')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-emerald-600 hover:underline text-[10px] font-semibold"
                                 >
-                                  {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                                </button>
-                                {isRevealed && user.password && (
-                                  <button
-                                    onClick={() => copyToClipboard(user.password!, `pw_${user.id}`)}
-                                    className="text-gray-400 hover:text-gray-700 p-1 cursor-pointer"
-                                    title="Copy password"
-                                  >
-                                    {copiedKey === `pw_${user.id}` ? (
-                                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                                    ) : (
-                                      <Copy className="w-3.5 h-3.5" />
-                                    )}
-                                  </button>
-                                )}
+                                  WA
+                                </a>
                               </div>
+                            ) : (
+                              <span className="text-gray-300">—</span>
+                            )}
+                          </td>
+
+                          {/* 3. Password */}
+                          <td className="py-3 px-3.5">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono text-xs bg-gray-50 border border-gray-100 px-2 py-0.5 rounded text-gray-800">
+                                {isRevealed ? user.password || '••••••••' : '••••••••'}
+                              </span>
+                              <button
+                                onClick={() => togglePasswordReveal(user.id)}
+                                className="text-gray-400 hover:text-gray-700 p-0.5 cursor-pointer"
+                                title={isRevealed ? 'Hide' : 'Show'}
+                              >
+                                {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                              </button>
                               <button
                                 onClick={() => {
                                   setPasswordModalCustomer(user);
                                   setNewPasswordInput('');
                                 }}
-                                className="text-[11px] font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1 cursor-pointer"
+                                className="text-[11px] font-medium text-blue-600 hover:underline ml-1 cursor-pointer"
                               >
-                                <Lock className="w-3 h-3" />
-                                <span>Reset Password</span>
+                                Reset
                               </button>
                             </div>
                           </td>
 
-                          {/* 3. Login Activity */}
-                          <td className="py-4 px-4">
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-1.5">
-                                <span className="font-black text-gray-900 text-xs">{user.loginCount || 0}</span>
-                                <span className="text-[11px] text-gray-500">sign-ins recorded</span>
-                              </div>
-                              <div className="flex items-center gap-1 text-[11px] text-gray-500">
-                                <Clock className="w-3 h-3 text-gray-400 shrink-0" />
-                                <span>Last: </span>
-                                <span className="font-bold text-gray-700">{formatTimeAgo(user.lastLoginAt)}</span>
-                              </div>
+                          {/* 4. Activity */}
+                          <td className="py-3 px-3.5 whitespace-nowrap text-gray-500">
+                            <div className="text-[11px]">
+                              <span className="font-semibold text-gray-800">{user.loginCount || 0} logins</span>
                               {user.lastLoginAt && (
-                                <div className="text-[10px] text-gray-400">
-                                  {formatDateTime(user.lastLoginAt)}
-                                </div>
+                                <span className="text-gray-400 ml-1">({formatTimeAgo(user.lastLoginAt)})</span>
                               )}
                             </div>
-                          </td>
-
-                          {/* 4. Orders & Address */}
-                          <td className="py-4 px-4">
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-1.5">
-                                <ShoppingBag className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                <span className="font-black text-gray-900">{orderStats.count}</span>
-                                <span className="text-[11px] text-gray-500">orders</span>
-                                {orderStats.totalSpend > 0 && (
-                                  <span className="text-[11px] font-bold text-emerald-700">
-                                    (₹{orderStats.totalSpend.toLocaleString('en-IN')})
-                                  </span>
-                                )}
+                            {orderStats.count > 0 && (
+                              <div className="text-[10px] text-emerald-700 font-medium">
+                                {orderStats.count} order{orderStats.count > 1 ? 's' : ''} (₹{orderStats.totalSpend})
                               </div>
-                              {user.address ? (
-                                <div className="flex items-start gap-1 text-[11px] text-gray-500 line-clamp-2 max-w-[200px]" title={user.address}>
-                                  <MapPin className="w-3 h-3 text-gray-400 shrink-0 mt-0.5" />
-                                  <span>{user.address}</span>
-                                </div>
-                              ) : (
-                                <div className="text-[10px] text-gray-400 italic">No delivery address saved</div>
-                              )}
-                            </div>
+                            )}
                           </td>
 
-                          {/* 5. Account Status */}
-                          <td className="py-4 px-4">
-                            <div className="space-y-1.5">
-                              {user.isBlocked ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-100 text-rose-800">
-                                  <ShieldAlert className="w-3 h-3" />
-                                  Suspended
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                  Active
-                                </span>
-                              )}
-                              <div className="text-[10px] text-gray-400 flex items-center gap-1">
-                                <Calendar className="w-3 h-3 text-gray-300" />
-                                <span>Joined {formatDate(user.createdAt)}</span>
-                              </div>
-                            </div>
+                          {/* 5. Status */}
+                          <td className="py-3 px-3.5 whitespace-nowrap">
+                            {user.isBlocked ? (
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                Blocked
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                Active
+                              </span>
+                            )}
                           </td>
 
-                          {/* 6. Action Buttons */}
-                          <td className="py-4 px-4 text-right sticky right-0 bg-white group-hover:bg-gray-50/95 transition-colors z-10 border-l border-gray-100 shadow-[-4px_0_10px_rgba(0,0,0,0.03)]">
-                            <div className="inline-flex items-center gap-1.5">
-                              {/* View / Details Drawer */}
-                              <button
-                                onClick={() => setDetailCustomer(user)}
-                                className="p-2 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all cursor-pointer"
-                                title="View Customer Profile"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-
-                              {/* Edit Profile */}
+                          {/* 6. Clean Single Action Group */}
+                          <td className="py-3 px-3.5 text-right whitespace-nowrap">
+                            <div className="inline-flex items-center gap-1">
+                              {/* Edit */}
                               <button
                                 onClick={() => {
                                   setEditingCustomer(user);
@@ -942,30 +677,30 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
                                     notes: user.notes || '',
                                   });
                                 }}
-                                className="p-2 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all cursor-pointer"
-                                title="Edit Customer Details"
+                                className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                                title="Edit"
                               >
-                                <Edit3 className="w-4 h-4" />
+                                <Edit3 className="w-3.5 h-3.5" />
                               </button>
 
-                              {/* Block / Unblock Toggle */}
+                              {/* Block/Unblock */}
                               <button
                                 onClick={() => handleToggleBlock(user)}
-                                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                                   user.isBlocked
                                     ? 'text-emerald-600 hover:bg-emerald-50'
-                                    : 'text-amber-600 hover:bg-amber-50'
+                                    : 'text-gray-400 hover:text-amber-600 hover:bg-amber-50'
                                 }`}
-                                title={user.isBlocked ? 'Reactivate Account' : 'Suspend / Block Account'}
+                                title={user.isBlocked ? 'Unblock' : 'Block'}
                               >
-                                {user.isBlocked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                                {user.isBlocked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
                               </button>
 
-                              {/* Fast Delete Button */}
+                              {/* Single Delete Button */}
                               <button
                                 onClick={() => handleDeleteUser(user)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white transition-all text-xs font-bold cursor-pointer border border-rose-200/80 shadow-2xs ml-1"
-                                title="Delete User Immediately"
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white transition-all text-xs font-semibold cursor-pointer border border-rose-200 ml-1"
+                                title="Delete User"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>Delete</span>
@@ -983,86 +718,63 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
         </div>
       )}
 
-      {/* ================= 5. TAB 2: LOGIN HISTORY & AUDIT LOGS ================= */}
+      {/* ================= 5. TAB 2: LOGIN HISTORY ================= */}
       {activeSubTab === 'logins' && (
-        <div className="bg-white rounded-3xl border border-gray-200/80 shadow-2xs overflow-hidden">
-          <div className="p-4 sm:p-5 border-b border-gray-200 flex items-center justify-between">
-            <div>
-              <h2 className="text-sm sm:text-base font-black text-gray-900 tracking-tight flex items-center gap-2">
-                <Clock className="w-4 h-4 text-blue-600" />
-                <span>Customer Login Session Audit Log</span>
-              </h2>
-              <p className="text-xs text-gray-500 font-medium mt-0.5">
-                Real-time records of customer authentication events, sign-in attempts, and status.
-              </p>
-            </div>
-            <span className="text-xs font-bold text-gray-400">
-              Showing last {loginLogs?.length ?? 0} events
-            </span>
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
+          <div className="p-3 border-b border-gray-200 flex items-center justify-between text-xs text-gray-500">
+            <span className="font-semibold text-gray-900">Recent Login Session Logs</span>
+            <span>Showing last {loginLogs?.length ?? 0} events</span>
           </div>
 
           {!loginLogs || loginLogs.length === 0 ? (
-            <div className="p-12 text-center space-y-2">
-              <Clock className="w-10 h-10 text-gray-300 mx-auto" />
-              <p className="text-xs font-bold text-gray-500">No login session records captured yet.</p>
-              <p className="text-[11px] text-gray-400">Customer logins will automatically appear here as users sign in.</p>
+            <div className="p-8 text-center text-xs text-gray-400">
+              No login logs recorded yet.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-gray-50/80 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-black tracking-wider">
+                <thead className="bg-gray-50/75 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
                   <tr>
-                    <th className="py-3 px-4">Time &amp; Date</th>
-                    <th className="py-3 px-4">Customer Email</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Device / Client</th>
-                    <th className="py-3 px-4">Remarks / Details</th>
+                    <th className="py-2.5 px-3.5">Time</th>
+                    <th className="py-2.5 px-3.5">Email</th>
+                    <th className="py-2.5 px-3.5">Status</th>
+                    <th className="py-2.5 px-3.5">Device</th>
+                    <th className="py-2.5 px-3.5">Details</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 font-medium">
+                <tbody className="divide-y divide-gray-100">
                   {loginLogs.map((log: any) => (
-                    <tr key={log._id} className="hover:bg-gray-50/60 transition-colors">
-                      <td className="py-3.5 px-4">
-                        <div className="font-bold text-gray-900">{formatTimeAgo(log.timestamp)}</div>
-                        <div className="text-[10px] text-gray-400">{formatDateTime(log.timestamp)}</div>
+                    <tr key={log._id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-2.5 px-3.5 whitespace-nowrap">
+                        <span className="font-semibold text-gray-800">{formatTimeAgo(log.timestamp)}</span>
+                        <span className="text-[10px] text-gray-400 ml-1.5">{formatDateTime(log.timestamp)}</span>
                       </td>
-                      <td className="py-3.5 px-4">
-                        <div className="font-bold text-gray-800 flex items-center gap-1.5">
-                          <Mail className="w-3 h-3 text-gray-400" />
-                          <span>{log.email}</span>
-                        </div>
+                      <td className="py-2.5 px-3.5 font-medium text-gray-800">
+                        {log.email}
                       </td>
-                      <td className="py-3.5 px-4">
-                        {log.status === 'success' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      <td className="py-2.5 px-3.5 whitespace-nowrap">
+                        {log.status === 'success' ? (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700">
                             Success
                           </span>
-                        )}
-                        {log.status === 'failed' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
-                            <AlertCircle className="w-3 h-3 text-amber-600" />
-                            Failed Attempt
+                        ) : log.status === 'blocked' ? (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700">
+                            Blocked
                           </span>
-                        )}
-                        {log.status === 'blocked' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800">
-                            <ShieldAlert className="w-3 h-3 text-rose-600" />
-                            Blocked Login
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4 text-gray-500">
-                        <div className="flex items-center gap-1.5 text-xs">
-                          <Laptop className="w-3.5 h-3.5 text-gray-400" />
-                          <span>{log.device || 'Web Browser'}</span>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4 text-gray-500">
-                        {log.failureReason ? (
-                          <span className="text-rose-600 font-bold">{log.failureReason}</span>
                         ) : (
-                          <span className="text-emerald-700">Authenticated successfully</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700">
+                            Failed
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 px-3.5 text-gray-500">
+                        {log.device || 'Web Browser'}
+                      </td>
+                      <td className="py-2.5 px-3.5 text-gray-500">
+                        {log.failureReason ? (
+                          <span className="text-rose-600 font-medium">{log.failureReason}</span>
+                        ) : (
+                          <span className="text-emerald-700">Authenticated</span>
                         )}
                       </td>
                     </tr>
@@ -1074,112 +786,81 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
         </div>
       )}
 
-      {/* ================= 6. MODAL: ADD NEW CUSTOMER ================= */}
+      {/* ================= 6. MODAL: ADD CUSTOMER ================= */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-lg bg-white rounded-3xl p-6 shadow-2xl border border-gray-100 space-y-5 animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#087D2C] flex items-center justify-center font-black">
-                  <UserPlus className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-gray-900">Add New Customer</h3>
-                  <p className="text-xs text-gray-500">Register a new shopper account in BeMyShopper.</p>
-                </div>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-xl border border-gray-100 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h3 className="text-base font-bold text-gray-900">Add Customer</h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center cursor-pointer"
+                className="w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateCustomerSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={addForm.name}
-                    onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                    placeholder="e.g. Ramesh Kumar"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Email Address *</label>
-                  <input
-                    type="email"
-                    required
-                    value={addForm.email}
-                    onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
-                    placeholder="customer@gmail.com"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
-                  />
-                </div>
+            <form onSubmit={handleCreateCustomerSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={addForm.name}
+                  onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                  placeholder="e.g. Ramesh Kumar"
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
+                />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 mb-1">Email Address *</label>
+                <input
+                  type="email"
+                  required
+                  value={addForm.email}
+                  onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                  placeholder="customer@gmail.com"
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Password *</label>
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Password *</label>
                   <input
                     type="text"
                     required
                     value={addForm.password}
                     onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
-                    placeholder="At least 6 characters"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
+                    placeholder="Min 6 chars"
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Phone Number</label>
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Phone</label>
                   <input
                     type="tel"
                     value={addForm.phone}
                     onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })}
                     placeholder="e.g. 9876543210"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Delivery Address</label>
-                <input
-                  type="text"
-                  value={addForm.address}
-                  onChange={(e) => setAddForm({ ...addForm, address: e.target.value })}
-                  placeholder="Door No, Street, Bapatla, AP"
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Internal Admin Notes</label>
-                <textarea
-                  rows={2}
-                  value={addForm.notes}
-                  onChange={(e) => setAddForm({ ...addForm, notes: e.target.value })}
-                  placeholder="Optional internal notes about customer preference..."
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2.5 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingAdd}
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-[#087D2C] hover:bg-[#066323] text-white transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl font-bold bg-[#137A2C] hover:bg-[#0E5C21] text-white transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {isSubmittingAdd ? 'Creating...' : 'Create Account'}
                 </button>
@@ -1191,125 +872,91 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
 
       {/* ================= 7. MODAL: EDIT CUSTOMER ================= */}
       {editingCustomer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-lg bg-white rounded-3xl p-6 shadow-2xl border border-gray-100 space-y-5 animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black">
-                  <Edit3 className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-gray-900">Edit Customer Profile</h3>
-                  <p className="text-xs text-gray-500">Update account info for {editingCustomer.name}.</p>
-                </div>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-xl border border-gray-100 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h3 className="text-base font-bold text-gray-900">Edit Customer</h3>
               <button
                 onClick={() => setEditingCustomer(null)}
-                className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center cursor-pointer"
+                className="w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <form onSubmit={handleEditCustomerSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={editForm.name}
-                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Email Address</label>
-                  <input
-                    type="email"
-                    required
-                    value={editForm.email}
-                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
-                  />
-                </div>
+            <form onSubmit={handleEditCustomerSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
+                />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 mb-1">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Phone Number</label>
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Phone</label>
                   <input
                     type="tel"
                     value={editForm.phone}
                     onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Account Role</label>
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Role</label>
                   <select
                     value={editForm.role}
                     onChange={(e) => setEditForm({ ...editForm, role: e.target.value as any })}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
                   >
-                    <option value="user">Customer (User)</option>
-                    <option value="admin">Administrator</option>
+                    <option value="user">Customer</option>
+                    <option value="admin">Admin</option>
                   </select>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Delivery Address</label>
-                <input
-                  type="text"
-                  value={editForm.address}
-                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
-                />
-              </div>
-
-              <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-bold text-gray-800">Account Status</div>
-                  <div className="text-[11px] text-gray-500">
-                    {editForm.isBlocked ? 'Customer cannot log in or place orders' : 'Customer has full active access'}
-                  </div>
-                </div>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 border border-gray-200">
+                <span className="font-semibold text-gray-700">Account Status</span>
                 <button
                   type="button"
                   onClick={() => setEditForm({ ...editForm, isBlocked: !editForm.isBlocked })}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
                     editForm.isBlocked
-                      ? 'bg-rose-100 text-rose-800 hover:bg-rose-200'
-                      : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                      ? 'bg-rose-100 text-rose-800'
+                      : 'bg-emerald-100 text-emerald-800'
                   }`}
                 >
                   {editForm.isBlocked ? 'Blocked' : 'Active'}
                 </button>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Internal Admin Notes</label>
-                <textarea
-                  rows={2}
-                  value={editForm.notes}
-                  onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2.5 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setEditingCustomer(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingEdit}
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-[#087D2C] hover:bg-[#066323] text-white transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl font-bold bg-[#137A2C] hover:bg-[#0E5C21] text-white transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {isSubmittingEdit ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -1321,58 +968,46 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
 
       {/* ================= 8. MODAL: RESET PASSWORD ================= */}
       {passwordModalCustomer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-gray-100 space-y-4 animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-xl border border-gray-100 space-y-4">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-black">
-                  <KeyRound className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-gray-900">Reset Customer Password</h3>
-                  <p className="text-xs text-gray-500">For {passwordModalCustomer.name}</p>
-                </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900">Reset Password</h3>
+                <p className="text-xs text-gray-500">For {passwordModalCustomer.name}</p>
               </div>
               <button
                 onClick={() => setPasswordModalCustomer(null)}
-                className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center cursor-pointer"
+                className="w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <div className="p-3 bg-gray-50 rounded-2xl border border-gray-200 text-xs space-y-1">
-              <div className="text-gray-500">Current Saved Password:</div>
-              <div className="font-mono font-bold text-gray-900 text-sm">
-                {passwordModalCustomer.password || 'Not visible'}
-              </div>
-            </div>
-
-            <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
+            <form onSubmit={handleResetPasswordSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Enter New Password *</label>
+                <label className="block text-[11px] font-bold text-gray-700 mb-1">New Password *</label>
                 <input
                   type="text"
                   required
                   value={newPasswordInput}
                   onChange={(e) => setNewPasswordInput(e.target.value)}
-                  placeholder="New password (min 4 chars)"
-                  className="w-full px-3.5 py-2.5 text-xs font-mono rounded-xl border border-gray-200 focus:outline-none focus:border-[#087D2C]"
+                  placeholder="Min 6 characters"
+                  className="w-full px-3 py-2 font-mono rounded-xl border border-gray-200 focus:outline-none focus:border-[#137A2C]"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setPasswordModalCustomer(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingPassword || !newPasswordInput.trim()}
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-[#087D2C] hover:bg-[#066323] text-white transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl font-bold bg-[#137A2C] hover:bg-[#0E5C21] text-white transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {isSubmittingPassword ? 'Saving...' : 'Update Password'}
                 </button>
@@ -1385,140 +1020,75 @@ export default function AdminCustomersSection({ orders = [] }: AdminCustomersSec
       {/* ================= 9. DRAWER: CUSTOMER DETAIL VIEW ================= */}
       {detailCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/50 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-md h-full bg-white shadow-2xl p-6 overflow-y-auto space-y-6 animate-in slide-in-from-right duration-200">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <h3 className="text-base font-black text-gray-900">Customer Profile Overview</h3>
+          <div className="w-full max-w-sm h-full bg-white shadow-2xl p-6 overflow-y-auto space-y-5 animate-in slide-in-from-right duration-200">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h3 className="text-base font-bold text-gray-900">Customer Details</h3>
               <button
                 onClick={() => setDetailCustomer(null)}
-                className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center cursor-pointer"
+                className="w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            {/* Avatar & Summary */}
-            <div className="text-center space-y-2">
-              <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[#087D2C] to-emerald-500 text-white font-black text-2xl flex items-center justify-center mx-auto shadow-sm">
+            {/* Profile Info */}
+            <div className="text-center space-y-1.5">
+              <div className="w-14 h-14 rounded-full bg-[#137A2C] text-white font-bold text-xl flex items-center justify-center mx-auto shadow-sm">
                 {detailCustomer.name ? detailCustomer.name.charAt(0).toUpperCase() : 'U'}
               </div>
-              <div>
-                <h4 className="text-lg font-black text-gray-900">{detailCustomer.name}</h4>
-                <p className="text-xs text-gray-500">{detailCustomer.email}</p>
-              </div>
-              <div className="flex items-center justify-center gap-2 pt-1">
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black ${
-                  detailCustomer.isBlocked ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
-                }`}>
-                  {detailCustomer.isBlocked ? 'Suspended Account' : 'Active Account'}
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-gray-100 text-gray-700">
-                  {detailCustomer.role === 'admin' ? 'Administrator' : 'Customer'}
-                </span>
-              </div>
+              <h4 className="text-base font-bold text-gray-900">{detailCustomer.name}</h4>
+              <p className="text-xs text-gray-500">{detailCustomer.email}</p>
             </div>
 
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                <div className="text-xl font-black text-gray-900">{detailCustomer.loginCount || 0}</div>
-                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Total Logins</div>
-              </div>
-              <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                <div className="text-xl font-black text-emerald-700">
-                  {customerOrdersMap[detailCustomer.email.toLowerCase()]?.count || 0}
-                </div>
-                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Orders Placed</div>
-              </div>
-            </div>
-
-            {/* Contact & Credentials Details */}
-            <div className="space-y-3 bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80 text-xs">
-              <div className="font-black text-gray-800 text-[11px] uppercase tracking-wider">Contact &amp; Login Data</div>
-
-              <div className="flex items-center justify-between py-1 border-b border-gray-200/60">
-                <span className="text-gray-500">Email:</span>
-                <span className="font-bold text-gray-900 select-all">{detailCustomer.email}</span>
-              </div>
-
-              <div className="flex items-center justify-between py-1 border-b border-gray-200/60">
+            {/* Details list */}
+            <div className="space-y-2.5 bg-gray-50 p-4 rounded-2xl text-xs">
+              <div className="flex justify-between py-1 border-b border-gray-200/50">
                 <span className="text-gray-500">Phone:</span>
-                <span className="font-bold text-gray-900">{detailCustomer.phone || 'Not provided'}</span>
+                <span className="font-semibold text-gray-900">{detailCustomer.phone || '—'}</span>
               </div>
-
-              <div className="flex items-center justify-between py-1 border-b border-gray-200/60">
+              <div className="flex justify-between py-1 border-b border-gray-200/50">
                 <span className="text-gray-500">Password:</span>
-                <span className="font-mono font-bold text-gray-900 select-all">
-                  {detailCustomer.password || '••••••••'}
+                <span className="font-mono font-semibold text-gray-900">{detailCustomer.password || '••••••••'}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-gray-200/50">
+                <span className="text-gray-500">Status:</span>
+                <span className={`font-semibold ${detailCustomer.isBlocked ? 'text-rose-600' : 'text-emerald-700'}`}>
+                  {detailCustomer.isBlocked ? 'Blocked' : 'Active'}
                 </span>
               </div>
-
-              <div className="flex items-center justify-between py-1 border-b border-gray-200/60">
-                <span className="text-gray-500">Last Sign-In:</span>
-                <span className="font-bold text-gray-900">{formatDateTime(detailCustomer.lastLoginAt)}</span>
+              <div className="flex justify-between py-1 border-b border-gray-200/50">
+                <span className="text-gray-500">Logins:</span>
+                <span className="font-semibold text-gray-900">{detailCustomer.loginCount || 0}</span>
               </div>
-
-              <div className="flex items-center justify-between py-1 border-b border-gray-200/60">
-                <span className="text-gray-500">Registered:</span>
-                <span className="font-bold text-gray-900">{formatDateTime(detailCustomer.createdAt)}</span>
+              <div className="flex justify-between py-1 border-b border-gray-200/50">
+                <span className="text-gray-500">Last Login:</span>
+                <span className="font-semibold text-gray-900">{formatTimeAgo(detailCustomer.lastLoginAt)}</span>
               </div>
-
               <div className="py-1">
-                <div className="text-gray-500 mb-0.5">Delivery Address:</div>
-                <div className="font-medium text-gray-800">
-                  {detailCustomer.address || 'No address saved'}
-                </div>
+                <span className="text-gray-500 block mb-0.5">Address:</span>
+                <span className="text-gray-800">{detailCustomer.address || 'No address saved'}</span>
               </div>
-
-              {detailCustomer.notes && (
-                <div className="py-1 border-t border-gray-200/60">
-                  <div className="text-gray-500 mb-0.5">Admin Notes:</div>
-                  <div className="font-medium text-amber-900 bg-amber-50 p-2 rounded-xl text-[11px]">
-                    {detailCustomer.notes}
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* Quick Actions in Drawer */}
+            {/* Quick Actions */}
             <div className="space-y-2 pt-2">
               <button
                 onClick={() => {
                   setPasswordModalCustomer(detailCustomer);
                   setNewPasswordInput('');
                 }}
-                className="w-full py-2.5 px-4 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-bold text-gray-800 flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2 px-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-semibold text-gray-800 flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <KeyRound className="w-4 h-4 text-blue-600" />
-                <span>Reset Customer Password</span>
-              </button>
-
-              <button
-                onClick={() => handleToggleBlock(detailCustomer)}
-                className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer ${
-                  detailCustomer.isBlocked
-                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                    : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
-                }`}
-              >
-                {detailCustomer.isBlocked ? (
-                  <>
-                    <Unlock className="w-4 h-4" />
-                    <span>Reactivate Account</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-4 h-4" />
-                    <span>Suspend / Block Account</span>
-                  </>
-                )}
+                <KeyRound className="w-3.5 h-3.5 text-blue-600" />
+                <span>Reset Password</span>
               </button>
 
               <button
                 onClick={() => handleDeleteUser(detailCustomer)}
-                className="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-all"
+                className="w-full py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
               >
-                <Trash2 className="w-4 h-4" />
-                <span>Delete This Customer Account</span>
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Customer Account</span>
               </button>
             </div>
           </div>
