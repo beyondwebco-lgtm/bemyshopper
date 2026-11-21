@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAction } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { cleanAuthErrorMessage } from '../../context/AuthContext';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -51,9 +52,7 @@ export default function ForgotPasswordPage() {
         setError(res.message);
       }
     } catch (err: unknown) {
-      // In case of unexpected network failure
-      const msg = err instanceof Error ? err.message : 'Failed to process request. Please try again.';
-      setError(msg);
+      setError(cleanAuthErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
