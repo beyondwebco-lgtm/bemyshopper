@@ -9,13 +9,16 @@
  */
 
 import type * as adminAuth from "../adminAuth.js";
+import type * as cars from "../cars.js";
 import type * as categories from "../categories.js";
 import type * as email from "../email.js";
 import type * as orders from "../orders.js";
 import type * as passwordReset from "../passwordReset.js";
 import type * as products from "../products.js";
 import type * as rentals from "../rentals.js";
+import type * as tariffs from "../tariffs.js";
 import type * as users from "../users.js";
+import type * as whatsapp from "../whatsapp.js";
 
 import type {
   ApiFromModules,
@@ -25,13 +28,16 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   adminAuth: typeof adminAuth;
+  cars: typeof cars;
   categories: typeof categories;
   email: typeof email;
   orders: typeof orders;
   passwordReset: typeof passwordReset;
   products: typeof products;
   rentals: typeof rentals;
+  tariffs: typeof tariffs;
   users: typeof users;
+  whatsapp: typeof whatsapp;
 }>;
 
 /**

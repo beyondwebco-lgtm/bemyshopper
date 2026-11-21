@@ -57,7 +57,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     try {
-      const profile = await convexLogin({ email, password });
+      let device = 'Web Browser';
+      if (typeof navigator !== 'undefined') {
+        const ua = navigator.userAgent;
+        if (/mobile/i.test(ua)) {
+          device = 'Mobile Device';
+        } else if (/mac/i.test(ua)) {
+          device = 'Mac Desktop';
+        } else if (/win/i.test(ua)) {
+          device = 'Windows PC';
+        } else {
+          device = 'Desktop Browser';
+        }
+      }
+      const profile = await convexLogin({ email, password, device });
       setUser(profile);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
       return { success: true };

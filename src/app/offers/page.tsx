@@ -21,6 +21,7 @@ import {
   MapPin,
   X,
   Trash2,
+  MessageSquare,
 } from 'lucide-react';
 
 interface OfferProduct {
@@ -56,6 +57,12 @@ export default function DiwaliOffersPage() {
 
   // Live products from Convex
   const liveProducts = useQuery(api.products.list, {});
+  const activeWhatsAppQuery = useQuery(api.whatsapp.getActive);
+  const activeStoreWhatsApp = activeWhatsAppQuery || '919999999999';
+
+  const [checkoutName, setCheckoutName] = useState('');
+  const [checkoutPhone, setCheckoutPhone] = useState('');
+  const [checkoutAddress, setCheckoutAddress] = useState('');
 
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -564,7 +571,42 @@ export default function DiwaliOffersPage() {
             </div>
 
             {totalCartCount > 0 && (
-              <div className="p-4 sm:p-5 border-t border-gray-100 bg-white space-y-3">
+              <div className="p-4 sm:p-5 border-t border-gray-100 bg-white space-y-3.5 max-h-[55vh] overflow-y-auto">
+                <div className="p-3 bg-purple-50/60 border border-purple-100 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-purple-900">
+                    <span className="flex items-center gap-1.5">
+                      <Truck className="w-3.5 h-3.5 text-[#137A2C]" />
+                      <span>Delivery Details (Bapatla)</span>
+                    </span>
+                    <span className="text-[10px] text-[#137A2C] bg-emerald-50 px-2 py-0.5 rounded-full font-bold">
+                      FREE DELIVERY
+                    </span>
+                  </div>
+                  <div className="space-y-1.5 pt-0.5">
+                    <input
+                      type="text"
+                      value={checkoutName}
+                      onChange={(e) => setCheckoutName(e.target.value)}
+                      placeholder="Your Name (e.g. Ramesh Kumar)"
+                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#3C0764]"
+                    />
+                    <input
+                      type="tel"
+                      value={checkoutPhone}
+                      onChange={(e) => setCheckoutPhone(e.target.value)}
+                      placeholder="WhatsApp Mobile Number (e.g. 9876543210)"
+                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#3C0764]"
+                    />
+                    <input
+                      type="text"
+                      value={checkoutAddress}
+                      onChange={(e) => setCheckoutAddress(e.target.value)}
+                      placeholder="Delivery Address / Landmark in Bapatla"
+                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#3C0764]"
+                    />
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between text-xs text-gray-600">
                   <span>Subtotal</span>
                   <span className="text-sm font-extrabold text-gray-900">₹{cartSubtotal}</span>
@@ -573,11 +615,69 @@ export default function DiwaliOffersPage() {
                   <span>Festival Delivery</span>
                   <span className="text-xs font-bold text-[#137A2C]">FREE Delivery</span>
                 </div>
+
                 <button
-                  onClick={() => showToast('Proceeding to checkout with Diwali savings!')}
-                  className="w-full py-3 rounded-xl bg-[#3C0764] hover:bg-[#2F0550] text-white font-bold text-sm shadow-md transition-all cursor-pointer"
+                  onClick={() => {
+                    const items = Object.entries(cartItems)
+                      .map(([id, qty]) => {
+                        const item = allOffers.find((p) => p.id === id) || getProduct(id);
+                        if (!item) return null;
+                        const num = parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0;
+                        return {
+                          name: item.name,
+                          price: num,
+                          quantity: qty,
+                          pack: item.pack,
+                        };
+                      })
+                      .filter(Boolean) as { name: string; price: number; quantity: number; pack: string }[];
+
+                    if (items.length === 0) return;
+
+                    const finalName = checkoutName.trim() || 'Customer';
+                    const finalPhone = checkoutPhone.trim() || 'Not specified';
+                    const finalAddress = checkoutAddress.trim() || 'Bapatla, AP';
+
+                    const itemsText = items
+                      .map(
+                        (it, idx) =>
+                          `${idx + 1}. *${it.name}* (${it.pack})\n   ↳ Qty: ${it.quantity} × ₹${it.price} = *₹${it.price * it.quantity}*`
+                      )
+                      .join('\n');
+
+                    const orderMessage = `🛍️ *NEW FESTIVAL ORDER - BeMyShopper Bapatla*
+━━━━━━━━━━━━━━━━━━━━━━
+👤 *Customer:* ${finalName}
+📞 *Phone:* ${finalPhone}
+📍 *Delivery Address:* ${finalAddress}
+🗓️ *Date:* ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}, ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+
+📦 *ORDERED PRODUCTS (${items.length} item${items.length > 1 ? 's' : ''}):*
+${itemsText}
+
+━━━━━━━━━━━━━━━━━━━━━━
+💰 *Items Subtotal:* ₹${cartSubtotal}
+🚚 *Festival Delivery:* FREE (Bapatla Town)
+💵 *TOTAL PAYABLE (COD):* *₹${cartSubtotal}*
+━━━━━━━━━━━━━━━━━━━━━━
+Please confirm my order and share delivery timing. Thank you!`;
+
+                    const cleanPhone = (activeStoreWhatsApp || '919999999999').replace(/[^0-9]/g, '');
+                    const targetPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+
+                    window.open(
+                      `https://wa.me/${targetPhone}?text=${encodeURIComponent(orderMessage)}`,
+                      '_blank'
+                    );
+
+                    showToast('Opening WhatsApp with your festival order! 🛒📲');
+                    clearCart();
+                    setIsCartOpen(false);
+                  }}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#1EBE5D] hover:to-[#0F7569] text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  Checkout (₹{cartSubtotal})
+                  <MessageSquare className="w-5 h-5 fill-white" />
+                  <span>Buy Now on WhatsApp</span>
                 </button>
               </div>
             )}

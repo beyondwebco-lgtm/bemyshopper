@@ -48,8 +48,12 @@ import {
   RotateCcw,
   ClipboardPaste,
   Flame,
+  MessageSquare,
   ExternalLink,
 } from 'lucide-react';
+import AdminRentalsSection from '@/components/admin/AdminRentalsSection';
+import AdminCustomersSection from '@/components/admin/AdminCustomersSection';
+import AdminWhatsAppSection from '@/components/admin/AdminWhatsAppSection';
 
 const ADMIN_STORAGE_KEY = 'bemyshopper_admin_auth';
 
@@ -86,7 +90,7 @@ export default function AdminPage() {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'categories' | 'products' | 'orders' | 'rentals' | 'users' | 'settings' | 'essentials' | 'offers'>('categories');
+  const [activeTab, setActiveTab] = useState<'categories' | 'products' | 'orders' | 'rentals' | 'users' | 'settings' | 'essentials' | 'offers' | 'whatsapp'>('categories');
 
   // Password change states
   const [currentPassword, setCurrentPassword] = useState('');
@@ -125,6 +129,9 @@ export default function AdminPage() {
   const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(true);
   const [isEssentialsDropdownOpen, setIsEssentialsDropdownOpen] = useState(false);
   const [isOffersDropdownOpen, setIsOffersDropdownOpen] = useState(false);
+  const [isRentalsDropdownOpen, setIsRentalsDropdownOpen] = useState(false);
+  const [isCustomersDropdownOpen, setIsCustomersDropdownOpen] = useState(false);
+  const [isWhatsAppDropdownOpen, setIsWhatsAppDropdownOpen] = useState(false);
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatSlug, setNewCatSlug] = useState('');
@@ -1627,6 +1634,8 @@ export default function AdminPage() {
                   setSelectedCategorySlug('all');
                   setIsEssentialsDropdownOpen(false);
                   setIsOffersDropdownOpen(false);
+                  setIsRentalsDropdownOpen(false);
+                  setIsCustomersDropdownOpen(false);
                 }
               }}
               className="w-full flex items-center justify-between px-4 py-3 rounded-full transition-all cursor-pointer shadow-sm select-none bg-[#087D2C] hover:bg-[#066323] text-white"
@@ -1800,6 +1809,8 @@ export default function AdminPage() {
                     setActiveTab('essentials');
                     setIsCategoriesDropdownOpen(false);
                     setIsOffersDropdownOpen(false);
+                    setIsRentalsDropdownOpen(false);
+                    setIsCustomersDropdownOpen(false);
                   }
                 }}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-full transition-all cursor-pointer shadow-sm select-none ${
@@ -1839,6 +1850,8 @@ export default function AdminPage() {
                     setActiveTab('offers');
                     setIsCategoriesDropdownOpen(false);
                     setIsEssentialsDropdownOpen(false);
+                    setIsRentalsDropdownOpen(false);
+                    setIsCustomersDropdownOpen(false);
                   }
                 }}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-full transition-all cursor-pointer shadow-sm select-none ${
@@ -1863,6 +1876,131 @@ export default function AdminPage() {
                     className={`w-4 h-4 transition-transform duration-200 ${
                       isOffersDropdownOpen ? 'rotate-180' : 'rotate-0'
                     } ${isOffersDropdownOpen ? 'text-white' : 'text-gray-500'}`}
+                  />
+                </div>
+              </button>
+            </div>
+
+            {/* Car Rental Primary Button with Dropdown Indicator */}
+            <div className="pt-2 border-t border-gray-100">
+              <button
+                onClick={() => {
+                  const willOpen = !isRentalsDropdownOpen;
+                  setIsRentalsDropdownOpen(willOpen);
+                  if (willOpen) {
+                    setActiveTab('rentals');
+                    setIsCategoriesDropdownOpen(false);
+                    setIsEssentialsDropdownOpen(false);
+                    setIsOffersDropdownOpen(false);
+                    setIsCustomersDropdownOpen(false);
+                  }
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-full transition-all cursor-pointer shadow-sm select-none ${
+                  isRentalsDropdownOpen
+                    ? 'bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 text-white shadow-md'
+                    : 'bg-white border border-gray-200 text-gray-800 hover:bg-orange-50'
+                }`}
+              >
+                <div className="flex items-center gap-2.5 font-black text-sm">
+                  <Car className={`w-4 h-4 ${isRentalsDropdownOpen ? 'text-white' : 'text-orange-600'}`} />
+                  <span>Car Rental</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-black ${
+                    isRentalsDropdownOpen
+                      ? 'bg-white/20 text-white'
+                      : 'bg-orange-100 text-orange-800'
+                  }`}>
+                    {rentals?.length ?? 0}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-200 ${
+                      isRentalsDropdownOpen ? 'rotate-180' : 'rotate-0'
+                    } ${isRentalsDropdownOpen ? 'text-white' : 'text-gray-500'}`}
+                  />
+                </div>
+              </button>
+            </div>
+
+            {/* Customers & Logins Primary Button with Dropdown Indicator */}
+            <div className="pt-2 border-t border-gray-100">
+              <button
+                onClick={() => {
+                  const willOpen = !isCustomersDropdownOpen;
+                  setIsCustomersDropdownOpen(willOpen);
+                  if (willOpen) {
+                    setActiveTab('users');
+                    setIsCategoriesDropdownOpen(false);
+                    setIsEssentialsDropdownOpen(false);
+                    setIsOffersDropdownOpen(false);
+                    setIsRentalsDropdownOpen(false);
+                    setIsWhatsAppDropdownOpen(false);
+                  }
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-full transition-all cursor-pointer shadow-sm select-none ${
+                  isCustomersDropdownOpen
+                    ? 'bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white shadow-md'
+                    : 'bg-white border border-gray-200 text-gray-800 hover:bg-blue-50'
+                }`}
+              >
+                <div className="flex items-center gap-2.5 font-black text-sm">
+                  <Users className={`w-4 h-4 ${isCustomersDropdownOpen ? 'text-white' : 'text-blue-600'}`} />
+                  <span>Customer Logins</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-black ${
+                    isCustomersDropdownOpen
+                      ? 'bg-white/20 text-white'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {usersList?.length ?? 0}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-200 ${
+                      isCustomersDropdownOpen ? 'rotate-180' : 'rotate-0'
+                    } ${isCustomersDropdownOpen ? 'text-white' : 'text-gray-500'}`}
+                  />
+                </div>
+              </button>
+            </div>
+
+            {/* WhatsApp Orders Number Button with Dropdown Indicator */}
+            <div className="pt-2 border-t border-gray-100">
+              <button
+                onClick={() => {
+                  const willOpen = !isWhatsAppDropdownOpen;
+                  setIsWhatsAppDropdownOpen(willOpen);
+                  if (willOpen) {
+                    setActiveTab('whatsapp');
+                    setIsCategoriesDropdownOpen(false);
+                    setIsEssentialsDropdownOpen(false);
+                    setIsOffersDropdownOpen(false);
+                    setIsRentalsDropdownOpen(false);
+                    setIsCustomersDropdownOpen(false);
+                  }
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-full transition-all cursor-pointer shadow-sm select-none ${
+                  isWhatsAppDropdownOpen
+                    ? 'bg-gradient-to-r from-[#25D366] via-emerald-600 to-[#1EBE5D] text-white shadow-md'
+                    : 'bg-white border border-gray-200 text-gray-800 hover:bg-emerald-50'
+                }`}
+              >
+                <div className="flex items-center gap-2.5 font-black text-sm">
+                  <MessageSquare className={`w-4 h-4 ${isWhatsAppDropdownOpen ? 'text-white' : 'text-[#25D366]'}`} />
+                  <span>WhatsApp Numbers</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                    isWhatsAppDropdownOpen
+                      ? 'bg-white/20 text-white'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}>
+                    Orders
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-200 ${
+                      isWhatsAppDropdownOpen ? 'rotate-180' : 'rotate-0'
+                    } ${isWhatsAppDropdownOpen ? 'text-white' : 'text-gray-500'}`}
                   />
                 </div>
               </button>
@@ -3029,6 +3167,30 @@ export default function AdminPage() {
                 )}
               </div>
             </div>
+          )}
+
+          {/* ================= TAB: CAR RENTAL ================= */}
+          {isRentalsDropdownOpen && activeTab === 'rentals' && (
+            <AdminRentalsSection
+              inquiries={rentals || []}
+              onUpdateInquiryStatus={async (id, status) => {
+                try {
+                  await updateRentalStatus({ id, status });
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+            />
+          )}
+
+          {/* ================= TAB: CUSTOMER & LOGINS MANAGEMENT ================= */}
+          {isCustomersDropdownOpen && activeTab === 'users' && (
+            <AdminCustomersSection orders={orders || []} />
+          )}
+
+          {/* ================= TAB: WHATSAPP ORDER NUMBERS ================= */}
+          {isWhatsAppDropdownOpen && activeTab === 'whatsapp' && (
+            <AdminWhatsAppSection />
           )}
 
           {/* ================= TAB: ADMIN SECURITY & PASSWORD ================= */}

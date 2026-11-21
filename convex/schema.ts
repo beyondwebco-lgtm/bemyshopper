@@ -19,8 +19,25 @@ export default defineSchema({
     phone: v.optional(v.string()),
     role: v.union(v.literal("admin"), v.literal("user")),
     address: v.optional(v.string()),
+    isBlocked: v.optional(v.boolean()),
+    lastLoginAt: v.optional(v.number()),
+    loginCount: v.optional(v.number()),
+    notes: v.optional(v.string()),
     createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
   }).index("by_email", ["email"]),
+
+  // Customer Login History & Audits
+  userLogins: defineTable({
+    userId: v.optional(v.id("users")),
+    email: v.string(),
+    timestamp: v.number(),
+    status: v.union(v.literal("success"), v.literal("failed"), v.literal("blocked")),
+    failureReason: v.optional(v.string()),
+    device: v.optional(v.string()),
+  })
+    .index("by_email", ["email"])
+    .index("by_timestamp", ["timestamp"]),
 
   // Categories table (Managed by Admin, images on Cloudflare R2)
   categories: defineTable({
@@ -110,6 +127,45 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_status", ["status"]),
 
+  // Rental Fleet Cars with Multiple Photos
+  cars: defineTable({
+    name: v.string(),
+    category: v.union(v.literal("5-seater"), v.literal("7-seater")),
+    categoryLabel: v.optional(v.string()),
+    tag: v.optional(v.string()),
+    tagColor: v.optional(v.string()),
+    images: v.array(v.string()),
+    description: v.optional(v.string()),
+    specs: v.optional(
+      v.object({
+        seats: v.string(),
+        transmission: v.string(),
+        fuel: v.string(),
+        mileage: v.string(),
+      })
+    ),
+    features: v.optional(v.array(v.string())),
+    plans: v.optional(v.any()),
+    isAvailable: v.boolean(),
+    displayOrder: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_category", ["category"])
+    .index("by_available", ["isAvailable"]),
+
+  // Rental Tariff Plans (for price changing feature)
+  rentalTariffs: defineTable({
+    category: v.union(v.literal("5-seater"), v.literal("7-seater")),
+    title: v.string(),
+    subtitle: v.string(),
+    tag: v.string(),
+    passengers: v.string(),
+    image: v.optional(v.string()),
+    plans: v.any(),
+    updatedAt: v.optional(v.number()),
+  }).index("by_category", ["category"]),
+
   // Password reset requests with secure hashed tokens
   passwordResets: defineTable({
     email: v.string(),
@@ -121,5 +177,13 @@ export default defineSchema({
   })
     .index("by_token_hash", ["tokenHash"])
     .index("by_email", ["email"]),
+
+  // Store WhatsApp Order Routing Numbers
+  whatsappSettings: defineTable({
+    phone: v.string(),
+    label: v.string(),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_active", ["isActive"]),
 });
 

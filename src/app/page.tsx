@@ -79,6 +79,14 @@ export default function Home() {
   const liveCategories = useQuery(api.categories.list);
   // Dynamic Top Essentials from Convex (live updates from Admin Panel)
   const liveTopEssentials = useQuery(api.products.listTopEssentials);
+  // Dynamic Active WhatsApp receiver number configured in Admin Panel
+  const activeWhatsAppQuery = useQuery(api.whatsapp.getActive);
+  const activeStoreWhatsApp = activeWhatsAppQuery || '919999999999';
+
+  // Customer Checkout Details
+  const [checkoutCustomerName, setCheckoutCustomerName] = useState('');
+  const [checkoutCustomerPhone, setCheckoutCustomerPhone] = useState('');
+  const [checkoutCustomerAddress, setCheckoutCustomerAddress] = useState('');
 
   // Interactive UI panels
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -116,6 +124,15 @@ export default function Home() {
     };
   }, []);
 
+  // Pre-fill checkout details when logged-in user changes
+  useEffect(() => {
+    if (user) {
+      if (!checkoutCustomerName && user.name) setCheckoutCustomerName(user.name);
+      if (!checkoutCustomerPhone && user.phone) setCheckoutCustomerPhone(user.phone);
+      if (!checkoutCustomerAddress && user.address) setCheckoutCustomerAddress(user.address);
+    }
+  }, [user]);
+
   // Rental Cars state (persisted across sessions & reloads)
   const [isRentalModalOpen, setIsRentalModalOpen] = useState(false);
   const rentalCarType = carPreferences.carType;
@@ -135,6 +152,35 @@ export default function Home() {
   const rentalLocation = carPreferences.rentalLocation || user?.address || '';
   const setRentalLocation = (loc: string) => updateCarPreferences({ rentalLocation: loc });
   const [rentalSubmitted, setRentalSubmitted] = useState(false);
+
+  // Dynamic Rental Tariffs loaded from Admin
+  const [rentalTariffs, setRentalTariffs] = useState({
+    fiveSeater: {
+      plans: {
+        '6hr': { price: 900, km: '120 KM Included' },
+        '12hr': { price: 1490, km: '200 KM Included' },
+        '24hr': { price: 2490, km: '400 KM Included' },
+      },
+    },
+    sevenSeater: {
+      plans: {
+        '6hr': { price: 1800, km: '120 KM Included' },
+        '12hr': { price: 2490, km: '200 KM Included' },
+        '24hr': { price: 3490, km: '400 KM Included' },
+      },
+    },
+  });
+
+  useEffect(() => {
+    fetch('/api/tariffs')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.fiveSeater && data.sevenSeater) {
+          setRentalTariffs(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const dailyScrollRef = useRef<HTMLDivElement>(null);
 
@@ -823,7 +869,7 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Full Width Add to Cart Button */}
+                      {/* Add to Cart & Buy Now Buttons */}
                       {item.inStock === false ? (
                         <button
                           disabled
@@ -832,25 +878,37 @@ export default function Home() {
                           Out of Stock
                         </button>
                       ) : (
-                        <button
-                          onClick={() => handleAddToCart(item.id)}
-                          className={`w-full mt-3 py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${isAdded
-                            ? 'bg-[#0E5C21] text-white'
-                            : 'bg-[#137A2C] hover:bg-[#0F6323] text-white'
-                            }`}
-                        >
-                          {isAdded ? (
-                            <>
-                              <Check className="w-4 h-4 stroke-[2.5]" />
-                              <span>Added</span>
-                            </>
-                          ) : (
-                            <>
-                              <ShoppingCart className="w-4 h-4 stroke-[2]" />
-                              <span>Add to Cart</span>
-                            </>
-                          )}
-                        </button>
+                        <div className="w-full mt-3 flex flex-col gap-1.5">
+                          <button
+                            onClick={() => handleAddToCart(item.id)}
+                            className={`w-full py-2 px-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all duration-200 active:scale-98 cursor-pointer ${isAdded
+                              ? 'bg-[#0E5C21] text-white'
+                              : 'bg-[#137A2C] hover:bg-[#0F6323] text-white'
+                              }`}
+                          >
+                            {isAdded ? (
+                              <>
+                                <Check className="w-4 h-4 stroke-[2.5]" />
+                                <span>Added</span>
+                              </>
+                            ) : (
+                              <>
+                                <ShoppingCart className="w-4 h-4 stroke-[2]" />
+                                <span>Add to Cart</span>
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => {
+                              addToCart(item.id, item.name);
+                              setIsCartOpen(true);
+                            }}
+                            className="w-full py-1.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#0F6323] border border-[#25D366]/40 transition-all cursor-pointer"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            <span>Buy Now on WhatsApp</span>
+                          </button>
+                        </div>
                       )}
                     </div>
                   );
@@ -931,16 +989,10 @@ export default function Home() {
         <section id="rental-cars" className="w-full my-6 sm:my-8 scroll-mt-20">
           <CarRentalHeroBanner
             onExploreCars={() => {
-              const el = document.getElementById('rental-tariff-plans');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
+              window.location.href = '/rentals';
             }}
             onOpenBookingModal={() => {
-              const el = document.getElementById('rental-tariff-plans');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
+              window.location.href = '/rentals';
             }}
           />
 
@@ -963,7 +1015,7 @@ export default function Home() {
 
               <div className="flex items-center gap-2.5">
                 <a
-                  href="https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%20car%20in%20Bapatla"
+                  href={`https://wa.me/${(activeStoreWhatsApp || '919999999999').replace(/[^0-9]/g, '')}?text=Hi%20BeMyShopper,%20I%20want%20to%20rent%20a%20car%20in%20Bapatla`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#137A2C] hover:bg-[#0E5C21] text-white text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
@@ -1051,7 +1103,7 @@ export default function Home() {
                             className={`text-xl font-black block leading-tight transition-colors ${selected5SeaterPlan === '6hr' ? 'text-[#9A3412]' : 'text-gray-800'
                               }`}
                           >
-                            ₹900
+                            ₹{rentalTariffs.fiveSeater.plans['6hr'].price.toLocaleString('en-IN')}
                           </span>
                           <span
                             className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected5SeaterPlan === '6hr'
@@ -1059,7 +1111,7 @@ export default function Home() {
                               : 'text-gray-600 bg-gray-100 border-gray-200'
                               }`}
                           >
-                            120 KM Included
+                            {rentalTariffs.fiveSeater.plans['6hr'].km}
                           </span>
                         </div>
                       </div>
@@ -1099,7 +1151,7 @@ export default function Home() {
                             className={`text-xl font-black block leading-tight transition-colors ${selected5SeaterPlan === '12hr' ? 'text-[#9A3412]' : 'text-gray-800'
                               }`}
                           >
-                            ₹1,490
+                            ₹{rentalTariffs.fiveSeater.plans['12hr'].price.toLocaleString('en-IN')}
                           </span>
                           <span
                             className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected5SeaterPlan === '12hr'
@@ -1107,7 +1159,7 @@ export default function Home() {
                               : 'text-gray-600 bg-gray-100 border-gray-200'
                               }`}
                           >
-                            200 KM Included
+                            {rentalTariffs.fiveSeater.plans['12hr'].km}
                           </span>
                         </div>
                       </div>
@@ -1148,7 +1200,7 @@ export default function Home() {
                             className={`text-xl font-black block leading-tight transition-colors ${selected5SeaterPlan === '24hr' ? 'text-[#9A3412]' : 'text-gray-800'
                               }`}
                           >
-                            ₹2,490
+                            ₹{rentalTariffs.fiveSeater.plans['24hr'].price.toLocaleString('en-IN')}
                           </span>
                           <span
                             className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected5SeaterPlan === '24hr'
@@ -1156,7 +1208,7 @@ export default function Home() {
                               : 'text-gray-600 bg-gray-100 border-gray-200'
                               }`}
                           >
-                            400 KM Included
+                            {rentalTariffs.fiveSeater.plans['24hr'].km}
                           </span>
                         </div>
                       </div>
@@ -1166,23 +1218,13 @@ export default function Home() {
 
                 {/* Card 1 Actions */}
                 <div className="p-6 pt-0">
-                  <a
-                    href={`https://wa.me/919999999999?text=${encodeURIComponent(
-                      `Hi BeMyShopper, I want to rent a 5-Seater car in Bapatla for ${
-                        selected5SeaterPlan === '6hr'
-                          ? '6 Hours (120 KM - Rs.900)'
-                          : selected5SeaterPlan === '12hr'
-                          ? '12 Hours (200 KM - Rs.1,490)'
-                          : '24 Hours (400 KM - Rs.2,490)'
-                      }`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href="/rentals?category=5-seater"
                     className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#9A3412] via-[#C2410C] to-[#EA580C] hover:from-[#7C2D12] hover:to-[#C2410C] text-white font-black text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <MessageSquare className="w-4 h-4 text-emerald-300" />
-                    <span>Book 5-Seater on WhatsApp ({selected5SeaterPlan === '6hr' ? '6 Hr • ₹900' : selected5SeaterPlan === '12hr' ? '12 Hr • ₹1,490' : '24 Hr • ₹2,490'})</span>
-                  </a>
+                    <span>Book 5 Seater</span>
+                    <ArrowRight className="w-4 h-4 text-white" />
+                  </Link>
                 </div>
               </div>
 
@@ -1261,7 +1303,7 @@ export default function Home() {
                             className={`text-xl font-black block leading-tight transition-colors ${selected7SeaterPlan === '6hr' ? 'text-[#9A3412]' : 'text-gray-800'
                               }`}
                           >
-                            ₹1,800
+                            ₹{rentalTariffs.sevenSeater.plans['6hr'].price.toLocaleString('en-IN')}
                           </span>
                           <span
                             className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected7SeaterPlan === '6hr'
@@ -1269,7 +1311,7 @@ export default function Home() {
                               : 'text-gray-600 bg-gray-100 border-gray-200'
                               }`}
                           >
-                            120 KM Included
+                            {rentalTariffs.sevenSeater.plans['6hr'].km}
                           </span>
                         </div>
                       </div>
@@ -1309,7 +1351,7 @@ export default function Home() {
                             className={`text-xl font-black block leading-tight transition-colors ${selected7SeaterPlan === '12hr' ? 'text-[#9A3412]' : 'text-gray-800'
                               }`}
                           >
-                            ₹2,490
+                            ₹{rentalTariffs.sevenSeater.plans['12hr'].price.toLocaleString('en-IN')}
                           </span>
                           <span
                             className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected7SeaterPlan === '12hr'
@@ -1317,7 +1359,7 @@ export default function Home() {
                               : 'text-gray-600 bg-gray-100 border-gray-200'
                               }`}
                           >
-                            200 KM Included
+                            {rentalTariffs.sevenSeater.plans['12hr'].km}
                           </span>
                         </div>
                       </div>
@@ -1358,7 +1400,7 @@ export default function Home() {
                             className={`text-xl font-black block leading-tight transition-colors ${selected7SeaterPlan === '24hr' ? 'text-[#9A3412]' : 'text-gray-800'
                               }`}
                           >
-                            ₹3,490
+                            ₹{rentalTariffs.sevenSeater.plans['24hr'].price.toLocaleString('en-IN')}
                           </span>
                           <span
                             className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border transition-all ${selected7SeaterPlan === '24hr'
@@ -1366,7 +1408,7 @@ export default function Home() {
                               : 'text-gray-600 bg-gray-100 border-gray-200'
                               }`}
                           >
-                            400 KM Included
+                            {rentalTariffs.sevenSeater.plans['24hr'].km}
                           </span>
                         </div>
                       </div>
@@ -1376,23 +1418,13 @@ export default function Home() {
 
                 {/* Card 2 Actions */}
                 <div className="p-6 pt-0">
-                  <a
-                    href={`https://wa.me/919999999999?text=${encodeURIComponent(
-                      `Hi BeMyShopper, I want to rent a 7-Seater car in Bapatla for ${
-                        selected7SeaterPlan === '6hr'
-                          ? '6 Hours (120 KM - Rs.1,800)'
-                          : selected7SeaterPlan === '12hr'
-                          ? '12 Hours (200 KM - Rs.2,490)'
-                          : '24 Hours (400 KM - Rs.3,490)'
-                      }`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href="/rentals?category=7-seater"
                     className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#451A03] via-[#78350F] to-[#92400E] hover:from-[#2A1002] hover:to-[#78350F] text-white font-black text-xs sm:text-sm text-center shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <MessageSquare className="w-4 h-4 text-emerald-300" />
-                    <span>Book 7-Seater on WhatsApp ({selected7SeaterPlan === '6hr' ? '6 Hr • ₹1,800' : selected7SeaterPlan === '12hr' ? '12 Hr • ₹2,490' : '24 Hr • ₹3,490'})</span>
-                  </a>
+                    <span>Book 7 Seater</span>
+                    <ArrowRight className="w-4 h-4 text-white" />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -1690,10 +1722,47 @@ export default function Home() {
 
             {/* Footer Summary */}
             {totalCartCount > 0 && (
-              <div className="p-4 sm:p-5 border-t border-gray-100 bg-white space-y-3">
+              <div className="p-4 sm:p-5 border-t border-gray-100 bg-white space-y-3.5 max-h-[55vh] overflow-y-auto">
+                {/* Customer Delivery Details for WhatsApp Order */}
+                <div className="p-3 bg-gray-50 border border-gray-200/80 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-gray-800">
+                    <span className="flex items-center gap-1.5">
+                      <Truck className="w-3.5 h-3.5 text-[#137A2C]" />
+                      <span>Delivery Details (Bapatla)</span>
+                    </span>
+                    <span className="text-[10px] text-[#137A2C] bg-emerald-50 px-2 py-0.5 rounded-full font-bold">
+                      FREE DELIVERY
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5 pt-0.5">
+                    <input
+                      type="text"
+                      value={checkoutCustomerName}
+                      onChange={(e) => setCheckoutCustomerName(e.target.value)}
+                      placeholder="Your Name (e.g. Ramesh Kumar)"
+                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#137A2C]"
+                    />
+                    <input
+                      type="tel"
+                      value={checkoutCustomerPhone}
+                      onChange={(e) => setCheckoutCustomerPhone(e.target.value)}
+                      placeholder="WhatsApp Mobile Number (e.g. 9876543210)"
+                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#137A2C]"
+                    />
+                    <input
+                      type="text"
+                      value={checkoutCustomerAddress}
+                      onChange={(e) => setCheckoutCustomerAddress(e.target.value)}
+                      placeholder="Delivery Address / Landmark in Bapatla"
+                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#137A2C]"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-1.5 text-xs text-gray-600">
                   <div className="flex justify-between">
-                    <span>Subtotal</span>
+                    <span>Subtotal ({totalCartCount} items)</span>
                     <span className="font-semibold text-gray-900">
                       ₹{Object.entries(cartItems).reduce((sum, [id, qty]) => {
                         const item = allProducts.find((e) => e.id === id);
@@ -1704,7 +1773,7 @@ export default function Home() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Delivery Fee</span>
+                    <span>Delivery Fee (Bapatla Town)</span>
                     <span className="text-[#137A2C] font-semibold">FREE</span>
                   </div>
                   <div className="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
@@ -1720,6 +1789,7 @@ export default function Home() {
                   </div>
                 </div>
 
+                {/* Primary WhatsApp Order Action */}
                 <button
                   onClick={async () => {
                     const items = Object.entries(cartItems)
@@ -1736,30 +1806,69 @@ export default function Home() {
                       })
                       .filter((it) => it.quantity > 0);
 
+                    if (items.length === 0) return;
+
                     const totalAmount = items.reduce((sum, it) => sum + it.price * it.quantity, 0);
+                    const finalName = checkoutCustomerName.trim() || user?.name || 'Customer';
+                    const finalPhone = checkoutCustomerPhone.trim() || user?.phone || 'Not specified';
+                    const finalAddress = checkoutCustomerAddress.trim() || user?.address || 'Bapatla, AP';
+
+                    // Format WhatsApp message with complete itemized product list
+                    const itemsText = items
+                      .map(
+                        (it, idx) =>
+                          `${idx + 1}. *${it.name}* ${it.weight ? `(${it.weight})` : ''}\n   ↳ Qty: ${it.quantity} × ₹${it.price} = *₹${it.price * it.quantity}*`
+                      )
+                      .join('\n');
+
+                    const orderMessage = `🛍️ *NEW ORDER - BeMyShopper Bapatla*
+━━━━━━━━━━━━━━━━━━━━━━
+👤 *Customer:* ${finalName}
+📞 *Phone:* ${finalPhone}
+📍 *Delivery Address:* ${finalAddress}
+🗓️ *Date:* ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}, ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+
+📦 *ORDERED PRODUCTS (${items.length} item${items.length > 1 ? 's' : ''}):*
+${itemsText}
+
+━━━━━━━━━━━━━━━━━━━━━━
+💰 *Items Subtotal:* ₹${totalAmount}
+🚚 *Delivery Charges:* FREE (Bapatla Town)
+💵 *TOTAL PAYABLE (COD):* *₹${totalAmount}*
+━━━━━━━━━━━━━━━━━━━━━━
+Please confirm my order and share delivery timing. Thank you!`;
 
                     try {
                       await createOrder({
                         userId: user ? user.id : undefined,
-                        customerName: user?.name || 'Customer',
-                        customerPhone: user?.phone || '9999999999',
+                        customerName: finalName,
+                        customerPhone: finalPhone,
                         customerEmail: user?.email || 'customer@bemyshopper.com',
-                        deliveryAddress: user?.address || 'Bapatla, AP',
+                        deliveryAddress: finalAddress,
                         items,
                         totalAmount,
-                        paymentMethod: 'Cash on Delivery (COD)',
+                        paymentMethod: 'Cash on Delivery (WhatsApp)',
                       });
-                      showToast('Order placed successfully! 🎉');
                     } catch (e) {
                       console.error('Order creation error:', e);
-                      showToast('Order placed successfully! 🎉');
                     }
+
+                    const cleanPhone = (activeStoreWhatsApp || '919999999999').replace(/[^0-9]/g, '');
+                    const targetPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+
+                    window.open(
+                      `https://wa.me/${targetPhone}?text=${encodeURIComponent(orderMessage)}`,
+                      '_blank'
+                    );
+
+                    showToast('Opening WhatsApp with your product order! 🛒📲');
                     clearCart();
                     setIsCartOpen(false);
                   }}
-                  className="w-full py-3 rounded-full bg-[#137A2C] hover:bg-[#0F6323] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#1EBE5D] hover:to-[#0F7569] text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  Proceed to Checkout
+                  <MessageSquare className="w-5 h-5 fill-white" />
+                  <span>Buy Now on WhatsApp</span>
                 </button>
               </div>
             )}
@@ -2088,7 +2197,7 @@ export default function Home() {
 
                 <div className="flex flex-col gap-2 pt-2">
                   <a
-                    href={`https://wa.me/919999999999?text=${encodeURIComponent(
+                    href={`https://wa.me/${(activeStoreWhatsApp || '919999999999').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
                       `Hi BeMyShopper, I would like to book a ${rentalCarType === '5-seater' ? '5-Seater' : '7-Seater'} car for ${rentalDuration}. Name: ${rentalName}, Phone: ${rentalPhone}, Date: ${rentalDate}, Location: ${rentalLocation}`
                     )}`}
                     target="_blank"

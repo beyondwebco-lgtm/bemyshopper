@@ -167,6 +167,7 @@ export const login = mutation({
   args: {
     email: v.string(),
     password: v.string(),
+    device: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const cleanEmail = args.email.trim().toLowerCase();
@@ -177,12 +178,55 @@ export const login = mutation({
       .first();
 
     if (!user) {
+      await ctx.db.insert("userLogins", {
+        email: cleanEmail,
+        timestamp: Date.now(),
+        status: "failed",
+        failureReason: "Account not found",
+        device: args.device || "Browser Session",
+      });
       throw new Error("No account found with this email. Please sign up.");
     }
 
+    if (user.isBlocked) {
+      await ctx.db.insert("userLogins", {
+        userId: user._id,
+        email: cleanEmail,
+        timestamp: Date.now(),
+        status: "blocked",
+        failureReason: "Account suspended by administrator",
+        device: args.device || "Browser Session",
+      });
+      throw new Error("Your account has been suspended by the store administrator. Please contact support.");
+    }
+
     if (user.password !== args.password) {
+      await ctx.db.insert("userLogins", {
+        userId: user._id,
+        email: cleanEmail,
+        timestamp: Date.now(),
+        status: "failed",
+        failureReason: "Incorrect password",
+        device: args.device || "Browser Session",
+      });
       throw new Error("Incorrect password. Please try again.");
     }
+
+    const now = Date.now();
+    const newCount = (user.loginCount || 0) + 1;
+    await ctx.db.patch(user._id, {
+      lastLoginAt: now,
+      loginCount: newCount,
+      updatedAt: now,
+    });
+
+    await ctx.db.insert("userLogins", {
+      userId: user._id,
+      email: cleanEmail,
+      timestamp: now,
+      status: "success",
+      device: args.device || "Browser Session",
+    });
 
     return {
       id: user._id,
@@ -191,6 +235,8 @@ export const login = mutation({
       phone: user.phone,
       role: user.role,
       address: user.address,
+      lastLoginAt: now,
+      loginCount: newCount,
     };
   },
 });
@@ -208,6 +254,9 @@ export const getUser = query({
       phone: user.phone,
       role: user.role,
       address: user.address,
+      isBlocked: !!user.isBlocked,
+      lastLoginAt: user.lastLoginAt,
+      loginCount: user.loginCount || 0,
       createdAt: user.createdAt,
     };
   },
@@ -225,7 +274,9 @@ export const updateProfile = mutation({
     const user = await ctx.db.get(args.userId);
     if (!user) throw new Error("User not found");
 
-    const updates: Partial<{ name: string; phone: string; address: string }> = {};
+    const updates: Partial<{ name: string; phone: string; address: string; updatedAt: number }> = {
+      updatedAt: Date.now(),
+    };
     if (args.name !== undefined) updates.name = args.name.trim();
     if (args.phone !== undefined) updates.phone = args.phone.trim();
     if (args.address !== undefined) updates.address = args.address.trim();
@@ -235,7 +286,7 @@ export const updateProfile = mutation({
   },
 });
 
-// List all registered users (for admin panel)
+// List all registered users (for admin panel) with full login data
 export const listUsers = query({
   args: {},
   handler: async (ctx) => {
@@ -247,8 +298,151 @@ export const listUsers = query({
       phone: u.phone,
       role: u.role,
       address: u.address,
+      password: u.password,
+      isBlocked: !!u.isBlocked,
+      lastLoginAt: u.lastLoginAt,
+      loginCount: u.loginCount || 0,
+      notes: u.notes,
       createdAt: u.createdAt,
+      updatedAt: u.updatedAt,
     }));
+  },
+});
+
+// List customer login history & session audits
+export const listLoginHistory = query({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 50;
+    const logs = await ctx.db
+      .query("userLogins")
+      .order("desc")
+      .take(limit);
+    return logs;
+  },
+});
+
+// Admin: Update Customer Profile Details
+export const adminUpdateUser = mutation({
+  args: {
+    userId: v.id("users"),
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    address: v.optional(v.string()),
+    role: v.optional(v.union(v.literal("admin"), v.literal("user"))),
+    isBlocked: v.optional(v.boolean()),
+    notes: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    if (!user) throw new Error("Customer account not found");
+
+    const updates: Record<string, any> = { updatedAt: Date.now() };
+    if (args.name !== undefined) updates.name = args.name.trim();
+    if (args.email !== undefined) updates.email = args.email.trim().toLowerCase();
+    if (args.phone !== undefined) updates.phone = args.phone.trim();
+    if (args.address !== undefined) updates.address = args.address.trim();
+    if (args.role !== undefined) updates.role = args.role;
+    if (args.isBlocked !== undefined) updates.isBlocked = args.isBlocked;
+    if (args.notes !== undefined) updates.notes = args.notes.trim();
+
+    await ctx.db.patch(args.userId, updates);
+    return { success: true };
+  },
+});
+
+// Admin: Directly View / Change Customer Password
+export const adminSetCustomerPassword = mutation({
+  args: {
+    userId: v.id("users"),
+    newPassword: v.string(),
+  },
+  handler: async (ctx, args) => {
+    if (!args.newPassword || args.newPassword.length < 4) {
+      throw new Error("Password must be at least 4 characters long");
+    }
+    const user = await ctx.db.get(args.userId);
+    if (!user) throw new Error("Customer not found");
+
+    await ctx.db.patch(args.userId, {
+      password: args.newPassword,
+      updatedAt: Date.now(),
+    });
+    return { success: true };
+  },
+});
+
+// Admin: Toggle Customer Account Block / Active Status
+export const adminToggleBlock = mutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    if (!user) throw new Error("Customer not found");
+
+    const nextState = !user.isBlocked;
+    await ctx.db.patch(args.userId, {
+      isBlocked: nextState,
+      updatedAt: Date.now(),
+    });
+    return { success: true, isBlocked: nextState };
+  },
+});
+
+// Admin: Delete Customer Account
+export const adminDeleteUser = mutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    if (!user) throw new Error("Customer not found");
+
+    await ctx.db.delete(args.userId);
+    return { success: true };
+  },
+});
+
+// Admin: Manually Add New Customer
+export const adminCreateUser = mutation({
+  args: {
+    name: v.string(),
+    email: v.string(),
+    password: v.string(),
+    phone: v.optional(v.string()),
+    address: v.optional(v.string()),
+    role: v.optional(v.union(v.literal("admin"), v.literal("user"))),
+    notes: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const cleanEmail = args.email.trim().toLowerCase();
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", cleanEmail))
+      .first();
+
+    if (existing) {
+      throw new Error("An account with this email already exists.");
+    }
+
+    const userId = await ctx.db.insert("users", {
+      name: args.name.trim(),
+      email: cleanEmail,
+      password: args.password,
+      phone: args.phone?.trim(),
+      address: args.address?.trim(),
+      role: args.role ?? "user",
+      isBlocked: false,
+      loginCount: 0,
+      notes: args.notes?.trim(),
+      createdAt: Date.now(),
+    });
+
+    return userId;
   },
 });
 

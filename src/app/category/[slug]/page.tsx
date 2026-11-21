@@ -26,6 +26,7 @@ import {
   MapPin,
   ChevronRight,
   Package,
+  MessageSquare,
 } from 'lucide-react';
 
 // Fallback category configurations
@@ -301,6 +302,8 @@ export default function CategoryPage() {
     category: slug !== 'all' ? slug : undefined,
   });
   const createOrderMutation = useMutation(api.orders.createOrder);
+  const activeWhatsAppQuery = useQuery(api.whatsapp.getActive);
+  const activeStoreWhatsApp = activeWhatsAppQuery || '919999999999';
 
   // Active Category metadata
   const currentCategory = useMemo(() => {
@@ -461,6 +464,36 @@ export default function CategoryPage() {
         totalAmount: cartTotal,
         paymentMethod: 'Cash on Delivery / UPI',
       });
+
+      // Send order to store WhatsApp
+      const itemsText = cartProductList
+        .map(
+          (it, idx) =>
+            `${idx + 1}. *${it.name}* (${it.weight})\n   ↳ Qty: ${it.qty} × ₹${it.price} = *₹${it.price * it.qty}*`
+        )
+        .join('\n');
+
+      const orderMessage = `🛍️ *NEW ORDER - BeMyShopper Bapatla*
+━━━━━━━━━━━━━━━━━━━━━━
+👤 *Customer:* ${customerName.trim() || 'Customer'}
+📞 *Phone:* ${customerPhone.trim() || 'Not specified'}
+📍 *Delivery Address:* ${customerAddress.trim() || 'Bapatla, AP'}
+🆔 *Order #:* ${res?.orderNumber || 'New Order'}
+
+📦 *ORDERED PRODUCTS (${cartProductList.length} item${cartProductList.length > 1 ? 's' : ''}):*
+${itemsText}
+
+━━━━━━━━━━━━━━━━━━━━━━
+💰 *Subtotal:* ₹${cartSubtotal}
+🚚 *Delivery:* ${deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`} (Bapatla Town)
+💵 *TOTAL PAYABLE (COD):* *₹${cartTotal}*
+━━━━━━━━━━━━━━━━━━━━━━
+Please confirm my order and share delivery timing. Thank you!`;
+
+      const cleanPhone = (activeStoreWhatsApp || '919999999999').replace(/[^0-9]/g, '');
+      const targetPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+
+      window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(orderMessage)}`, '_blank');
 
       setOrderSuccess(res?.orderNumber || `BMS-${Date.now().toString().slice(-6)}`);
       setIsCheckoutOpen(false);
@@ -901,13 +934,56 @@ export default function CategoryPage() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full py-3 rounded-2xl bg-[#087D2C] hover:bg-[#066323] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <span>Proceed to Checkout</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                <div className="flex flex-col gap-2 pt-1">
+                  <button
+                    onClick={() => {
+                      if (cartProductList.length === 0) return;
+                      const itemsText = cartProductList
+                        .map(
+                          (it, idx) =>
+                            `${idx + 1}. *${it.name}* (${it.weight})\n   ↳ Qty: ${it.qty} × ₹${it.price} = *₹${it.price * it.qty}*`
+                        )
+                        .join('\n');
+
+                      const orderMessage = `🛍️ *NEW ORDER - BeMyShopper Bapatla*
+━━━━━━━━━━━━━━━━━━━━━━
+👤 *Customer:* ${customerName.trim() || user?.name || 'Customer'}
+📞 *Phone:* ${customerPhone.trim() || user?.phone || 'Not specified'}
+📍 *Delivery Address:* ${customerAddress.trim() || user?.address || 'Bapatla, AP'}
+🗓️ *Date:* ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}, ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+
+📦 *ORDERED PRODUCTS (${cartProductList.length} item${cartProductList.length > 1 ? 's' : ''}):*
+${itemsText}
+
+━━━━━━━━━━━━━━━━━━━━━━
+💰 *Subtotal:* ₹${cartSubtotal}
+🚚 *Delivery:* ${deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`} (Bapatla Town)
+💵 *TOTAL PAYABLE (COD):* *₹${cartTotal}*
+━━━━━━━━━━━━━━━━━━━━━━
+Please confirm my order and share delivery timing. Thank you!`;
+
+                      const cleanPhone = (activeStoreWhatsApp || '919999999999').replace(/[^0-9]/g, '');
+                      const targetPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+
+                      window.open(
+                        `https://wa.me/${targetPhone}?text=${encodeURIComponent(orderMessage)}`,
+                        '_blank'
+                      );
+                    }}
+                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#1EBE5D] hover:to-[#0F7569] text-white text-xs sm:text-sm font-black shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <MessageSquare className="w-4 h-4 fill-white" />
+                    <span>Buy Now on WhatsApp</span>
+                  </button>
+
+                  <button
+                    onClick={() => setIsCheckoutOpen(true)}
+                    className="w-full py-2.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>Delivery Details Checkout</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             )}
           </div>

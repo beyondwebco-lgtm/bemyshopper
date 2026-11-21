@@ -1,0 +1,27 @@
+[
+  {
+    "id": "car_1794900525827_306",
+    "name": "swift",
+    "category": "5-seater",
+    "categoryLabel": "Compact SUV & Hatchback",
+    "tag": "Suryalanka Beach Special",
+    "tagColor": "orange",
+    "images": [
+      "/api/storage/cars/swift-1794904693256-0.png"
+    ],
+    "description": "Well-maintained, fully sanitized, chilled AC with doorstep delivery in Bapatla.",
+    "specs": {
+      "seats": "5 Passengers",
+      "transmission": "Manual & Automatic",
+      "fuel": "Petrol / Diesel",
+      "mileage": "16-18 km/l"
+    },
+    "features": [
+      "High ground clearance ideal for beach rides",
+      "Chilling AC & Bluetooth audio system",
+      "Clean sanitized interior with doorstep handover"
+    ],
+    "isAvailable": true,
+    "createdAt": 1794900525827
+  }
+]

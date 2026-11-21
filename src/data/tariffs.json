@@ -1,0 +1,52 @@
+{
+  "fiveSeater": {
+    "title": "Any 5 Seater",
+    "subtitle": "Maruti Swift • Toyota Etios • Hyundai Venue & more",
+    "tag": "Compact SUV & Hatchback",
+    "passengers": "Up to 5 Passengers",
+    "plans": {
+      "6hr": {
+        "price": 900,
+        "km": "120 KM Included",
+        "description": "Local city rides & short errands"
+      },
+      "12hr": {
+        "price": 1490,
+        "km": "200 KM Included",
+        "description": "Day outings & Suryalanka Beach",
+        "popular": true
+      },
+      "24hr": {
+        "price": 2490,
+        "km": "400 KM Included",
+        "description": "Full day trips & outstation travel",
+        "bestValue": true
+      }
+    }
+  },
+  "sevenSeater": {
+    "title": "Any 7 Seater",
+    "subtitle": "Toyota Innova Crysta • Kia Carens • Maruti Ertiga & more",
+    "tag": "Luxury Family MPV",
+    "passengers": "Up to 7-8 Passengers",
+    "plans": {
+      "6hr": {
+        "price": 1800,
+        "km": "120 KM Included",
+        "description": "Family temple visits & functions"
+      },
+      "12hr": {
+        "price": 2490,
+        "km": "200 KM Included",
+        "description": "Full day family outing & Suryalanka",
+        "popular": true
+      },
+      "24hr": {
+        "price": 3490,
+        "km": "400 KM Included",
+        "description": "Vijayawada, Hyderabad & outstation",
+        "bestValue": true
+      }
+    }
+  }
+}

@@ -18,15 +18,7 @@ export const CarRentalHeroBanner: React.FC<CarRentalHeroBannerProps> = ({
     } else if (onOpenBookingModal) {
       onOpenBookingModal();
     } else {
-      const el = document.getElementById('rental-tariff-plans');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        window.open(
-          'https://wa.me/919999999999?text=Hi%20BeMyShopper,%20I%20would%20like%20to%20explore%20car%20rentals%20in%20Bapatla',
-          '_blank'
-        );
-      }
+      window.location.href = '/rentals';
     }
   };
 
